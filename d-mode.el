@@ -3,9 +3,10 @@
 
 ;; Author:     2007 William Baxter
 ;; Contributors: Andrei Alexandrescu
-;; Maintainer: William Baxter
+;; Contributors: Russel Winder
+;; Maintainer: Russel Winder
 ;; Created:    March 2007
-;; Version:    2.0.4 (February 2008)
+;; Version:    2.0.5-SNAPSHOT (2010-11-13)
 ;; Keywords:   D programming language emacs cc-mode
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -49,6 +50,7 @@
 ;;     individually.  It didn't seem to work right though.
 ;;
 ;; History:
+;;   * 2010-11-13 -- 2.0.5-SNAPSHOT add immutable as a keyword.
 ;;   * 2008 February - 2.0.4 - fixed "else static if" indentation problem, 
 ;;      and also a problem with "debug if()" indentation.
 ;;      Some D2 additions (invariant as type modifier etc).
@@ -148,7 +150,7 @@ operators."
 ;; Keywords that can prefix normal declarations of identifiers
 (c-lang-defconst c-modifier-kwds
   d '("auto" "abstract" "const" "deprecated" "extern" 
-      "final" "lazy" "private" "protected" "public"
+      "final" "immutable" "lazy" "private" "protected" "public"
       "scope" "static" "synchronized" "volatile" "mixin"))
 
 (c-lang-defconst c-class-decl-kwds
@@ -160,7 +162,7 @@ operators."
 ;;   d '("enum"))
 
 (c-lang-defconst c-type-modifier-kwds
-  d '("const" "lazy" "volatile" "invariant" "enum")
+  d '("const" "immutable" "lazy" "volatile" "invariant" "enum")
 )
 (c-lang-defconst c-type-prefix-kwds
   ;; Keywords where the following name - if any - is a type name, and
