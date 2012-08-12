@@ -142,27 +142,28 @@ operators."
 
 ;; Built-in basic types
 (c-lang-defconst c-primitive-type-kwds
-  d '("bit" "byte" "ubyte" "char" "delegate" "double" "float" "function" 
-      "int" "long" "ubyte" "short" "uint" "ulong" "ushort" "cent" "ucent" 
-      "real" "ireal" "ifloat" "creal" "cfloat" "cdouble"
-      "wchar" "dchar" "void"))
+  d '("bit" "bool" "byte" "ubyte" "char" "delegate" "double" "float"
+      "function" "int" "long" "ubyte" "short" "uint" "ulong" "ushort"
+      "cent" "ucent" "real" "ireal" "ifloat" "creal" "cfloat" "cdouble"
+      "wchar" "dchar" "void" "string" "wstring" "dstring"))
 
 ;; Keywords that can prefix normal declarations of identifiers
 (c-lang-defconst c-modifier-kwds
-  d '("auto" "abstract" "const" "deprecated" "extern" 
-      "final" "immutable" "lazy" "private" "protected" "public"
-      "scope" "static" "synchronized" "volatile" "mixin"))
+  d '("__gshared" "auto" "abstract" "const" "deprecated" "extern"
+      "final" "immutable" "inout" "lazy" "mixin" "private" "protected"
+      "public" "scope" "shared" "static" "synchronized" "volatile" ))
 
 (c-lang-defconst c-class-decl-kwds
   ;; Keywords introducing declarations where the following block (if any)
   ;; contains another declaration level that should be considered a class.
-  d '("class" "struct" "union" "interface" "template"))
+  d '("class" "struct" "union" "interface"))
 
 ;; (c-lang-defconst c-brace-list-decl-kwds
 ;;   d '("enum"))
 
 (c-lang-defconst c-type-modifier-kwds
-  d '("const" "immutable" "lazy" "volatile" "invariant" "enum")
+  d '("__gshared" "const" "immutable" "inout" "lazy" "shared" "volatile"
+      "invariant" "enum")
 )
 (c-lang-defconst c-type-prefix-kwds
   ;; Keywords where the following name - if any - is a type name, and
@@ -276,7 +277,8 @@ operators."
 
 (c-lang-defconst c-other-kwds
   ;; Keywords not accounted for by any other `*-kwds' language constant.
-  d '("assert"))
+  d '("__gshared" "__traits" "assert" "cast" "is" "nothrow" "pure" "ref"
+      "sizeof" "template" "typeid" "typeof"))
 
 
 (defcustom d-font-lock-extra-types nil
