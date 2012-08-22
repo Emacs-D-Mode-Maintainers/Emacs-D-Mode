@@ -1,30 +1,31 @@
 ;;; d-mode.el --- D Programming Language mode for (X)Emacs
 ;;;               Requires a cc-mode of version 5.30 or greater
 
-;; Author:     2007 William Baxter
-;; Contributors: Andrei Alexandrescu
-;; Contributors: Russel Winder
-;; Maintainer: Russel Winder
-;; Created:    March 2007
-;; Version:    2.0.5-SNAPSHOT (2010-11-13)
-;; Keywords:   D programming language emacs cc-mode
+;; Author:  2007 William Baxter
+;; Contributors:  Andrei Alexandrescu
+;; Contributors:  Russel Winder
+;; Maintainer:  Russel Winder
+;; Created:  March 2007
+;; Date:  2012-08-22
+;; Version:  2.0.5
+;; Keywords:  D programming language emacs cc-mode
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 2 of the License, or
 ;; (at your option) any later version.
-;; 
+;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
-;; 
+;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program; see the file COPYING.  If not, write to
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 
-;; Usage: 
+;; Usage:
 ;; Put these lines in your .emacs startup file.
 ;;   (autoload 'd-mode "d-mode" "Major mode for editing D code." t)
 ;;   (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
@@ -36,7 +37,7 @@
 ;; Commentary:
 ;;   This mode supports most of D's syntax, including nested /+ +/
 ;;   comments and backquote `string literals`.
-;;   
+;;
 ;;   This mode has been dubbed "2.0" because it is a complete rewrite
 ;;   from scratch.  The previous d-mode was based on cc-mode 5.28 or
 ;;   so.  This version is based on the cc-mode 5.30 derived mode
@@ -51,7 +52,7 @@
 ;;
 ;; History:
 ;;   * 2010-11-13 -- 2.0.5-SNAPSHOT add immutable as a keyword.
-;;   * 2008 February - 2.0.4 - fixed "else static if" indentation problem, 
+;;   * 2008 February - 2.0.4 - fixed "else static if" indentation problem,
 ;;      and also a problem with "debug if()" indentation.
 ;;      Some D2 additions (invariant as type modifier etc).
 ;;   * 2007 April - 2.0.3 - new 'ref' and 'macro' keywords.
@@ -129,7 +130,7 @@ operators."
 
 (c-lang-defconst c-comment-start-regexp  d "/[*+/]")
 (c-lang-defconst c-block-comment-start-regexp d "/[*+]")
-(c-lang-defconst c-literal-start-regexp 
+(c-lang-defconst c-literal-start-regexp
   ;; Regexp to match the start of comments and string literals.
   d "/[*+/]\\|\"\\|`")
 ;;(c-lang-defconst c-comment-prefix-regexp d "//+\\|\\**")
@@ -174,8 +175,8 @@ operators."
 ;;(c-lang-defconst c-other-block-decl-kwds
 ;;  ;; Keywords where the following block (if any) contains another
 ;;  ;; declaration level that should not be considered a class.
-;;  ;; Each of these has associated offsets e.g. 
-;;  ;;   'with-open', 'with-close' and 'inwith' 
+;;  ;; Each of these has associated offsets e.g.
+;;  ;;   'with-open', 'with-close' and 'inwith'
 ;;  ;; that can be customized individually
 ;;  ;;   TODO: maybe also do this for 'static if' ?  in/out?
 ;;  ;;   TODO: figure out how to make this work properly
@@ -232,7 +233,7 @@ operators."
 (c-lang-defconst c-block-stmt-2-kwds
   ;; Statement keywords followed by a paren sexp and then by a substatement.
   d '("for" "if" "switch" "while" "catch" "synchronized" "scope"
-      "foreach" "foreach_reverse" "with" "unittest" 
+      "foreach" "foreach_reverse" "with" "unittest"
       "else static if" "else"))
 
 (c-lang-defconst c-simple-stmt-kwds
@@ -305,14 +306,14 @@ operators."
 	   ;; Make it recognize D `backquote strings`
 	   (modify-syntax-entry ?` "\"" table)
 
-	   ;; Make it recognize D's nested /+ +/ comments 
+	   ;; Make it recognize D's nested /+ +/ comments
 	   (modify-syntax-entry ?+  ". 23n"   table)
 	   table)))
 
 (defvar d-mode-abbrev-table nil
   "Abbreviation table used in d-mode buffers.")
 (c-define-abbrev-table 'd-mode-abbrev-table
-  ;; Use the abbrevs table to trigger indentation actions 
+  ;; Use the abbrevs table to trigger indentation actions
   ;; on keywords that, if they occur first on a line, might alter the
   ;; syntactic context.
   ;; Syntax for abbrevs is:
