@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder
 ;; Created:  March 2007
 ;; Date:  2012-08-22
-;; Version:  2.0.5
+;; Version:  2.0.6-SNAPSHOT
 ;; Keywords:  D programming language emacs cc-mode
 
 ;; This program is free software; you can redistribute it and/or modify
