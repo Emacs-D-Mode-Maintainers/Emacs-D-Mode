@@ -368,7 +368,7 @@ operators."
 ;;;###autoload (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
 
 ;;;###autoload
-(defun d-mode ()
+(define-derived-mode d-mode prog-mode "D"
   "Major mode for editing code written in the D Programming Language.
 See http://www.digitalmars.com/d for more information about the D language.
 The hook `c-mode-common-hook' is run with no args at mode
@@ -376,14 +376,15 @@ initialization, then `d-mode-hook'.
 
 Key bindings:
 \\{d-mode-map}"
-  (interactive)
-  (kill-all-local-variables)
+  ;; (interactive)
+  ;; (kill-all-local-variables)
   (c-initialize-cc-mode t)
   (set-syntax-table d-mode-syntax-table)
-  (setq major-mode 'd-mode
-	mode-name "D"
-	local-abbrev-table d-mode-abbrev-table
-	abbrev-mode t)
+  (setq
+   ;; major-mode 'd-mode
+   ;; mode-name "D"
+   local-abbrev-table d-mode-abbrev-table
+   abbrev-mode t)
   (use-local-map d-mode-map)
   (c-init-language-vars d-mode)
   (c-common-init 'd-mode)
