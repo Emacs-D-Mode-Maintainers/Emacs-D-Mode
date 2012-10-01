@@ -376,15 +376,10 @@ initialization, then `d-mode-hook'.
 
 Key bindings:
 \\{d-mode-map}"
-  ;; (interactive)
-  ;; (kill-all-local-variables)
   (c-initialize-cc-mode t)
   (set-syntax-table d-mode-syntax-table)
-  (setq
-   ;; major-mode 'd-mode
-   ;; mode-name "D"
-   local-abbrev-table d-mode-abbrev-table
-   abbrev-mode t)
+  (setq local-abbrev-table d-mode-abbrev-table
+        abbrev-mode t)
   (use-local-map d-mode-map)
   (c-init-language-vars d-mode)
   (c-common-init 'd-mode)
