@@ -367,6 +367,10 @@ operators."
 ;;----------------------------------------------------------------------------
 ;;;###autoload (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
 
+;; For compatibility with Emacs < 24
+(defalias 'd-parent-mode
+  (if (functionp 'prog-mode) 'prog-mode 'fundamental-mode))
+
 ;;;###autoload
 (define-derived-mode d-mode prog-mode "D"
   "Major mode for editing code written in the D Programming Language.
