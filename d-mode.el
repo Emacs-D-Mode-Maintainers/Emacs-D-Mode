@@ -219,7 +219,7 @@ operators."
 (c-lang-defconst c-paren-nontype-kwds
   ;;Keywords that may be followed by a parenthesis expression that doesn't
   ;; contain type identifiers.
-  d '("version" "extern" "macro" "mixin"))
+  d '("version" "debug" "extern" "macro" "mixin"))
 
 (c-lang-defconst c-paren-type-kwds
   ;; Keywords that may be followed by a parenthesis expression containing
