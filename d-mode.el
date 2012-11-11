@@ -111,7 +111,8 @@
 
 (c-lang-defconst c-assignment-operators
   ;; List of all assignment operators.
-  d  '("=" "*=" "/=" "%=" "+=" "-=" ">>=" "<<=" ">>>=" "&=" "^=" "|=" "~="))
+  d  '("=" "*=" "/=" "%=" "+=" "-=" ">>=" "<<=" ">>>=" "&=" "^=" "^^="
+       "|=" "~="))
 
 (c-lang-defconst c-other-op-syntax-tokens
   "List of the tokens made up of characters in the punctuation or
