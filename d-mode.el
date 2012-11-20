@@ -111,7 +111,8 @@
 
 (c-lang-defconst c-assignment-operators
   ;; List of all assignment operators.
-  d  '("=" "*=" "/=" "%=" "+=" "-=" ">>=" "<<=" ">>>=" "&=" "^=" "|=" "~="))
+  d  '("=" "*=" "/=" "%=" "+=" "-=" ">>=" "<<=" ">>>=" "&=" "^=" "^^="
+       "|=" "~="))
 
 (c-lang-defconst c-other-op-syntax-tokens
   "List of the tokens made up of characters in the punctuation or
@@ -151,8 +152,9 @@ operators."
 ;; Keywords that can prefix normal declarations of identifiers
 (c-lang-defconst c-modifier-kwds
   d '("__gshared" "auto" "abstract" "const" "deprecated" "extern"
-      "final" "immutable" "inout" "lazy" "mixin" "private" "protected"
-      "public" "scope" "shared" "static" "synchronized" "volatile" ))
+      "final" "immutable" "inout" "lazy" "mixin" "override" "private"
+      "protected" "public" "scope" "shared" "static" "synchronized"
+      "volatile"))
 
 (c-lang-defconst c-class-decl-kwds
   ;; Keywords introducing declarations where the following block (if any)
@@ -219,7 +221,7 @@ operators."
 (c-lang-defconst c-paren-nontype-kwds
   ;;Keywords that may be followed by a parenthesis expression that doesn't
   ;; contain type identifiers.
-  d '("version" "extern" "macro" "mixin"))
+  d '("version" "debug" "extern" "macro" "mixin"))
 
 (c-lang-defconst c-paren-type-kwds
   ;; Keywords that may be followed by a parenthesis expression containing
@@ -369,7 +371,7 @@ operators."
 
 ;; For compatibility with Emacs < 24
 (defalias 'd-parent-mode
-  (if (functionp 'prog-mode) 'prog-mode 'fundamental-mode))
+  (if (fboundp 'prog-mode) 'prog-mode 'fundamental-mode))
 
 ;;;###autoload
 (define-derived-mode d-mode d-parent-mode "D"
