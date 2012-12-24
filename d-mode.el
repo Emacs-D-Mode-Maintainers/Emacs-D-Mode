@@ -166,8 +166,8 @@ operators."
 
 (c-lang-defconst c-type-modifier-kwds
   d '("__gshared" "const" "immutable" "inout" "lazy" "shared" "volatile"
-      "invariant" "enum")
-)
+      "invariant" "enum"))
+
 (c-lang-defconst c-type-prefix-kwds
   ;; Keywords where the following name - if any - is a type name, and
   ;; where the keyword together with the symbol works as a type in
@@ -226,7 +226,7 @@ operators."
 (c-lang-defconst c-paren-type-kwds
   ;; Keywords that may be followed by a parenthesis expression containing
   ;; type identifiers separated by arbitrary tokens.
-  d  '("throw"))
+  d  '("delete" "throw"))
 
 (c-lang-defconst c-block-stmt-1-kwds
   ;; Statement keywords followed directly by a substatement.
