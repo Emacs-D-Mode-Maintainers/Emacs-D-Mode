@@ -6,8 +6,8 @@
 ;; Contributors:  Russel Winder
 ;; Maintainer:  Russel Winder
 ;; Created:  March 2007
-;; Date:  2012-08-22
-;; Version:  2.0.6-SNAPSHOT
+;; Date:  2013-07-07
+;; Version:  2.0.6-RC-1
 ;; Keywords:  D programming language emacs cc-mode
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -45,20 +45,14 @@
 ;;
 ;;
 ;; TODO:
-;;   * I tried making "with" "version" and "extern" be their own
-;;     c-other-block-decl-kwds.  Which is supposed to mean that you
-;;     can control the indentation on the block following them
-;;     individually.  It didn't seem to work right though.
+;;   Issues with this code are managed via the project issue management
+;;   on GitHub: https://github.com/Emacs-D-Mode-Maintainers/Emacs-D-Mode/issues?state=open
+;;
 ;;
 ;; History:
-;;   * 2010-11-13 -- 2.0.5-SNAPSHOT add immutable as a keyword.
-;;   * 2008 February - 2.0.4 - fixed "else static if" indentation problem,
-;;      and also a problem with "debug if()" indentation.
-;;      Some D2 additions (invariant as type modifier etc).
-;;   * 2007 April - 2.0.3 - new 'ref' and 'macro' keywords.
-;;   * 2007 March 3 - Verision 2.0.1 - bugfixes for emacs 21 and
-;;      user-installed cc-mode.  Byte compilation was failing.
-;;   * 2007 March 3 - Release of 2.0.0 version
+;;   History is tracked in the Git repository rather than in this file.
+;;   See https://github.com/Emacs-D-Mode-Maintainers/Emacs-D-Mode/commits/master
+;;
 
 ;;----------------------------------------------------------------------------
 ;; Code:
@@ -154,7 +148,7 @@ operators."
   d '("__gshared" "auto" "abstract" "const" "deprecated" "extern"
       "final" "immutable" "inout" "lazy" "mixin" "override" "private"
       "protected" "public" "scope" "shared" "static" "synchronized"
-      "volatile"))
+      "volatile" "__vector"))
 
 (c-lang-defconst c-class-decl-kwds
   ;; Keywords introducing declarations where the following block (if any)
@@ -166,7 +160,7 @@ operators."
 
 (c-lang-defconst c-type-modifier-kwds
   d '("__gshared" "const" "immutable" "inout" "lazy" "shared" "volatile"
-      "invariant" "enum"))
+      "invariant" "enum" "__vector"))
 
 (c-lang-defconst c-type-prefix-kwds
   ;; Keywords where the following name - if any - is a type name, and
