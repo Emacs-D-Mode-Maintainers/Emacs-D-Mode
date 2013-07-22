@@ -6,8 +6,8 @@
 ;; Contributors:  Russel Winder
 ;; Maintainer:  Russel Winder
 ;; Created:  March 2007
-;; Date:  2013-07-07
-;; Version:  2.0.6-RC-1
+;; Date:  2013-07-22
+;; Version:  2.0.6
 ;; Keywords:  D programming language emacs cc-mode
 
 ;; This program is free software; you can redistribute it and/or modify
