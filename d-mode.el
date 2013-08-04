@@ -369,21 +369,46 @@ operators."
 (easy-menu-define d-menu d-mode-map "D Mode Commands"
   (cons "D" (c-lang-const c-mode-menu d)))
 
+(defconst d-imenu-method-name-pattern
+  (concat
+   "^\\s-*"
+   "\\(?:[_a-z@]+\\s-+\\)*"             ; qualifiers
+   "\\([][_a-zA-Z0-9.!]+\\)\\s-+"       ; type
+   "\\([_a-zA-Z0-9]+\\)\\s-*"           ; function name
+   "\\(?:([^)]*)\\s-*\\)?"              ; type arguments
+   "([^)]*)\\s-*"                       ; arguments
+   "\\(?:[a-z]+\\s-*\\)?"               ; pure/const etc.
+   "\\(?:;\\|[ \t\n]*\\(?:if\\|{\\)\\)")) ; ';' or 'if' or '{'
+
+(defun d-imenu-method-index-function ()
+  (and
+   (let ((pt))
+     (setq pt (re-search-backward d-imenu-method-name-pattern nil t))
+     ;; The method name regexp will match lines like
+     ;; "return foo(x);" or "static if(x) {"
+     ;; so we exclude type name 'static' or 'return' here
+     (while (let ((type (match-string 1)))
+              (and type
+                   (or (string= type "static")
+                       (string= type "return"))))
+       (setq pt (re-search-backward d-imenu-method-name-pattern nil t)))
+     pt)
+   ;; Do not count invisible definitions.
+   (let ((invis (invisible-p (point))))
+     (or (not invis)
+         (progn
+           (while (and invis
+                       (not (bobp)))
+             (setq invis (not (re-search-backward
+                               d-imenu-method-name-pattern nil 'move))))
+           (not invis))))))
+
 (defvar d-imenu-generic-expression
   `(("*Classes*" "^\\s-*\\<class\\s-+\\([a-zA-Z0-9_]+\\)" 1)
 	("*Interfaces*" "^\\s-*\\<interface\\s-+\\([a-zA-Z0-9_]+\\)" 1)
 	("*Structs*" "^\\s-*\\<struct\\s-+\\([a-zA-Z0-9_]+\\)" 1)
 	("*Templates*" "^\\s-*\\(?:mixin\\s-+\\)?\\<template\\s-+\\([a-zA-Z0-9_]+\\)" 1)
-    (nil 
-	 ,(concat
-	   "^\\s-*"
-	   "\\(?:[_a-z@]+\\s-+\\)*"			; qualifiers
-	   "\\(?:[][_a-zA-Z0-9.!]+\\)\\s-+"	; type
-	   "\\([_a-zA-Z0-9]+\\)\\s-*"		; function name
-	   "\\(?:([^)]*)\\s-*\\)?"			; type arguments
-	   "([^)]*)\\s-*"					; arguments
-	   "\\(?:[a-z]+\\s-*\\)?"			; pure/const etc.
-	   "\\(?:;\\|[ \t\n]*{\\)") 1)))	; ; or {
+    (nil d-imenu-method-index-function 2)))
 
 ;;----------------------------------------------------------------------------
 ;;;###autoload (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
