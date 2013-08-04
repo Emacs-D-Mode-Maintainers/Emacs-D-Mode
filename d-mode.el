@@ -77,6 +77,15 @@
   ;; constants are evaluated then.
   (c-add-language 'd-mode 'java-mode))
 
+;; D has pointers
+(c-lang-defconst c-type-decl-prefix-key
+  d (concat "\\("
+		   "[*\(]"
+		   "\\|"
+		   (c-lang-const c-type-decl-prefix-key)
+		   "\\)"
+		   "\\([^=]\\|$\\)"))
+
 (c-lang-defconst c-identifier-ops
   ;; For recognizing "~this", ".foo", and "foo.bar.baz" as identifiers
   d '((prefix "~")(prefix ".")(left-assoc ".")))
@@ -145,22 +154,22 @@ operators."
 
 ;; Keywords that can prefix normal declarations of identifiers
 (c-lang-defconst c-modifier-kwds
-  d '("__gshared" "auto" "abstract" "const" "deprecated" "extern"
-      "final" "immutable" "inout" "lazy" "mixin" "override" "private"
-      "protected" "public" "scope" "shared" "static" "synchronized"
-      "volatile" "__vector"))
+  d '("__gshared" "abstract" "const" "deprecated" "extern"
+      "final" "in" "out" "inout" "lazy" "mixin" "override" "private"
+      "protected" "public" "ref" "scope" "shared" "static" "synchronized"
+      "volatile"))
 
 (c-lang-defconst c-class-decl-kwds
   ;; Keywords introducing declarations where the following block (if any)
   ;; contains another declaration level that should be considered a class.
-  d '("class" "struct" "union" "interface"))
+  d '("class" "struct" "union" "interface" "template"))
 
 ;; (c-lang-defconst c-brace-list-decl-kwds
 ;;   d '("enum"))
 
 (c-lang-defconst c-type-modifier-kwds
-  d '("__gshared" "const" "immutable" "inout" "lazy" "shared" "volatile"
-      "invariant" "enum" "__vector"))
+  d '("__gshared" "const" "inout" "lazy" "shared" "volatile"
+      "invariant" "enum"))
 
 (c-lang-defconst c-type-prefix-kwds
   ;; Keywords where the following name - if any - is a type name, and
@@ -275,7 +284,7 @@ operators."
 (c-lang-defconst c-other-kwds
   ;; Keywords not accounted for by any other `*-kwds' language constant.
   d '("__gshared" "__traits" "assert" "cast" "is" "nothrow" "pure" "ref"
-      "sizeof" "template" "typeid" "typeof"))
+      "sizeof" "typeid" "typeof"))
 
 
 (defcustom d-font-lock-extra-types nil
@@ -360,6 +369,47 @@ operators."
 (easy-menu-define d-menu d-mode-map "D Mode Commands"
   (cons "D" (c-lang-const c-mode-menu d)))
 
+(defconst d-imenu-method-name-pattern
+  (concat
+   "^\\s-*"
+   "\\(?:[_a-z@]+\\s-+\\)*"             ; qualifiers
+   "\\([][_a-zA-Z0-9.!]+\\)\\s-+"       ; type
+   "\\([_a-zA-Z0-9]+\\)\\s-*"           ; function name
+   "\\(?:([^)]*)\\s-*\\)?"              ; type arguments
+   "([^)]*)\\s-*"                       ; arguments
+   "\\(?:[a-z]+\\s-*\\)?"               ; pure/const etc.
+   "\\(?:;\\|[ \t\n]*\\(?:if\\|{\\)\\)")) ; ';' or 'if' or '{'
+
+(defun d-imenu-method-index-function ()
+  (and
+   (let ((pt))
+     (setq pt (re-search-backward d-imenu-method-name-pattern nil t))
+     ;; The method name regexp will match lines like
+     ;; "return foo(x);" or "static if(x) {"
+     ;; so we exclude type name 'static' or 'return' here
+     (while (let ((type (match-string 1)))
+              (and type
+                   (or (string= type "static")
+                       (string= type "return"))))
+       (setq pt (re-search-backward d-imenu-method-name-pattern nil t)))
+     pt)
+   ;; Do not count invisible definitions.
+   (let ((invis (invisible-p (point))))
+     (or (not invis)
+         (progn
+           (while (and invis
+                       (not (bobp)))
+             (setq invis (not (re-search-backward
+                               d-imenu-method-name-pattern nil 'move))))
+           (not invis))))))
+
+(defvar d-imenu-generic-expression
+  `(("*Classes*" "^\\s-*\\<class\\s-+\\([a-zA-Z0-9_]+\\)" 1)
+	("*Interfaces*" "^\\s-*\\<interface\\s-+\\([a-zA-Z0-9_]+\\)" 1)
+	("*Structs*" "^\\s-*\\<struct\\s-+\\([a-zA-Z0-9_]+\\)" 1)
+	("*Templates*" "^\\s-*\\(?:mixin\\s-+\\)?\\<template\\s-+\\([a-zA-Z0-9_]+\\)" 1)
+    (nil d-imenu-method-index-function 2)))
+
 ;;----------------------------------------------------------------------------
 ;;;###autoload (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
 
@@ -385,7 +435,18 @@ Key bindings:
   (c-common-init 'd-mode)
   (easy-menu-add d-menu)
   (c-run-mode-hooks 'c-mode-common-hook 'd-mode-hook)
-  (c-update-modeline))
+  (c-update-modeline)
+  (setq imenu-generic-expression d-imenu-generic-expression))
+
+(font-lock-add-keywords
+ 'd-mode
+ '(("\\<\\(auto\\|immutable\\)\\>" 1 font-lock-keyword-face)
+   ("^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9]+\\)[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*;"
+    (1 font-lock-type-face)
+    (2 font-lock-variable-name-face))
+   ("^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9]+\\)[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*("
+    (1 font-lock-type-face)
+    (2 font-lock-function-name-face))))
 
 
 (provide 'd-mode)
