@@ -157,7 +157,7 @@ operators."
   d '("__gshared" "abstract" "const" "deprecated" "extern"
       "final" "in" "out" "inout" "lazy" "mixin" "override" "private"
       "protected" "public" "ref" "scope" "shared" "static" "synchronized"
-      "volatile"))
+      "volatile" "__vector"))
 
 (c-lang-defconst c-class-decl-kwds
   ;; Keywords introducing declarations where the following block (if any)
@@ -169,7 +169,7 @@ operators."
 
 (c-lang-defconst c-type-modifier-kwds
   d '("__gshared" "const" "inout" "lazy" "shared" "volatile"
-      "invariant" "enum"))
+      "invariant" "enum" "__vector"))
 
 (c-lang-defconst c-type-prefix-kwds
   ;; Keywords where the following name - if any - is a type name, and
