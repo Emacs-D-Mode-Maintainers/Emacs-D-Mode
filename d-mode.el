@@ -373,7 +373,7 @@ operators."
   (concat
    "^\\s-*"
    "\\(?:[_a-z@]+\\s-+\\)*"             ; qualifiers
-   "\\([][_a-zA-Z0-9.!]+\\)\\s-+"       ; type
+   "\\([][_a-zA-Z0-9.*!]+\\)\\s-+"      ; type
    "\\([_a-zA-Z0-9]+\\)\\s-*"           ; function name
    "\\(?:([^)]*)\\s-*\\)?"              ; type arguments
    "([^)]*)\\s-*"                       ; arguments
@@ -441,10 +441,10 @@ Key bindings:
 (font-lock-add-keywords
  'd-mode
  '(("\\<\\(auto\\|immutable\\)\\>" 1 font-lock-keyword-face)
-   ("^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9]+\\)[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*;"
+   ("^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([][_a-zA-Z0-9.*!]+\\)[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*;"
     (1 font-lock-type-face)
     (2 font-lock-variable-name-face))
-   ("^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9]+\\)[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*("
+   ("^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([][_a-zA-Z0-9.*!]+\\)[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*("
     (1 font-lock-type-face)
     (2 font-lock-function-name-face))))
 
