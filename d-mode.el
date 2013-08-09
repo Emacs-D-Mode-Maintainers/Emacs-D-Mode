@@ -394,7 +394,8 @@ operators."
      (while (let ((type (match-string 1)))
               (and type
                    (or (string= type "static")
-                       (string= type "return"))))
+                       (string= type "return")
+                       (string= type "new"))))
        (setq pt (re-search-backward d-imenu-method-name-pattern nil t)))
      pt)
    ;; Do not count invisible definitions.
@@ -442,15 +443,46 @@ Key bindings:
   (c-update-modeline)
   (setq imenu-generic-expression d-imenu-generic-expression))
 
+;; Hideous hacks!
+;; 
+;; * auto/immutable: If we leve them in c-modifier-kwds (like
+;;   c++-mode) then in the form "auto var;" var will be highlighted in
+;;   type name face. Moving auto/immutable to font-lock-add-keywords
+;;   lets cc-mode seeing them as a type name, so the next symbol can
+;;   be fontified as a variable.
+;; 
+;; * public/protected/private appear both in c-modifier-kwds and in
+;;   c-protection-kwds. This causes cc-mode to fail parsing the first
+;;   declaration after an access level label (because cc-mode trys to
+;;   parse them as modifier but will fail due to the colon). But
+;;   unfortunately we cannot remove them from either c-modifier-kwds
+;;   or c-protection-kwds. Removing them from the former causes valid
+;;   syntax like "private int foo() {}" to fail. Removing them from
+;;   the latter cause indentation of the access level labels to
+;;   fail. The solution used here is to use font-lock-add-keywords to
+;;   add back the syntax highlight.
+
+(defconst d-var-decl-pattern "^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9.!]+\\)\\(?:\\[[^]]*\\]\\|\\*\\)?[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*;")
+(defconst d-fun-decl-pattern "^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9.!]+\\)\\(?:\\[[^]]*\\]\\|\\*\\)?[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*(")
+(defmacro d-try-match-decl (regex)
+  `(let ((pt))
+     (setq pt (re-search-forward ,regex limit t))
+     (while (let ((type (match-string 1)))
+              (and pt type
+                   (save-match-data
+                     (string-match (c-lang-const c-regular-keywords-regexp) type))))
+       (setq pt (re-search-forward ,regex limit t)))
+     pt))
+(defun d-match-var-decl (limit)
+  (d-try-match-decl d-var-decl-pattern))
+(defun d-match-fun-decl (limit)
+  (d-try-match-decl d-fun-decl-pattern))
+
 (font-lock-add-keywords
  'd-mode
- '(("\\<\\(auto\\|immutable\\)\\>" 1 font-lock-keyword-face)
-   ("^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9.!]+\\)\\(?:\\[[^]]*\\]\\|\\*\\)?[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*;"
-    (1 font-lock-type-face)
-    (2 font-lock-variable-name-face))
-   ("^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9.!]+\\)\\(?:\\[[^]]*\\]\\|\\*\\)?[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*("
-    (1 font-lock-type-face)
-    (2 font-lock-function-name-face)))
+ '(("\\<\\(auto\\|immutable\\)\\>" 1 font-lock-keyword-face t)
+   (d-match-var-decl (1 font-lock-type-face) (2 font-lock-variable-name-face))
+   (d-match-fun-decl (1 font-lock-type-face) (2 font-lock-function-name-face)))
  t)
 
 
