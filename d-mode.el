@@ -223,7 +223,7 @@ operators."
 (c-lang-defconst c-colon-type-list-kwds
   ;; Keywords that may be followed (not necessarily directly) by a colon
   ;; and then a comma separated list of type identifiers.
-  d  '("class" "enum"))
+  d  '("class" "enum" "interface"))
 
 (c-lang-defconst c-paren-nontype-kwds
   ;;Keywords that may be followed by a parenthesis expression that doesn't
