@@ -147,6 +147,11 @@ operators."
  ;; doc comments for D use "///",  "/**" or doxygen's "/*!" "//!"
  d "/\\*[*!]\\|//[/!]")
 
+(c-lang-defconst c-block-prefix-disallowed-chars
+  ;; Allow ':' for inherit list starters.
+  d (set-difference (c-lang-const c-block-prefix-disallowed-chars)
+				 '(?:)))
+
 ;;----------------------------------------------------------------------------
 
 ;; Built-in basic types
