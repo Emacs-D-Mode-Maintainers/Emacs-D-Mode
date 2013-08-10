@@ -125,13 +125,8 @@
   "List of the tokens made up of characters in the punctuation or
 parenthesis syntax classes that have uses other than as expression
 operators."
-
-;  Emergency Emacs 23 fixes from http://www.prowiki.org/wiki4d/wiki.cgi?EditorSupport/EmacsDMode
-
-;  d (append '("/+" "+/" "..." ".." "!" "*" "&")
-;	    (c-lang-const c-other-op-syntax-tokens)))
-
-  d '("/+" "+/" "..." ".." "!" "*" "&"))
+ d (append '("/+" "+/" "..." ".." "!" "*" "&")
+	    (c-lang-const c-other-op-syntax-tokens)))
 
 (c-lang-defconst c-block-comment-starter d "/*")
 (c-lang-defconst c-block-comment-ender   d "*/")
@@ -197,13 +192,8 @@ operators."
 ;;  d '("with" "version" "extern"))
 
 (c-lang-defconst c-typedef-decl-kwds
-
-;  Emergency Emacs 23 fixes from http://www.prowiki.org/wiki4d/wiki.cgi?EditorSupport/EmacsDMode
-
-;  d (append (c-lang-const c-typedef-decl-kwds)
-;	    '("typedef" "alias")))
-
-   d '("typedef" "alias"))
+ d (append (c-lang-const c-typedef-decl-kwds)
+	    '("typedef" "alias")))
 
 (c-lang-defconst c-decl-hangon-kwds
   d '("export"))
