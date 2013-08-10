@@ -483,10 +483,12 @@ Key bindings:
   (d-try-match-decl d-var-decl-pattern))
 (defun d-match-fun-decl (limit)
   (d-try-match-decl d-fun-decl-pattern))
+(defun d-match-auto (limit)
+  (c-syntactic-re-search-forward "\\<\\(auto\\|immutable\\)\\>" limit t))
 
 (font-lock-add-keywords
  'd-mode
- '(("\\<\\(auto\\|immutable\\)\\>" 1 font-lock-keyword-face t)
+ '((d-match-auto 1 font-lock-keyword-face t)
    (d-match-var-decl (1 font-lock-type-face) (2 font-lock-variable-name-face))
    (d-match-fun-decl (1 font-lock-type-face) (2 font-lock-function-name-face)))
  t)
