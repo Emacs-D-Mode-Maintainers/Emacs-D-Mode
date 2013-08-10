@@ -394,10 +394,9 @@ operators."
      ;; "return foo(x);" or "static if(x) {"
      ;; so we exclude type name 'static' or 'return' here
      (while (let ((type (match-string 1)))
-              (and type
-                   (or (string= type "static")
-                       (string= type "return")
-                       (string= type "new"))))
+              (and pt type
+                   (save-match-data
+                     (string-match (c-lang-const c-regular-keywords-regexp) type))))
        (setq pt (re-search-backward d-imenu-method-name-pattern nil t)))
      pt)
    ;; Do not count invisible definitions.
