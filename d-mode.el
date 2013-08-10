@@ -205,7 +205,9 @@ operators."
 
 (c-lang-defconst c-protection-kwds
   ;; Access protection label keywords in classes.
-  d '("export" "private" "package" "protected" "public"))
+  d '("deprecated" "static" "extern" "final" "synchronized" "override"
+      "abstract" "scope" "const" "inout" "shared" "__gshared"
+      "private" "package" "protected" "public" "export"))
 
 ;;(c-lang-defconst c-postfix-decl-spec-kwds
 ;;  ;Keywords introducing extra declaration specifiers in the region
@@ -462,7 +464,7 @@ Key bindings:
 ;;   fail. The solution used here is to use font-lock-add-keywords to
 ;;   add back the syntax highlight.
 
-(defconst d-var-decl-pattern "^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9.!]+\\)\\(?:\\[[^]]*\\]\\|\\*\\)?[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*;")
+(defconst d-var-decl-pattern "^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9.!]+\\)\\(?:\\[[^]]*\\]\\|\\*\\)?[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*[;=]")
 (defconst d-fun-decl-pattern "^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9.!]+\\)\\(?:\\[[^]]*\\]\\|\\*\\)?[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*(")
 (defmacro d-try-match-decl (regex)
   `(let ((pt))
