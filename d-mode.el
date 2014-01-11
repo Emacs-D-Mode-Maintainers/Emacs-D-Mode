@@ -438,7 +438,7 @@ Key bindings:
   (easy-menu-add d-menu)
   (c-run-mode-hooks 'c-mode-common-hook 'd-mode-hook)
   (c-update-modeline)
-  (setq imenu-generic-expression d-imenu-generic-expression))
+  (cc-imenu-init d-imenu-generic-expression))
 
 ;; Hideous hacks!
 ;; 
