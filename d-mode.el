@@ -26,7 +26,7 @@
 ;; Boston, MA 02111-1307, USA.
 
 ;; Usage:
-;; Put these lines in your .emacs startup file.
+;; Put these lines in your init file.
 ;;   (autoload 'd-mode "d-mode" "Major mode for editing D code." t)
 ;;   (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
 ;;
