@@ -429,7 +429,6 @@ initialization, then `d-mode-hook'.
 Key bindings:
 \\{d-mode-map}"
   (c-initialize-cc-mode t)
-  (set-syntax-table d-mode-syntax-table)
   (setq local-abbrev-table d-mode-abbrev-table
         abbrev-mode t)
   (use-local-map d-mode-map)
