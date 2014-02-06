@@ -26,7 +26,7 @@
 ;; Boston, MA 02111-1307, USA.
 
 ;; Usage:
-;; Put these lines in your .emacs startup file.
+;; Put these lines in your init file.
 ;;   (autoload 'd-mode "d-mode" "Major mode for editing D code." t)
 ;;   (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
 ;;
@@ -64,7 +64,7 @@
 ;; related constants could additionally be put inside an
 ;; (eval-after-load "font-lock" ...) but then some trickery is
 ;; necessary to get them compiled.)
-;; Coment out 'when-compile part for debugging
+;; Comment out 'when-compile part for debugging
 (eval-when-compile
   (require 'cc-langs)
   (require 'cc-fonts)
@@ -429,7 +429,6 @@ initialization, then `d-mode-hook'.
 Key bindings:
 \\{d-mode-map}"
   (c-initialize-cc-mode t)
-  (set-syntax-table d-mode-syntax-table)
   (setq local-abbrev-table d-mode-abbrev-table
         abbrev-mode t)
   (use-local-map d-mode-map)
@@ -438,7 +437,7 @@ Key bindings:
   (easy-menu-add d-menu)
   (c-run-mode-hooks 'c-mode-common-hook 'd-mode-hook)
   (c-update-modeline)
-  (setq imenu-generic-expression d-imenu-generic-expression))
+  (cc-imenu-init d-imenu-generic-expression))
 
 ;; Hideous hacks!
 ;; 
