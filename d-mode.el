@@ -6,7 +6,7 @@
 ;; Contributors:  Russel Winder
 ;; Maintainer:  Russel Winder
 ;; Created:  March 2007
-;; Date:  2013-07-22
+;; Date:  2014-02-06
 ;; Version:  2.0.7-SNAPSHOT
 ;; Keywords:  D programming language emacs cc-mode
 
@@ -440,13 +440,13 @@ Key bindings:
   (cc-imenu-init d-imenu-generic-expression))
 
 ;; Hideous hacks!
-;; 
+;;
 ;; * auto/immutable: If we leve them in c-modifier-kwds (like
 ;;   c++-mode) then in the form "auto var;" var will be highlighted in
 ;;   type name face. Moving auto/immutable to font-lock-add-keywords
 ;;   lets cc-mode seeing them as a type name, so the next symbol can
 ;;   be fontified as a variable.
-;; 
+;;
 ;; * public/protected/private appear both in c-modifier-kwds and in
 ;;   c-protection-kwds. This causes cc-mode to fail parsing the first
 ;;   declaration after an access level label (because cc-mode trys to
