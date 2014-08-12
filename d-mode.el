@@ -437,7 +437,10 @@ Key bindings:
   (easy-menu-add d-menu)
   (c-run-mode-hooks 'c-mode-common-hook 'd-mode-hook)
   (c-update-modeline)
-  (cc-imenu-init d-imenu-generic-expression))
+  (cc-imenu-init d-imenu-generic-expression)
+  (when (version<= "24.4" emacs-version)
+    (setq-local syntax-propertize-function
+            (syntax-propertize-rules ("`\\(\\\\\\)`" (1 "."))))))
 
 ;; Hideous hacks!
 ;;
