@@ -59,6 +59,9 @@
 
 (require 'cc-mode)
 
+;; The set-difference function is used from the Common Lisp extensions.
+(require 'cl)
+
 ;; These are only required at compile time to get the sources for the
 ;; language constants.  (The cc-fonts require and the font-lock
 ;; related constants could additionally be put inside an
@@ -261,7 +264,7 @@ operators."
 
 (c-lang-defconst c-before-label-kwds
   ;; Keywords that might be followed by a label identifier.
-  d    '("goto" "break" "continue"))
+  d '("goto" "break" "continue"))
 
 (c-lang-defconst c-constant-kwds
   ;; Keywords for constants.
@@ -273,11 +276,11 @@ operators."
 
 (c-lang-defconst c-inexpr-class-kwds
   ;; Keywords that can start classes inside expressions.
-  d    nil)
+  d nil)
 
 (c-lang-defconst c-inexpr-brace-list-kwds
   ;; Keywords that can start brace list blocks inside expressions.
-  d    nil)
+  d nil)
 
 (c-lang-defconst c-other-decl-kwds
   d '("module" "import"))
