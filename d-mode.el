@@ -6,7 +6,7 @@
 ;; Contributors:  Russel Winder
 ;; Maintainer:  Russel Winder
 ;; Created:  March 2007
-;; Date:  2014-02-06
+;; Date:  2014-09-15
 ;; Version:  2.0.7-SNAPSHOT
 ;; Keywords:  D programming language emacs cc-mode
 
