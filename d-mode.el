@@ -308,6 +308,13 @@ operators."
 (defvar d-font-lock-keywords d-font-lock-keywords-3
   "Default expressions to highlight in D mode.")
 
+(defun d-font-lock-keywords-2 ()
+  (c-compose-keywords-list d-font-lock-keywords-2))
+(defun d-font-lock-keywords-3 ()
+  (c-compose-keywords-list d-font-lock-keywords-3))
+(defun d-font-lock-keywords ()
+  (c-compose-keywords-list d-font-lock-keywords))
+
 (defvar d-mode-syntax-table nil
   "Syntax table used in d-mode buffers.")
 (or d-mode-syntax-table
