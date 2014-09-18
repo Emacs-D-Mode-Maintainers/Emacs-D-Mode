@@ -509,8 +509,8 @@ Key bindings:
 ;;
 ;; (add-hook 'd-mode-hook
 ;;                  '(lambda ()
-;;                     (add-to-list 'c-offsets-alist '(arglist-cont-nonempty . c-lineup-cascaded-calls))
-;;                     (add-to-list 'c-offsets-alist '(statement-cont . c-lineup-cascaded-calls))))
+;;                     (add-to-list 'c-offsets-alist '(arglist-cont-nonempty . d-lineup-cascaded-calls))
+;;                     (add-to-list 'c-offsets-alist '(statement-cont . d-lineup-cascaded-calls))))
 
 (defun d-lineup-cascaded-calls (langelem)
   "This is a modified `c-lineup-cascaded-calls' function for the
