@@ -14,5 +14,5 @@ MELPA to the list of repositories:
     (package-initialize)
 
 and then use M-x package-list-package to get to the package listing and install from there. MELPA tracks
-this Git repository and updates relatively soon after each commit, so there are no formal releases of this
-major mode per se any longer.
+this Git repository and updates relatively soon after each commit, so there are unlikely to be any formal
+releases of this major mode in the future.
