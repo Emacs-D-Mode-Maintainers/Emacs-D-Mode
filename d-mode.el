@@ -6,7 +6,7 @@
 ;; Contributors:  Russel Winder
 ;; Maintainer:  Russel Winder
 ;; Created:  March 2007
-;; Date:  2014-09-15
+;; Date:  2014-09-17
 ;; Version:  2.0.7-SNAPSHOT
 ;; Keywords:  D programming language emacs cc-mode
 
@@ -452,7 +452,8 @@ Key bindings:
     (setq-local syntax-propertize-function
             (syntax-propertize-rules ("`\\(\\\\\\)`" (1 "."))))))
 
-;; Hideous hacks!
+;;----------------------------------------------------------------------------
+;; "Hideous hacks" to support appropriate fon-lock behaviour.
 ;;
 ;; * auto/immutable: If we leve them in c-modifier-kwds (like
 ;;   c++-mode) then in the form "auto var;" var will be highlighted in
@@ -495,6 +496,75 @@ Key bindings:
    (d-match-var-decl (1 font-lock-type-face) (2 font-lock-variable-name-face))
    (d-match-fun-decl (1 font-lock-type-face) (2 font-lock-function-name-face)))
  t)
+
+;;----------------------------------------------------------------------------
+;;
+;; Support for "Adjusting Alignment Rules for UCFS-Chains in D",
+;; cf. https://stackoverflow.com/questions/25797945/adjusting-alignment-rules-for-ucfs-chains-in-d
+;;
+;; The code here was originally created by Sergei Nosov
+;; (https://stackoverflow.com/users/1969069/sergei-nosov) based on the c-lineup-cascaded-calls code, see
+;; StackOverflow, and then amended by Nordlöw (https://stackoverflow.com/users/683710/nordl%C3%B6w) it
+;; provides a function that people can make use of in their d-mode-hook thus:
+;;
+;; (add-hook 'd-mode-hook
+;;                  '(lambda ()
+;;                     (add-to-list 'c-offsets-alist '(arglist-cont-nonempty . c-lineup-cascaded-calls))
+;;                     (add-to-list 'c-offsets-alist '(statement-cont . c-lineup-cascaded-calls))))
+
+(defun d-lineup-cascaded-calls (langelem)
+  "This is a modified `c-lineup-cascaded-calls' function for the
+D programming language which accounts for optional parenthesis
+and compile-time parameters in function calls."
+
+  (if (and (eq (c-langelem-sym langelem) 'arglist-cont-nonempty)
+           (not (eq (c-langelem-2nd-pos c-syntactic-element)
+                    (c-most-enclosing-brace (c-parse-state)))))
+      ;; The innermost open paren is not our one, so don't do
+      ;; anything. This can occur for arglist-cont-nonempty with
+      ;; nested arglist starts on the same line.
+      nil
+
+    (save-excursion
+      (back-to-indentation)
+      (let ((operator (and (looking-at "\\.")
+                           (regexp-quote (match-string 0))))
+            (stmt-start (c-langelem-pos langelem)) col)
+
+        (when (and operator
+                   (looking-at operator)
+                   (or (and
+                        (zerop (c-backward-token-2 1 t stmt-start))
+                        (eq (char-after) ?\()
+                        (zerop (c-backward-token-2 2 t stmt-start))
+                        (looking-at operator))
+                       (and
+                        (zerop (c-backward-token-2 1 t stmt-start))
+                        (looking-at operator))
+                       (and
+                        (zerop (c-backward-token-2 1 t stmt-start))
+                        (looking-at operator))
+                       )
+                   )
+          (setq col (current-column))
+
+          (while (or (and
+                      (zerop (c-backward-token-2 1 t stmt-start))
+                      (eq (char-after) ?\()
+                      (zerop (c-backward-token-2 2 t stmt-start))
+                      (looking-at operator))
+                     (and
+                      (zerop (c-backward-token-2 1 t stmt-start))
+                      (looking-at operator))
+                     (and
+                      (zerop (c-backward-token-2 1 t stmt-start))
+                      (looking-at operator))
+                     )
+            (setq col (current-column)))
+
+          (vector col))))))
+
+;;----------------------------------------------------------------------------
 
 
 (provide 'd-mode)
