@@ -6,7 +6,7 @@
 ;; Contributors:  Russel Winder
 ;; Maintainer:  Russel Winder
 ;; Created:  March 2007
-;; Date:  2014-09-17
+;; Date:  2014-10-17
 ;; Version:  2.0.7-SNAPSHOT
 ;; Keywords:  D programming language emacs cc-mode
 
@@ -425,6 +425,13 @@ operators."
 ;;----------------------------------------------------------------------------
 ;;;###autoload (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
 
+;; Custom variables
+;;;###autoload
+(defcustom d-mode-hook nil
+  "*Hook called by `d-mode'."
+  :type 'hook
+  :group 'c)
+
 ;; For compatibility with Emacs < 24
 (defalias 'd-parent-mode
   (if (fboundp 'prog-mode) 'prog-mode 'fundamental-mode))
@@ -432,7 +439,9 @@ operators."
 ;;;###autoload
 (define-derived-mode d-mode d-parent-mode "D"
   "Major mode for editing code written in the D Programming Language.
+
 See http://www.digitalmars.com/d for more information about the D language.
+
 The hook `c-mode-common-hook' is run with no args at mode
 initialization, then `d-mode-hook'.
 
@@ -453,9 +462,9 @@ Key bindings:
             (syntax-propertize-rules ("`\\(\\\\\\)`" (1 "."))))))
 
 ;;----------------------------------------------------------------------------
-;; "Hideous hacks" to support appropriate fon-lock behaviour.
+;; "Hideous hacks" to support appropriate font-lock behaviour.
 ;;
-;; * auto/immutable: If we leve them in c-modifier-kwds (like
+;; * auto/immutable: If we leave them in c-modifier-kwds (like
 ;;   c++-mode) then in the form "auto var;" var will be highlighted in
 ;;   type name face. Moving auto/immutable to font-lock-add-keywords
 ;;   lets cc-mode seeing them as a type name, so the next symbol can
