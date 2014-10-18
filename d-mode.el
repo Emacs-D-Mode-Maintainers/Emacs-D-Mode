@@ -1,14 +1,15 @@
-;;; d-mode.el --- D Programming Language mode for (X)Emacs
+;;; d-mode.el --- D Programming Language major mode for (X)Emacs
 ;;;               Requires a cc-mode of version 5.30 or greater
 
-;; Author:  2007 William Baxter
+;; Author:  William Baxter
 ;; Contributors:  Andrei Alexandrescu
 ;; Contributors:  Russel Winder
-;; Maintainer:  Russel Winder
+;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;; Created:  March 2007
-;; Date:  2014-10-17
-;; Version:  2.0.7-SNAPSHOT
+;; Version:  201410180537
 ;; Keywords:  D programming language emacs cc-mode
+
+;;;; NB Version number is date and time yyyymmddhhMM in GMT (aka UTC).
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -25,7 +26,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 
-;; Usage:
+;;; Usage:
 ;; Put these lines in your init file.
 ;;   (autoload 'd-mode "d-mode" "Major mode for editing D code." t)
 ;;   (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
@@ -33,8 +34,8 @@
 ;; cc-mode version 5.30 or greater is required.
 ;; You can check your cc-mode with the command M-x c-version.
 ;; You can get the latest version of cc-mode at http://cc-mode.sourceforge.net
-;;
-;; Commentary:
+
+;;; Commentary:
 ;;   This mode supports most of D's syntax, including nested /+ +/
 ;;   comments and backquote `string literals`.
 ;;
@@ -42,20 +43,17 @@
 ;;   from scratch.  The previous d-mode was based on cc-mode 5.28 or
 ;;   so.  This version is based on the cc-mode 5.30 derived mode
 ;;   example by Martin Stjernholm, 2002.
-;;
-;;
-;; TODO:
+
+;;; TODO:
 ;;   Issues with this code are managed via the project issue management
 ;;   on GitHub: https://github.com/Emacs-D-Mode-Maintainers/Emacs-D-Mode/issues?state=open
-;;
-;;
-;; History:
+
+;;; History:
 ;;   History is tracked in the Git repository rather than in this file.
 ;;   See https://github.com/Emacs-D-Mode-Maintainers/Emacs-D-Mode/commits/master
-;;
 
 ;;----------------------------------------------------------------------------
-;; Code:
+;;; Code:
 
 (require 'cc-mode)
 
@@ -575,7 +573,6 @@ and compile-time parameters in function calls."
 
 ;;----------------------------------------------------------------------------
 
-
 (provide 'd-mode)
 
 ;;; d-mode.el ends here

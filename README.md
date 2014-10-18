@@ -1,5 +1,4 @@
-Emacs D Mode
-============
+# Emacs D Mode
 
 An Emacs major mode for editing D code.
 
