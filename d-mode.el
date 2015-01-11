@@ -240,8 +240,7 @@ operators."
 (c-lang-defconst c-block-stmt-2-kwds
   ;; Statement keywords followed by a paren sexp and then by a substatement.
   d '("for" "if" "switch" "while" "catch" "synchronized" "scope"
-      "foreach" "foreach_reverse" "with" "unittest"
-      "else static if" "else"))
+      "foreach" "foreach_reverse" "with" "unittest"))
 
 (c-lang-defconst c-simple-stmt-kwds
   ;; Statement keywords followed by an expression or nothing.
