@@ -420,6 +420,25 @@ operators."
     (nil d-imenu-method-index-function 2)))
 
 ;;----------------------------------------------------------------------------
+;;;Workaround for special case of 'else static if' not being handled properly
+(defun d-special-case-looking-at (oldfun &rest args)
+  (let ((rxp (car args)))
+    (if (and (stringp rxp)
+           (string= rxp "if\\>[^_]"))
+      (or (apply oldfun '("static\\>[^_]"))
+          (apply oldfun args))
+    (apply oldfun args))))
+
+(defadvice c-add-stmt-syntax (around my-c-add-stmt-syntax-wrapper activate)
+  (if (not (string= major-mode "d-mode"))
+      ad-do-it
+    (progn
+      (add-function :around (symbol-function 'looking-at) #'d-special-case-looking-at)
+      (unwind-protect
+          ad-do-it
+          (remove-function (symbol-function 'looking-at) #'d-special-case-looking-at)))))
+
+;;----------------------------------------------------------------------------
 ;;;###autoload (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
 
 ;; Custom variables
