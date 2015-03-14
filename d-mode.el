@@ -456,7 +456,7 @@ operators."
 (define-derived-mode d-mode d-parent-mode "D"
   "Major mode for editing code written in the D Programming Language.
 
-See http://www.digitalmars.com/d for more information about the D language.
+See http://dlang.org for more information about the D language.
 
 The hook `c-mode-common-hook' is run with no args at mode
 initialization, then `d-mode-hook'.
