@@ -137,16 +137,29 @@ operators."
 (c-lang-defconst c-literal-start-regexp
   ;; Regexp to match the start of comments and string literals.
   d "/[*+/]\\|\"\\|`")
-;;(c-lang-defconst c-comment-prefix-regexp d "//+\\|\\**")
-
-(c-lang-defconst c-doc-comment-start-regexp
- ;; doc comments for D use "///",  "/**" or doxygen's "/*!" "//!"
- d "/\\*[*!]\\|//[/!]")
 
 (c-lang-defconst c-block-prefix-disallowed-chars
   ;; Allow ':' for inherit list starters.
   d (set-difference (c-lang-const c-block-prefix-disallowed-chars)
-				 '(?:)))
+                    '(?:)))
+
+(defconst doxygen-font-lock-doc-comments
+  (let ((symbol "[a-zA-Z0-9_]+")
+	(header "^ \\* "))
+    `((,(concat header "\\("     symbol "\\):[ \t]*$")
+       1 ,c-doc-markup-face-name prepend nil)
+      (,(concat                  symbol     "()")
+       0 ,c-doc-markup-face-name prepend nil)
+      (,(concat header "\\(" "@" symbol "\\):")
+       1 ,c-doc-markup-face-name prepend nil)
+      (,(concat "[#%@]" symbol)
+       0 ,c-doc-markup-face-name prepend nil))
+    ))
+
+(defconst doxygen-font-lock-keywords
+  `((,(lambda (limit)
+	(c-font-lock-doc-comments "/\\+[+!]\\|/\\*[*!]\\|//[/!]" limit
+	  doxygen-font-lock-doc-comments)))))
 
 ;;----------------------------------------------------------------------------
 
