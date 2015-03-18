@@ -57,6 +57,10 @@
 
 (require 'cc-mode)
 
+;; Needed to prevent
+;;   "Symbol's value as variable is void: compilation-error-regexp-alist-alist" errors
+(require 'compile)
+
 ;; The set-difference function is used from the Common Lisp extensions.
 (require 'cl)
 
