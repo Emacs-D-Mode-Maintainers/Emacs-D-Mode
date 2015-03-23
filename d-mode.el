@@ -188,7 +188,7 @@ operators."
 ;; Built-in basic types
 (c-lang-defconst c-primitive-type-kwds
   d '("bit" "bool" "byte" "ubyte" "char" "delegate" "double" "float"
-      "function" "int" "long" "ubyte" "short" "uint" "ulong" "ushort"
+      "function" "int" "long" "short" "uint" "ulong" "ushort"
       "cent" "ucent" "real" "ireal" "ifloat" "creal" "cfloat" "cdouble"
       "wchar" "dchar" "void" "string" "wstring" "dstring"))
 
