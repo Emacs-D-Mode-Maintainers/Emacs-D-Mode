@@ -82,6 +82,11 @@
   ;; constants are evaluated then.
   (c-add-language 'd-mode 'java-mode))
 
+;; muffle the warnings about using free variables and undefined
+;; functions
+(defvar c-syntactic-element)
+(declare-function c-populate-syntax-table "cc-langs.el" (table))
+
 ;; D has pointers
 (c-lang-defconst c-type-decl-prefix-key
   d (concat "\\("
