@@ -481,7 +481,16 @@ operators."
         (remove-function (symbol-function 'looking-at)
                          #'d-special-case-looking-at)))))
 
-(advice-add 'c-add-stmt-syntax :around #'d-around--c-add-stmt-syntax)
+(if (> emacs-major-version 24)
+    (advice-add 'c-add-stmt-syntax :around #'d-around--c-add-stmt-syntax)
+  (defadvice c-add-stmt-syntax (around d-around--c-add-stmt-syntax activate)
+    (if (not (string= major-mode "d-mode"))
+        ad-do-it
+      (progn
+        (add-function :around (symbol-function 'looking-at) #'d-special-case-looking-at)
+        (unwind-protect
+            ad-do-it
+          (remove-function (symbol-function 'looking-at) #'d-special-case-looking-at))))))
 
 ;;----------------------------------------------------------------------------
 ;;;###autoload (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
