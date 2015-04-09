@@ -25,24 +25,21 @@
 (require 'd-mode nil t)
 
 (defconst d-test-teststyle
-  '((c-tab-always-indent           . t)
-    (c-basic-offset                . 4)
-    (c-comment-only-line-offset    . 0)
-    (c-comment-prefix-regexp       . "\\(//+\\|\\**\\)[.!|]?")
-    (c-hanging-braces-alist        . ((block-open after)
-                                      (brace-list-open)
-                                      (substatement-open after)
-                                      (inexpr-class-open after)
-                                      (inexpr-class-close before)
-                                      ))
-    (c-hanging-colons-alist        . ((member-init-intro before)
-                                      (inher-intro)
-                                      (case-label after)
-                                      (label after)
-                                      (access-key after)))
-    (c-cleanup-list                . (scope-operator
-                                      empty-defun-braces
-                                      defun-close-semi))
+  '((c-tab-always-indent . t)
+    (c-basic-offset . 2)
+    (c-comment-only-line-offset . 0)
+    (c-comment-prefix-regexp . "\\(//+\\|\\**\\)[.!|]?")
+    (c-hanging-braces-alist . ((block-open after)
+                               (brace-list-open)
+                               (substatement-open after)
+                               (inexpr-class-open after)
+                               (inexpr-class-close before)))
+    (c-hanging-colons-alist . ((member-init-intro before)
+                               (inher-intro)
+                               (case-label after)
+                               (label after)
+                               (access-key after)))
+    (c-cleanup-list . (scope-operator empty-defun-braces defun-close-semi))
     (c-offsets-alist
      . ((string                . c-lineup-dont-change)
         (c                     . c-lineup-C-comments)
@@ -54,8 +51,6 @@
         (inline-open           . 0)
         (inline-close          . 0)
         (func-decl-cont        . +)
-        (knr-argdecl-intro     . +)
-        (knr-argdecl           . 0)
         (topmost-intro         . 0)
         (topmost-intro-cont    . c-lineup-topmost-intro-cont)
         (member-init-intro     . +)
@@ -89,13 +84,6 @@
         (arglist-close         . +)
         (stream-op             . c-lineup-streamop)
         (inclass               . +)
-        (cpp-macro             . [0])
-        (cpp-macro-cont        . +)
-        (cpp-define-intro      . (c-lineup-cpp-define +))
-        (friend                . 0)
-        (objc-method-intro     . [0])
-        (objc-method-args-cont . c-lineup-ObjC-method-args)
-        (objc-method-call-cont . c-lineup-ObjC-method-call)
         (extern-lang-open      . 0)
         (extern-lang-close     . 0)
         (inextern-lang         . +)
@@ -112,11 +100,9 @@
         (inlambda              . c-lineup-inexpr-block)
         (lambda-intro-cont     . +)
         (inexpr-statement      . +)
-        (inexpr-class          . +)
-        ))
+        (inexpr-class          . +)))
     (c-echo-syntactic-information-p . t)
-    (c-indent-comment-alist . nil)
-    )
+    (c-indent-comment-alist . nil))
   "Style for testing.")
 
 (c-add-style "teststyle" d-test-teststyle)
@@ -131,7 +117,8 @@
     (setq buffer-read-only nil)
     (erase-buffer)
     (insert-file-contents filename)
-    (setq buffer-read-only t) ; test that we make no (hidden) changes.
+    ;; test that we make no (hidden) changes.
+    (setq buffer-read-only t)
     (goto-char (point-min))
     (let ((c-default-style "TESTSTYLE")
           d-mode-hook c-mode-common-hook)
@@ -144,9 +131,14 @@
     (if (setq buf (get-buffer "*d-mode-test*"))
         (kill-buffer buf))))
 
+(defun d-test-message (msg &rest args)
+  (if noninteractive
+      (send-string-to-terminal
+       (concat (apply 'format msg args) "\n"))
+    (apply 'message msg args)))
+
 (defun do-one-test (filename)
   (interactive "fFile to test: ")
-
   (let* ((save-buf (current-buffer))
          (save-point (point))
          (font-lock-maximum-decoration t)
@@ -156,15 +148,11 @@
          (testbuf (car buflist))
          (pop-up-windows t)
          (linenum 1)
-         test-error-found
          error-found-p
          expectedindent
-         c-echo-syntactic-information-p
-         font-lock-verbose
-         last-result)
+         c-echo-syntactic-information-p)
 
     (switch-to-buffer testbuf)
-
     ;; Record the expected indentation and reindent.  This is done
     ;; in backward direction to avoid cascading errors.
     (while (= (forward-line -1) 0)
@@ -176,18 +164,14 @@
         ;; false alarms.
         (let ((buffer-read-only nil))
           (if no-error
-              (condition-case err
-                  (c-indent-line)
+              (condition-case err (c-indent-line)
                 (error
                  (unless error-found-p
                    (setq error-found-p t)
-                   (cc-test-log
-                    "%s:%d: c-indent-line error: %s"
-                    filename (1+ (count-lines (point-min) (c-point 'bol)))
-                    (error-message-string err))
-                   (when cc-test-last-backtrace
-                     (cc-test-log "%s" cc-test-last-backtrace)
-                     (setq cc-test-last-backtrace nil)))))
+                   (d-test-message
+                    "%s:%d: c-indent-line error: %s" filename
+                    (1+ (count-lines (point-min) (c-point 'bol)))
+                    (error-message-string err)))))
             (c-indent-line)))))
 
     (when (and error-found-p (not no-error))
@@ -203,6 +187,7 @@
       (kill-test-buffers))
     (not error-found-p)))
 
+;; Run the tests
 (ert-deftest d-mode-basic ()
   (should (equal (do-one-test "tests/I0039.d") t)))
 
