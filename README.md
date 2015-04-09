@@ -1,5 +1,8 @@
 # Emacs D Mode
 
+[![Build Status](https://travis-ci.org/dmakarov/Emacs-D-Mode.svg?branch=testing)](https://travis-ci.org/dmakarov/Emacs-D-Mode)
+[![Coverage Status](https://coveralls.io/repos/dmakarov/Emacs-D-Mode/badge.svg?branch=testing)](https://coveralls.io/r/dmakarov/Emacs-D-Mode?branch=testing)
+
 An Emacs major mode for editing D code.
 
 This mode is currently known to work with Emacs 24 and believed to work with Emacs 23.
