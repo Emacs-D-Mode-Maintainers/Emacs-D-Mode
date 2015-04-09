@@ -8,6 +8,6 @@ compile:
 	$(emacs) -Q -batch -f batch-byte-compile d-mode.el
 
 clean:
-	rm -f f.elc
+	rm -f d-mode.elc
 
 .PHONY:	all test
