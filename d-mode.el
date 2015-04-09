@@ -188,7 +188,7 @@ operators."
 ;; Built-in basic types
 (c-lang-defconst c-primitive-type-kwds
   d '("bit" "bool" "byte" "ubyte" "char" "delegate" "double" "float"
-      "function" "int" "long" "ubyte" "short" "uint" "ulong" "ushort"
+      "function" "int" "long" "short" "uint" "ulong" "ushort"
       "cent" "ucent" "real" "ireal" "ifloat" "creal" "cfloat" "cdouble"
       "wchar" "dchar" "void" "string" "wstring" "dstring"))
 
@@ -458,11 +458,12 @@ operators."
 ;;;Workaround for special case of 'else static if' not being handled properly
 (defun d-special-case-looking-at (oldfun &rest args)
   (let ((rxp (car args)))
-    (if (and (stringp rxp)
-           (string= rxp "if\\>[^_]"))
-      (or (apply oldfun '("static\\>[^_]"))
-          (apply oldfun args))
-    (apply oldfun args))))
+    (if (and (stringp rxp) (string= rxp "if\\>[^_]"))
+        (or (apply oldfun '("static\\>[^_]"))
+            (apply oldfun '("version\\>[^_]"))
+            (apply oldfun '("debug\\>[^_]"))
+            (apply oldfun args))
+      (apply oldfun args))))
 
 (defadvice c-add-stmt-syntax (around my-c-add-stmt-syntax-wrapper activate)
   (if (not (string= major-mode "d-mode"))
