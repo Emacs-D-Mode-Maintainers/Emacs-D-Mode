@@ -82,6 +82,11 @@
   ;; constants are evaluated then.
   (c-add-language 'd-mode 'java-mode))
 
+;; muffle the warnings about using free variables and undefined
+;; functions
+(defvar c-syntactic-element)
+(declare-function c-populate-syntax-table "cc-langs.el" (table))
+
 ;; D has pointers
 (c-lang-defconst c-type-decl-prefix-key
   d (concat "\\("
@@ -455,24 +460,37 @@ operators."
     (nil d-imenu-method-index-function 2)))
 
 ;;----------------------------------------------------------------------------
-;;;Workaround for special case of 'else static if' not being handled properly
-(defun d-special-case-looking-at (oldfun &rest args)
+;;; Workaround for special case of 'else static if' not being handled properly
+(defun d-special-case-looking-at (orig-fun &rest args)
   (let ((rxp (car args)))
     (if (and (stringp rxp) (string= rxp "if\\>[^_]"))
-        (or (apply oldfun '("static\\>[^_]"))
-            (apply oldfun '("version\\>[^_]"))
-            (apply oldfun '("debug\\>[^_]"))
-            (apply oldfun args))
-      (apply oldfun args))))
+        (or (apply orig-fun '("static\\>\\s-+if\\>[^_]"))
+            (apply orig-fun '("version\\>[^_]"))
+            (apply orig-fun '("debug\\>[^_]"))
+            (apply orig-fun args))
+      (apply orig-fun args))))
 
-(defadvice c-add-stmt-syntax (around my-c-add-stmt-syntax-wrapper activate)
+(defun d-around--c-add-stmt-syntax (orig-fun &rest args)
   (if (not (string= major-mode "d-mode"))
-      ad-do-it
+      (apply orig-fun args)
     (progn
-      (add-function :around (symbol-function 'looking-at) #'d-special-case-looking-at)
+      (add-function :around (symbol-function 'looking-at)
+                    #'d-special-case-looking-at)
       (unwind-protect
-          ad-do-it
-          (remove-function (symbol-function 'looking-at) #'d-special-case-looking-at)))))
+          (apply orig-fun args)
+        (remove-function (symbol-function 'looking-at)
+                         #'d-special-case-looking-at)))))
+
+(if (> emacs-major-version 24)
+    (advice-add 'c-add-stmt-syntax :around #'d-around--c-add-stmt-syntax)
+  (defadvice c-add-stmt-syntax (around d-around--c-add-stmt-syntax activate)
+    (if (not (string= major-mode "d-mode"))
+        ad-do-it
+      (progn
+        (add-function :around (symbol-function 'looking-at) #'d-special-case-looking-at)
+        (unwind-protect
+            ad-do-it
+          (remove-function (symbol-function 'looking-at) #'d-special-case-looking-at))))))
 
 ;;----------------------------------------------------------------------------
 ;;;###autoload (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
