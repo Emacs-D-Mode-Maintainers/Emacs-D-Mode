@@ -534,9 +534,13 @@ Key bindings:
   (c-run-mode-hooks 'c-mode-common-hook 'd-mode-hook)
   (c-update-modeline)
   (cc-imenu-init d-imenu-generic-expression)
+  ;; Generate a function that applies D-specific syntax properties.
+  ;; Concretely, inside back-quoted string literals the backslash
+  ;; character '\' is treated as a punctuation symbol.  See help for
+  ;; syntax-propertize-rules function for more information.
   (when (version<= "24.3" emacs-version)
     (setq-local syntax-propertize-function
-            (syntax-propertize-rules ("`\\(\\\\\\)`" (1 "."))))))
+                (syntax-propertize-rules ("`\\([^`]*\\(\\\\\\)[^`]*\\)+`" (2 "."))))))
 
 ;;----------------------------------------------------------------------------
 ;; "Hideous hacks" to support appropriate font-lock behaviour.
