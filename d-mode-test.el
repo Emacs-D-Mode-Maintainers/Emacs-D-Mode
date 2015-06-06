@@ -107,7 +107,7 @@
 
 (c-add-style "teststyle" d-test-teststyle)
 
-(defun make-test-buffers (filename)
+(defun make-test-buffer (filename)
   (let ((testbuf (get-buffer-create "*d-mode-test*"))
         (enable-local-eval t))
     ;; setup the test file buffer.
@@ -121,12 +121,13 @@
     (setq buffer-read-only t)
     (goto-char (point-min))
     (let ((c-default-style "TESTSTYLE")
-          d-mode-hook c-mode-common-hook)
+          d-mode-hook
+          c-mode-common-hook)
       (d-mode))
     (hack-local-variables)
-    (list testbuf)))
+    testbuf))
 
-(defun kill-test-buffers ()
+(defun kill-test-buffer ()
   (let (buf)
     (if (setq buf (get-buffer "*d-mode-test*"))
         (kill-buffer buf))))
@@ -144,8 +145,7 @@
          (font-lock-maximum-decoration t)
          (font-lock-global-modes nil)
          (enable-local-variables ':all)
-         (buflist (make-test-buffers filename))
-         (testbuf (car buflist))
+         (testbuf (make-test-buffer filename))
          (pop-up-windows t)
          (linenum 1)
          error-found-p
@@ -153,28 +153,21 @@
          c-echo-syntactic-information-p)
 
     (switch-to-buffer testbuf)
-    ;; Record the expected indentation and reindent.  This is done
-    ;; in backward direction to avoid cascading errors.
-    (while (= (forward-line -1) 0)
-      (back-to-indentation)
-      (setq expectedindent (cons (current-column) expectedindent))
-      (unless (eolp)
-        ;; Do not reindent empty lines; the test cases might have
-        ;; whitespace at eol trimmed away, so that could produce
-        ;; false alarms.
-        (let ((buffer-read-only nil))
-          (if no-error
-              (condition-case err (c-indent-line)
-                (error
-                 (unless error-found-p
-                   (setq error-found-p t)
-                   (d-test-message
-                    "%s:%d: c-indent-line error: %s" filename
-                    (1+ (count-lines (point-min) (c-point 'bol)))
-                    (error-message-string err)))))
-            (c-indent-line)))))
+    (syntax-ppss (point-max))
+    ;; extract the run command and expected output if any.
+    (let* ((contents (buffer-substring-no-properties 1 (point-max)))
+           (run-str (if (string-match "^// #run: \\(.+\\)$" contents)
+                        (match-string 1 contents)))
+           (out-str (if (string-match "^// #out: \\(.+\\)$" contents)
+                        (match-string 1 contents))))
+      (if run-str
+          (let ((result (eval (car (read-from-string run-str)))))
+            (when out-str
+              (let ((expect (car (read-from-string out-str))))
+                (if (not (equal result expect))
+                    (setq error-found-p t)))))))
 
-    (when (and error-found-p (not no-error))
+    (when error-found-p
       (set-buffer testbuf)
       (buffer-enable-undo testbuf)
       (set-buffer-modified-p nil)
@@ -184,11 +177,13 @@
     (set-buffer save-buf)
     (goto-char save-point)
     (when (and (not error-found-p) (interactive-p))
-      (kill-test-buffers))
+      (kill-test-buffer))
     (not error-found-p)))
 
 ;; Run the tests
 (ert-deftest d-mode-basic ()
-  (should (equal (do-one-test "tests/I0039.d") t)))
+  (should (equal (do-one-test "tests/I0021.d") t))
+  (should (equal (do-one-test "tests/I0039.d") t))
+  )
 
 (provide 'd-mode-test)
