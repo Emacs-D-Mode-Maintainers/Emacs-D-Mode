@@ -1,8 +1,13 @@
 ;;; d-mode-test.el --- Tests for D Programming Language major mode
 
+;; Copyright (c) 2015 Dmitri Makarov
+
 ;; Author:  Dmitri Makarov <dmakarov@alumni.stanford.edu>
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;; Created:  April 2015
+;; Version: 201512060752
+
+;;;; NB Version number is date and time yyyymmddhhMM in GMT (aka UTC).
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -18,6 +23,31 @@
 ;; along with this program; see the file COPYING.  If not, write to
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
+
+;;; Uage:
+
+;;; Commentary:
+
+;;; Bugs:
+;; Bug tracking is currently handled using the GitHub issue tracker at
+;; https://github.com/Emacs-D-Mode-Maintainers/Emacs-D-Mode/issues
+
+;;; Versions:
+;;  This mode is available on MELPA which tracks the mainline Git repository on GitHub, so there is a rolling release
+;;  system based on commits to the mainline.
+
+;;; Notes:
+
+;;; TODO:
+;;   Issues with this code are managed via the project issue management
+;;   on GitHub: https://github.com/Emacs-D-Mode-Maintainers/Emacs-D-Mode/issues?state=open
+
+;;; History
+;;   History is tracked in the Git repository rather than in this file.
+;;   See https://github.com/Emacs-D-Mode-Maintainers/Emacs-D-Mode/commits/master
+
+;;----------------------------------------------------------------------------
+;;; Code:
 
 (when (require 'undercover nil t)
   (undercover "d-mode.el"))
@@ -186,4 +216,8 @@
   (should (equal (do-one-test "tests/I0039.d") t))
   )
 
+;;----------------------------------------------------------------------------
+
 (provide 'd-mode-test)
+
+;;; d-mode-test.el ends here

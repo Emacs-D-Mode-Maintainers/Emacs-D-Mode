@@ -6,7 +6,7 @@
 ;; Contributors:  Russel Winder
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;; Created:  March 2007
-;; Version:  201410180537
+;; Version:  201512060745
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM in GMT (aka UTC).
@@ -43,6 +43,16 @@
 ;;   from scratch.  The previous d-mode was based on cc-mode 5.28 or
 ;;   so.  This version is based on the cc-mode 5.30 derived mode
 ;;   example by Martin Stjernholm, 2002.
+
+;;; Bugs:
+;; Bug tracking is currently handled using the GitHub issue tracker at
+;; https://github.com/Emacs-D-Mode-Maintainers/Emacs-D-Mode/issues
+
+;;; Versions:
+;;  This mode is available on MELPA which tracks the mainline Git repository on GitHub, so there is a rolling release
+;;  system based on commits to the mainline.
+
+;;; Notes:
 
 ;;; TODO:
 ;;   Issues with this code are managed via the project issue management
