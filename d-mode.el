@@ -443,7 +443,7 @@ operators."
    "\\([_a-zA-Z0-9]+\\)\\s-*"           ; function name
    "\\(?:([^)]*)\\s-*\\)?"              ; type arguments
    "([^)]*)\\s-*"                       ; arguments
-   "\\(?:[a-z]+\\s-*\\)?"               ; pure/const etc.
+   "\\(?:[a-z@]+\\s-*\\)?"              ; pure/const etc.
    "\\(?:;\\|[ \t\n]*\\(?:if\\|{\\)\\)")) ; ';' or 'if' or '{'
 
 (defun d-imenu-method-index-function ()
