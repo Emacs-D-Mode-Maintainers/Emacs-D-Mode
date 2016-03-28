@@ -470,10 +470,10 @@ operators."
            (not invis))))))
 
 (defvar d-imenu-generic-expression
-  `(("*Classes*" "^\\s-*\\<class\\s-+\\([a-zA-Z0-9_]+\\)" 1)
-	("*Interfaces*" "^\\s-*\\<interface\\s-+\\([a-zA-Z0-9_]+\\)" 1)
-	("*Structs*" "^\\s-*\\<struct\\s-+\\([a-zA-Z0-9_]+\\)" 1)
-	("*Templates*" "^\\s-*\\(?:mixin\\s-+\\)?\\<template\\s-+\\([a-zA-Z0-9_]+\\)" 1)
+  `(("*Classes*" "^\\s-*\\(?:\\(?:final\\|abstract\\)\\s-+\\)?\\<class\\s-+\\([a-zA-Z0-9_]+\\)" 1)
+    ("*Interfaces*" "^\\s-*\\<interface\\s-+\\([a-zA-Z0-9_]+\\)" 1)
+    ("*Structs*" "^\\s-*\\<struct\\s-+\\([a-zA-Z0-9_]+\\)" 1)
+    ("*Templates*" "^\\s-*\\(?:mixin\\s-+\\)?\\<template\\s-+\\([a-zA-Z0-9_]+\\)" 1)
     (nil d-imenu-method-index-function 2)))
 
 ;;----------------------------------------------------------------------------
