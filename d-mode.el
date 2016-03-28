@@ -192,7 +192,7 @@ operators."
 ;; compilation-error-regexp-alist.
 (add-to-list 'compilation-error-regexp-alist-alist
              '(ldc
-               "^\\([^: \n]+\\)(\\([0-9]+\\)): \\(?: *\\(?3:\\(?:W\\(?::\\|arning\\)\\|warning\\)\\)\\| *\\(?4:[Ii]nfo\\(?:\\>\\|rmationa?l?\\)\\|I:\\|\\[ skipping \\.+ ]\\|instantiated from\\|required from\\|[Nn]ote\\)\\| *\\(?:[Ee]rror\\)\\)"
+               "^\\([^: \n]+\\)(\\([0-9]+\\)): \\(?: *\\(?3:\\(?:W\\(?::\\|arning\\)\\|warning\\)\\)\\| *\\(?4:[Ii]nfo\\(?:\\>\\|rmationa?l?\\)\\|I:\\|\\[ skipping \\.+ ]\\|instantiated from\\|required from\\|[Nn]ote\\)\\| *\\(?:[Ee]rror\\)\\| *Deprecation\\)"
                1 2 nil (3 . 4)))
 (add-to-list 'compilation-error-regexp-alist 'ldc)
 
