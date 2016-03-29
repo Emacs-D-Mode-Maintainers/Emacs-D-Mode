@@ -214,6 +214,7 @@
 (ert-deftest d-mode-basic ()
   (should (equal (do-one-test "tests/I0021.d") t))
   (should (equal (do-one-test "tests/I0039.d") t))
+  (should (equal (do-one-test "tests/I0064.d") t))
   )
 
 ;;----------------------------------------------------------------------------
