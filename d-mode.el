@@ -542,7 +542,7 @@ Key bindings:
   ;; syntax-propertize-rules function for more information.
   (when (version<= "24.3" emacs-version)
     (setq-local syntax-propertize-function
-                (syntax-propertize-rules ("`\\([^`]*\\(\\\\\\)[^`]*\\)+`" (2 "."))))))
+                (syntax-propertize-rules ("`[^\\\\`]*?\\(\\(\\\\\\)[^\\\\`]*?\\)+?`" (2 "."))))))
 
 ;;----------------------------------------------------------------------------
 ;; "Hideous hacks" to support appropriate font-lock behaviour.
