@@ -24,7 +24,7 @@ For those who want rolling releases as they happen use MELPA:
              '("melpa" . "https://melpa.org/packages/") t)
     (package-initialize)
 
-and then use M-x package-list-package to get to the package listing and install from there. MELPA tracks
+and then use M-x package-list-packages to get to the package listing and install from there. MELPA tracks
 this Git repository and updates relatively soon after each commit or formal release. For more detail on
 setting up see [MELPA Getting Started](https://melpa.org/#/getting-started).
 
