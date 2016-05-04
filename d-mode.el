@@ -211,7 +211,7 @@ operators."
 (c-lang-defconst c-primitive-type-kwds
   d '("bit" "bool" "byte" "ubyte" "char" "delegate" "double" "float"
       "function" "int" "long" "short" "uint" "ulong" "ushort"
-      "cent" "ucent" "real" "ireal" "ifloat" "creal" "cfloat" "cdouble"
+      "cent" "ucent" "real" "ireal" "idouble" "ifloat" "creal" "cfloat" "cdouble"
       "wchar" "dchar" "void" "string" "wstring" "dstring"))
 
 ;; Keywords that can prefix normal declarations of identifiers
