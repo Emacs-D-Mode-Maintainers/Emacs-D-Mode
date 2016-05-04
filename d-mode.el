@@ -6,10 +6,10 @@
 ;; Contributors:  Russel Winder
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;; Created:  March 2007
-;; Version:  201512060745
+;; Version:  201605041654
 ;; Keywords:  D programming language emacs cc-mode
 
-;;;; NB Version number is date and time yyyymmddhhMM in GMT (aka UTC).
+;;;; NB Version number is date and time yyyymmddhhMM UTC.
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -49,8 +49,9 @@
 ;; https://github.com/Emacs-D-Mode-Maintainers/Emacs-D-Mode/issues
 
 ;;; Versions:
-;;  This mode is available on MELPA which tracks the mainline Git repository on GitHub, so there is a rolling release
-;;  system based on commits to the mainline.
+;;  This mode is available on MELPA which tracks the mainline Git repository on GitHub, so there is a
+;;  rolling release system based on commits to the mainline. For those wanting releases, the repository is
+;;  tagged from time to time and this creates an entry in MELPA Stable and a tarball on GitHub.
 
 ;;; Notes:
 
