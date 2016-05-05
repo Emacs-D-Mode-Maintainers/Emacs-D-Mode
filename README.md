@@ -1,8 +1,10 @@
 # Emacs D Mode
 
+[![Licence](https://img.shields.io/badge/license-GPL_2-green.svg)](https://www.gnu.org/licenses/gpl-2.0.txt)
 [![Build Status](https://travis-ci.org/dmakarov/Emacs-D-Mode.svg?branch=testing)](https://travis-ci.org/dmakarov/Emacs-D-Mode)
 [![Coverage Status](https://coveralls.io/repos/dmakarov/Emacs-D-Mode/badge.svg?branch=testing)](https://coveralls.io/r/dmakarov/Emacs-D-Mode?branch=testing)
-[![MELPA](http://melpa.org/packages/d-mode-badge.svg)](http://melpa.org/#/d-mode)
+[![MELPA](https://melpa.org/packages/d-mode-badge.svg)](https://melpa.org/#/d-mode)
+[![MELPA Stable](https://stable.melpa.org/packages/d-mode-badge.svg)](https://stable.melpa.org/#/d-mode)
 
 An Emacs major mode for editing D code.
 
