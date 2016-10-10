@@ -73,6 +73,9 @@
 (require 'compile)
 
 ;; The set-difference function is used from the Common Lisp extensions.
+;; Note that this line produces a compilation warning in Emacs 24 and newer,
+;; however the replacement (cl-seq.el for our use case) was introduced
+;; in the same major version.
 (require 'cl)
 
 ;; Used to specify regular expressions in a sane way.
