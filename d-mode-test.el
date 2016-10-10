@@ -236,10 +236,26 @@ Called from the #run snippet of individual test files."
      (line-number-at-pos (cdr x)))
    imenu--index-alist))
 
+(defun d-test-indent ()
+  "Re-indent the current file.
+
+If the resulting indentation ends up being different, raise an error."
+  (condition-case nil
+      (progn (c-indent-region (point-min) (point-max)) t)
+    (error
+     (let ((orig (buffer-string)))
+       (let (buffer-read-only)
+	 (c-indent-region (point-min) (point-max)))
+       (error (concat "Test case has been indented differently.\n"
+		      "Expected:\n--------------------\n%s\n--------------------\n"
+		      "Got:\n--------------------\n%s\n--------------------\n")
+	      orig (buffer-string))))))
+
 ;; Run the tests
 (ert-deftest d-mode-basic ()
   (should (equal (do-one-test "tests/imenu.d") t))
   (should (equal (do-one-test "tests/I0021.d") t))
+  (should (equal (do-one-test "tests/I0035.d") t))
   (should (equal (do-one-test "tests/I0039.d") t))
   (should (equal (do-one-test "tests/I0064.d") t))
   (should (equal (do-one-test "tests/I0069.txt") t))
