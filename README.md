@@ -1,8 +1,8 @@
 # Emacs D Mode
 
 [![Licence](https://img.shields.io/badge/license-GPL_2-green.svg)](https://www.gnu.org/licenses/gpl-2.0.txt)
-[![Build Status](https://travis-ci.org/dmakarov/Emacs-D-Mode.svg?branch=testing)](https://travis-ci.org/dmakarov/Emacs-D-Mode)
-[![Coverage Status](https://coveralls.io/repos/dmakarov/Emacs-D-Mode/badge.svg?branch=testing)](https://coveralls.io/r/dmakarov/Emacs-D-Mode?branch=testing)
+[![Build Status](https://travis-ci.org/Emacs-D-Mode-Maintainers/Emacs-D-Mode.svg?branch=testing)](https://travis-ci.org/Emacs-D-Mode-Maintainers/Emacs-D-Mode)
+[![Coverage Status](https://coveralls.io/repos/Emacs-D-Mode-Maintainers/Emacs-D-Mode/badge.svg?branch=testing)](https://coveralls.io/r/Emacs-D-Mode-Maintainers/Emacs-D-Mode?branch=testing)
 [![MELPA](https://melpa.org/packages/d-mode-badge.svg)](https://melpa.org/#/d-mode)
 [![MELPA Stable](https://stable.melpa.org/packages/d-mode-badge.svg)](https://stable.melpa.org/#/d-mode)
 
