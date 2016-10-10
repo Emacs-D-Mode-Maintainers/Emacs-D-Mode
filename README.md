@@ -2,7 +2,7 @@
 
 [![Licence](https://img.shields.io/badge/license-GPL_2-green.svg)](https://www.gnu.org/licenses/gpl-2.0.txt)
 [![Build Status](https://travis-ci.org/Emacs-D-Mode-Maintainers/Emacs-D-Mode.svg)](https://travis-ci.org/Emacs-D-Mode-Maintainers/Emacs-D-Mode)
-[![Coverage Status](https://coveralls.io/repos/Emacs-D-Mode-Maintainers/Emacs-D-Mode/badge.svg)](https://coveralls.io/r/Emacs-D-Mode-Maintainers/Emacs-D-Mode)
+[![Coverage Status](https://coveralls.io/repos/github/Emacs-D-Mode-Maintainers/Emacs-D-Mode/badge.svg?branch=master)](https://coveralls.io/github/Emacs-D-Mode-Maintainers/Emacs-D-Mode?branch=master)
 [![MELPA](https://melpa.org/packages/d-mode-badge.svg)](https://melpa.org/#/d-mode)
 [![MELPA Stable](https://stable.melpa.org/packages/d-mode-badge.svg)](https://stable.melpa.org/#/d-mode)
 
