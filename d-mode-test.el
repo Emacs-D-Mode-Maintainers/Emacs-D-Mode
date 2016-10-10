@@ -224,8 +224,21 @@ Called from the #run snippet of individual test files."
       (setq error-list (cons (line-number-at-pos) error-list)))
     (reverse error-list)))
 
+(require 'imenu)
+
+(defun d-test-get-imenu-lines ()
+  "Get list of line numbers of lines recognized as imenu entries.
+
+Called from the #run snippet of individual test files."
+  (imenu--make-index-alist t)
+  (mapcar
+   (lambda (x)
+     (line-number-at-pos (cdr x)))
+   imenu--index-alist))
+
 ;; Run the tests
 (ert-deftest d-mode-basic ()
+  (should (equal (do-one-test "tests/imenu.d") t))
   (should (equal (do-one-test "tests/I0021.d") t))
   (should (equal (do-one-test "tests/I0039.d") t))
   (should (equal (do-one-test "tests/I0064.d") t))
