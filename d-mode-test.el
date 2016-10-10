@@ -230,6 +230,7 @@ Called from the #run snippet of individual test files."
   (should (equal (do-one-test "tests/I0039.d") t))
   (should (equal (do-one-test "tests/I0064.d") t))
   (should (equal (do-one-test "tests/I0069.txt") t))
+  (should (equal (do-one-test "tests/I0072.txt") t))
   )
 
 ;;----------------------------------------------------------------------------
