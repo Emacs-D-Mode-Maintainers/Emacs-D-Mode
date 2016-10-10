@@ -653,10 +653,12 @@ Key bindings:
 ;; StackOverflow, and then amended by Nordlöw (https://stackoverflow.com/users/683710/nordl%C3%B6w) it
 ;; provides a function that people can make use of in their d-mode-hook thus:
 ;;
-;; (add-hook 'd-mode-hook
-;;                  '(lambda ()
-;;                     (add-to-list 'c-offsets-alist '(arglist-cont-nonempty . d-lineup-cascaded-calls))
-;;                     (add-to-list 'c-offsets-alist '(statement-cont . d-lineup-cascaded-calls))))
+;; (add-hook 'd-mode-hook 'd-setup-cascaded-call-indentation)
+
+(defun d-setup-cascaded-call-indentation ()
+  "Set up `d-lineup-cascaded-calls'."
+  (add-to-list 'c-offsets-alist '(arglist-cont-nonempty . d-lineup-cascaded-calls))
+  (add-to-list 'c-offsets-alist '(statement-cont . d-lineup-cascaded-calls)))
 
 (defun d-lineup-cascaded-calls (langelem)
   "This is a modified `c-lineup-cascaded-calls' function for the
