@@ -210,11 +210,26 @@
       (kill-test-buffer))
     (not error-found)))
 
+(defun d-test-get-compilation-lines ()
+  "Get list of line numbers of lines recognized as errors by `compilation-mode'.
+
+Called from the #run snippet of individual test files."
+  (compilation-mode)
+  (let (buffer-read-only)
+    (compilation-parse-errors (point-min) (point-max)))
+  (let (error-list)
+    (while (condition-case nil
+  	       (progn (compilation-next-error 1) t)
+  	     (error nil))
+      (setq error-list (cons (line-number-at-pos) error-list)))
+    (reverse error-list)))
+
 ;; Run the tests
 (ert-deftest d-mode-basic ()
   (should (equal (do-one-test "tests/I0021.d") t))
   (should (equal (do-one-test "tests/I0039.d") t))
   (should (equal (do-one-test "tests/I0064.d") t))
+  (should (equal (do-one-test "tests/I0069.txt") t))
   )
 
 ;;----------------------------------------------------------------------------

@@ -1,5 +1,8 @@
 -*-compilation-*-
 
+// #run: (d-test-get-compilation-lines)
+// #out: (6 7 9 10 13)
+
 foo.d(1): Error: Test error
 foo.d(1,1): Error: Column number test
 baz.d(3,4):        instantiated from here: Continuation test
