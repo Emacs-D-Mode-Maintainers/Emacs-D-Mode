@@ -11,4 +11,8 @@ void main()
 			.buildNormalizedPath()
 			.dirEntries(SpanMode.shallow))
     {}
+  foreach (file; dirPath.expandTilde
+			.buildNormalizedPath
+			.dirEntries(SpanMode.shallow))
+    {}
 }
