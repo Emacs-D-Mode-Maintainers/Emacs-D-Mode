@@ -460,15 +460,45 @@ The expression is added to `compilation-error-regexp-alist' and
   (cons "D" (c-lang-const c-mode-menu d)))
 
 (defconst d-imenu-method-name-pattern
-  (concat
-   "^\\s-*"
-   "\\(?:[_a-z@]+\\s-+\\)*"             ; qualifiers
-   "\\([][_a-zA-Z0-9.*!]+\\)\\s-+"      ; type
-   "\\([_a-zA-Z0-9]+\\)\\s-*"           ; function name
-   "\\(?:([^)]*)\\s-*\\)?"              ; type arguments
-   "([^)]*)\\s-*"                       ; arguments
-   "\\(?:[a-z@]+\\s-*\\)?"              ; pure/const etc.
-   "\\(?:;\\|[ \t\n]*\\(?:if\\|{\\)\\)")) ; ';' or 'if' or '{'
+  (rx
+   ;; Whitespace
+   bol
+   (zero-or-more (syntax whitespace))
+
+   ;; Qualifiers
+   (zero-or-more
+    (one-or-more (any "a-z_@"))
+    (one-or-more (syntax whitespace)))
+
+   ;; Type
+   (group
+    (one-or-more (any "a-zA-Z0-9_.*![]")))
+   (one-or-more (syntax whitespace))
+
+   ;; Function name
+   (group
+    (one-or-more (any "a-zA-Z0-9_")))
+   (zero-or-more (syntax whitespace))
+
+   ;; Type arguments
+   (zero-or-one
+    "(" (zero-or-more (not (any ")"))) ")"
+    (zero-or-more (syntax whitespace)))
+
+   ;; Arguments
+   "(" (zero-or-more (not (any ")"))) ")"
+   (zero-or-more (syntax whitespace))
+
+   ;; Pure/const etc.
+   (zero-or-one
+    (one-or-more (any "a-z@"))
+    (zero-or-more (syntax whitespace)))
+
+   ;; ';' or 'if' or '{'
+   (or
+    ";"
+    (and (zero-or-more (any " \t\n")) (or "if" "{")))
+   ))
 
 (defun d-imenu-method-index-function ()
   (and
