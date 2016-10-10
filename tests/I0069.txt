@@ -1,0 +1,7 @@
+-*-compilation-*-
+
+foo.d(1): Error: Test error
+foo.d(1,1): Error: Column number test
+baz.d(3,4):        instantiated from here: Continuation test
+bar.d(2,1): Warning: Test warning
+quux.d(3): Deprecation: Test deprecation
