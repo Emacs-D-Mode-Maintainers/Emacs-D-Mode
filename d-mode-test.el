@@ -178,37 +178,42 @@
          (testbuf (make-test-buffer filename))
          (pop-up-windows t)
          (linenum 1)
-         error-found
+	 error-found-p
          expectedindent
          c-echo-syntactic-information-p)
 
     (switch-to-buffer testbuf)
     (syntax-ppss (point-max))
-    ;; extract the run command and expected output if any.
-    (let* ((contents (buffer-substring-no-properties 1 (point-max)))
-           (run-str (if (string-match "^// #run: \\(.+\\)$" contents)
-                        (match-string 1 contents)))
-           (out-str (if (string-match "^// #out: \\(.+\\)$" contents)
-                        (match-string 1 contents))))
-      (when run-str
-	(let ((result (eval (car (read-from-string run-str)))))
-	  (when out-str
-	    (let ((expect (car (read-from-string out-str))))
-	      (unless (equal result expect)
-		(setq error-found (format "\nExpected: %s\nGot     : %s" expect result))))))))
 
-    (when error-found
-      (set-buffer testbuf)
-      (buffer-enable-undo testbuf)
-      (set-buffer-modified-p nil)
+    (condition-case err
+	;; extract the run command and expected output if any.
+	(let* ((contents (buffer-substring-no-properties 1 (point-max)))
+	       (run-str (if (string-match "^// #run: \\(.+\\)$" contents)
+			    (match-string 1 contents)))
+	       (out-str (if (string-match "^// #out: \\(.+\\)$" contents)
+			    (match-string 1 contents))))
+	  (when run-str
+	    (let ((result (eval (car (read-from-string run-str)))))
+	      (when out-str
+		(let ((expect (car (read-from-string out-str))))
+		  (unless (equal result expect)
+		    (error "\nExpected: %s\nGot     : %s" expect result))))))
+	  t)
+      (error
+       (set-buffer testbuf)
+       (buffer-enable-undo testbuf)
+       (set-buffer-modified-p nil)
+       (setq error-found-p t)
 
-      (error "Regression found in file %s: %s" filename error-found))
+       (message
+	"Regression found in file %s:\n%s"
+	filename (error-message-string err))))
 
     (set-buffer save-buf)
     (goto-char save-point)
-    (when (and (not error-found) (interactive-p))
+    (when (and (not error-found-p) (interactive-p))
       (kill-test-buffer))
-    (not error-found)))
+    (not error-found-p)))
 
 (defun d-test-get-compilation-lines ()
   "Get list of line numbers of lines recognized as errors by `compilation-mode'.
@@ -248,7 +253,7 @@ If the resulting indentation ends up being different, raise an error."
 	 (c-indent-region (point-min) (point-max)))
        (error (concat "Test case has been indented differently.\n"
 		      "Expected:\n--------------------\n%s\n--------------------\n"
-		      "Got:\n--------------------\n%s\n--------------------\n")
+		      "Got:     \n--------------------\n%s\n--------------------\n")
 	      orig (buffer-string))))))
 
 ;; Run the tests
