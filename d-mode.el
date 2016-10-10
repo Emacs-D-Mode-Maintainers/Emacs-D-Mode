@@ -225,7 +225,7 @@ The expression is added to `compilation-error-regexp-alist' and
 
 (add-to-list 'compilation-error-regexp-alist-alist
              '(d-exceptions
-               "^[^@]*?@\\(.*?\\)(\\([0-9]+\\)):"
+               "^[a-zA-z0-9\.]*?@\\(.*?\\)(\\([0-9]+\\)):"
                1 2 nil 2))
 (add-to-list 'compilation-error-regexp-alist 'd-exceptions)
 
