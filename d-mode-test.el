@@ -260,7 +260,7 @@ If the resulting indentation ends up being different, raise an error."
 (ert-deftest d-mode-basic ()
   (should (equal (do-one-test "tests/imenu.d") t))
   (should (equal (do-one-test "tests/I0021.d") t))
-  (should (equal (do-one-test "tests/I0035.d") t))
+  (should (equal (do-one-test "tests/I0035.d") (version<= "24.3" emacs-version)))
   (should (equal (do-one-test "tests/I0039.d") t))
   (should (equal (do-one-test "tests/I0064.d") t))
   (should (equal (do-one-test "tests/I0069.txt") t))
