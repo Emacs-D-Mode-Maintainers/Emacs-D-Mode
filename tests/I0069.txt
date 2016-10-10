@@ -5,3 +5,17 @@ foo.d(1,1): Error: Column number test
 baz.d(3,4):        instantiated from here: Continuation test
 bar.d(2,1): Warning: Test warning
 quux.d(3): Deprecation: Test deprecation
+
+# Test for GitHub pull request #72
+core.exception.AssertError@test.d(1): Assertion failure
+----------------
+??:? _d_assert [0x422b1b]
+??:? void test.__assert(int) [0x422a2f]
+/tmp/test.d:1 _Dmain [0x4229d5]
+??:? _D2rt6dmain211_d_run_mainUiPPaPUAAaZiZ6runAllMFZ9__lambda1MFZv [0x422f92]
+??:? void rt.dmain2._d_run_main(int, char**, extern (C) int function(char[][])*).tryExec(scope void delegate()) [0x422edc]
+??:? void rt.dmain2._d_run_main(int, char**, extern (C) int function(char[][])*).runAll() [0x422f4e]
+??:? void rt.dmain2._d_run_main(int, char**, extern (C) int function(char[][])*).tryExec(scope void delegate()) [0x422edc]
+??:? _d_run_main [0x422e4d]
+??:? main [0x422a7f]
+??:? __libc_start_main [0xc9d0b290]
