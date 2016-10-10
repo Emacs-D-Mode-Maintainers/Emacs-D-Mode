@@ -1,6 +1,9 @@
 // #run: (d-test-get-imenu-lines)
-// #out: (4)
+// #out: (4 6)
 
-void main()
+void foo(int x) {}
+
+void bar(int x)
 {
+	return foo(x);
 }
