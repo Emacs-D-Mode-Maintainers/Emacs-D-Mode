@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201610111926
+;; Version:  201610111931
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
@@ -469,6 +469,20 @@ The expression is added to `compilation-error-regexp-alist' and
    ;; Whitespace
    bol
    (zero-or-more space)
+
+   ;; Conditionals
+   (zero-or-one
+    "else"
+    (zero-or-more space))
+   (zero-or-one
+    "version"
+    (zero-or-more space)
+    "("
+    (zero-or-more space)
+    (one-or-more (any "a-zA-Z0-9_"))
+    (zero-or-more space)
+    ")"
+    (zero-or-more space))
 
    ;; Qualifiers
    (zero-or-more

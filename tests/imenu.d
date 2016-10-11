@@ -1,5 +1,5 @@
 // #run: (d-test-get-imenu-lines)
-// #out: (4 6 11 14 17 19 22 25)
+// #out: (4 6 11 14 17 19 22 25 33 34)
 
 void foo(int x) {}
 
@@ -29,3 +29,8 @@ auto execute(in char[][] args,
              in char[] workDir = null)
     @trusted //TODO: @safe
 {}
+
+version(StdDdoc) string readLink(C)(const(C)[] link) @safe;
+else version(Posix) string readLink(C)(const(C)[] link) @safe
+{}
+
