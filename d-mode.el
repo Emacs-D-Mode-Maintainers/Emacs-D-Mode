@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201610111946
+;; Version:  201610111950
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
@@ -561,8 +561,8 @@ The expression is added to `compilation-error-regexp-alist' and
      ,(rx
        line-start
        (zero-or-more (syntax whitespace))
-       (zero-or-one
-	(or "final" "abstract")
+       (zero-or-more
+	(or "final" "abstract" "private" "package" "protected" "public" "export" "static")
 	(one-or-more (syntax whitespace)))
        word-start
        "class"
@@ -592,6 +592,9 @@ The expression is added to `compilation-error-regexp-alist' and
      ,(rx
        line-start
        (zero-or-more (syntax whitespace))
+       (zero-or-more
+	(or "private" "package" "protected" "public" "export" "static")
+	(one-or-more (syntax whitespace)))
        word-start
        "struct"
        (one-or-more (syntax whitespace))

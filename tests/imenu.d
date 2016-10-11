@@ -1,5 +1,5 @@
 // #run: (d-test-get-imenu-lines)
-// #out: (4 6 11 14 17 19 22 25 33 34 37 40 43)
+// #out: (4 6 11 14 17 19 22 25 33 34 37 40 43 46 49)
 
 void foo(int x) {}
 
@@ -41,4 +41,10 @@ enum Foo : int
 {}
 
 string absolutePath(string path, lazy string base = getcwd())
+{}
+
+private final class C
+{}
+
+public struct S
 {}
