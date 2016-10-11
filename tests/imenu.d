@@ -1,5 +1,5 @@
 // #run: (d-test-get-imenu-lines)
-// #out: (4 6 11 14 17 19 22 25 33 34)
+// #out: (4 6 11 14 17 19 22 25 33 34 37 40)
 
 void foo(int x) {}
 
@@ -34,3 +34,8 @@ version(StdDdoc) string readLink(C)(const(C)[] link) @safe;
 else version(Posix) string readLink(C)(const(C)[] link) @safe
 {}
 
+enum ClockType
+{}
+
+enum Foo : int
+{}

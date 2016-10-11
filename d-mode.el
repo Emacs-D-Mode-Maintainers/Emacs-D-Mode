@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201610111931
+;; Version:  201610111943
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
@@ -618,6 +618,22 @@ The expression is added to `compilation-error-regexp-alist' and
 	      (?0 . ?9)
 	      (?A . ?Z)
 	      (?a . ?z)))))
+     1)
+    ("*Enums*"
+     ,(rx
+       line-start
+       (zero-or-more (syntax whitespace))
+       word-start
+       "enum"
+       (one-or-more (syntax whitespace))
+       (submatch
+	(one-or-more
+	 (any ?_
+	      (?0 . ?9)
+	      (?A . ?Z)
+	      (?a . ?z))))
+       (zero-or-more (any " \t\n"))
+       (or ":" "{"))
      1)
     (nil d-imenu-method-index-function 2)))
 
