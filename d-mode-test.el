@@ -54,6 +54,8 @@
 
 (require 'd-mode nil t)
 
+(require 'htmlfontify)
+
 (defconst d-test-teststyle
   '((c-tab-always-indent . t)
     (c-basic-offset . 2)
@@ -256,6 +258,23 @@ If the resulting indentation ends up being different, raise an error."
 		      "Got:     \n--------------------\n%s\n--------------------\n")
 	      orig (buffer-string))))))
 
+(defun d-test-fontification ()
+  "Test fontification the current file.
+
+Compares fontification against a test file (same file name, with
+a '.html' suffix).  If the result ends up being different from
+the reference file, raise an error."
+  (let* ((hfy-optimizations '(body-text-only merge-adjacent-tags))
+	 (actual (with-current-buffer (htmlfontify-buffer nil "test.d") (buffer-string)))
+	 (expected (with-temp-buffer
+		     (insert-file-contents (concat filename ".html"))
+		     (buffer-string))))
+    (unless (equal actual expected)
+      (error (concat "Test case has been fontified differently.\n"
+		     "Expected:\n--------------------\n%s\n--------------------\n"
+		     "Got:     \n--------------------\n%s\n--------------------\n")
+	     expected actual))))
+
 (defmacro d-test-deftest (name filename expected-result)
   "Define a d-mode test using the given FILENAME.
 
@@ -267,6 +286,7 @@ is expected to succeed, and nil otherwise."
 
 ;; Run the tests
 (d-test-deftest imenu "tests/imenu.d" t)
+(d-test-deftest fonts "tests/fonts.d" t)
 (d-test-deftest i0021 "tests/I0021.d" t)
 (d-test-deftest i0026 "tests/I0026.d" t)
 (d-test-deftest i0035 "tests/I0035.d" (version< "24.4" emacs-version))
