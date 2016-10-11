@@ -2,8 +2,8 @@
 ;;;               Requires a cc-mode of version 5.30 or greater
 
 ;; Author:  William Baxter
-;; Contributors:  Andrei Alexandrescu
-;; Contributors:  Russel Winder
+;; Contributor:  Andrei Alexandrescu
+;; Contributor:  Russel Winder
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
@@ -13,6 +13,8 @@
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
 ;;;; A hook to update it automatically on save is available here:
 ;;;; https://gist.github.com/CyberShadow/28f60687c3bf83d32900cd6074c012cb
+
+;; This file is not part of GNU Emacs.
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
