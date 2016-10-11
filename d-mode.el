@@ -5,6 +5,7 @@
 ;; Contributors:  Andrei Alexandrescu
 ;; Contributors:  Russel Winder
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
+;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
 ;; Version:  201610110325
 ;; Keywords:  D programming language emacs cc-mode
