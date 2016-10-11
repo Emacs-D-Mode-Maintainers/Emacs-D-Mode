@@ -1,5 +1,5 @@
 // #run: (d-test-get-imenu-lines)
-// #out: (4 6 11 14)
+// #out: (4 6 11 14 17)
 
 void foo(int x) {}
 
@@ -13,3 +13,5 @@ extern(C) void _d_throwdwarf(Throwable o)
 
 extern (C) int rt_init()
 {}
+
+Duration dur(string units)(long length) @safe pure nothrow @nogc {}
