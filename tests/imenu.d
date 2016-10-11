@@ -1,5 +1,5 @@
 // #run: (d-test-get-imenu-lines)
-// #out: (4 6 11 14 17 19 22 25 33 34 37 40 43 46 49)
+// #out: (4 6 11 14 17 19 22 25 33 34 37 40 43 46 49 52 54 56)
 
 void foo(int x) {}
 
@@ -48,3 +48,12 @@ private final class C
 
 public struct S
 {}
+
+alias xmlParse = parseDocument!XmlParseConfig;
+
+alias parseDocument!XmlParseConfig xmlParse;
+
+void test()
+{
+	alias foo = bar;
+}

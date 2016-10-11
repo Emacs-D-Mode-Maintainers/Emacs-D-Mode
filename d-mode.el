@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201610111950
+;; Version:  201610111956
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
@@ -637,6 +637,46 @@ The expression is added to `compilation-error-regexp-alist' and
 	      (?a . ?z))))
        (zero-or-more (any " \t\n"))
        (or ":" "{"))
+     1)
+    ;; NB: We can't easily distinguish aliases declared outside
+    ;; functions from local ones, so just search for those that are
+    ;; declared at the beginning of lines.
+    ("*Aliases*"
+     ,(rx
+       line-start
+       "alias"
+       (one-or-more (syntax whitespace))
+       (submatch
+	(one-or-more
+	 (any ?_
+	      (?0 . ?9)
+	      (?A . ?Z)
+	      (?a . ?z))))
+       (zero-or-more (syntax whitespace))
+       "=")
+     1)
+    ("*Aliases*"
+     ,(rx
+       line-start
+       "alias"
+       (one-or-more (syntax whitespace))
+       (one-or-more
+	(not (any ";")))
+       (one-or-more (syntax whitespace))
+       (submatch
+	(one-or-more
+	 (any ?_
+	      (?0 . ?9)
+	      (?A . ?Z)
+	      (?a . ?z))))
+       (zero-or-more (syntax whitespace))
+       ";"
+       (zero-or-more (syntax whitespace))
+       (or
+	eol
+	"//"
+	"/*")
+       )
      1)
     (nil d-imenu-method-index-function 2)))
 
