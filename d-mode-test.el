@@ -264,7 +264,7 @@ If the resulting indentation ends up being different, raise an error."
 Compares fontification against a test file (same file name, with
 a '.html' suffix).  If the result ends up being different from
 the reference file, raise an error."
-  (let* ((hfy-optimizations '(body-text-only merge-adjacent-tags))
+  (let* ((hfy-optimisations '(body-text-only merge-adjacent-tags))
 	 (actual (with-current-buffer (htmlfontify-buffer nil "test.d") (buffer-string)))
 	 (expected (with-temp-buffer
 		     (insert-file-contents (concat filename ".html"))
