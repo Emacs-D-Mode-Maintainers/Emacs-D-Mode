@@ -238,10 +238,19 @@ Called from the #run snippet of individual test files."
 
 Called from the #run snippet of individual test files."
   (imenu--make-index-alist t)
-  (mapcar
-   (lambda (x)
-     (line-number-at-pos (cdr x)))
-   imenu--index-alist))
+  (sort
+   (apply
+    'append
+    (mapcar
+     (lambda (x)
+       (if (imenu--subalist-p x)
+	   (mapcar
+	    (lambda (x)
+	      (line-number-at-pos (cdr x)))
+	    (cdr x))
+	 (list (line-number-at-pos (cdr x)))))
+     imenu--index-alist))
+   '<))
 
 (defun d-test-indent ()
   "Re-indent the current file.
