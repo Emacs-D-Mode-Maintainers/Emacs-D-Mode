@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201610111924
+;; Version:  201610111926
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
@@ -505,6 +505,11 @@ The expression is added to `compilation-error-regexp-alist' and
    (zero-or-more
     (one-or-more (any "a-z@"))
     (zero-or-more (any " \t\n")))
+
+   (zero-or-more
+    "//"
+    (zero-or-more not-newline)
+    (zero-or-more space))
 
    ;; ';' or 'if' or '{'
    (or

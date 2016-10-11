@@ -27,5 +27,5 @@ auto execute(in char[][] args,
              Config config = Config.none,
              size_t maxOutput = size_t.max,
              in char[] workDir = null)
-    @trusted
+    @trusted //TODO: @safe
 {}
