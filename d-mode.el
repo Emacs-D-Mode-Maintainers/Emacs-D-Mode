@@ -6,10 +6,12 @@
 ;; Contributors:  Russel Winder
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;; Created:  March 2007
-;; Version:  201605041654
+;; Version:  201610110325
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
+;;;; A hook to update it automatically on save is available here:
+;;;; https://gist.github.com/CyberShadow/28f60687c3bf83d32900cd6074c012cb
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
