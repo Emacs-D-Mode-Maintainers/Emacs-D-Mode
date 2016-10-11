@@ -264,6 +264,13 @@ If the resulting indentation ends up being different, raise an error."
 Compares fontification against a test file (same file name, with
 a '.html' suffix).  If the result ends up being different from
 the reference file, raise an error."
+  ;; Work around 24.3 oddity
+  (when (and
+	 (boundp 'c-standard-font-lock-fontify-region-function)
+	 (null c-standard-font-lock-fontify-region-function))
+    (setq c-standard-font-lock-fontify-region-function
+	  (default-value 'font-lock-fontify-region-function)))
+
   (let* ((hfy-optimisations '(body-text-only merge-adjacent-tags))
 	 (actual (with-current-buffer (htmlfontify-buffer nil "test.d") (buffer-string)))
 	 (expected (with-temp-buffer
