@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201610111913
+;; Version:  201610111915
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
@@ -477,7 +477,7 @@ The expression is added to `compilation-error-regexp-alist' and
 
    ;; Type
    (group
-    (one-or-more (any "a-zA-Z0-9_.*![]")))
+    (one-or-more (any "a-zA-Z0-9_.*![]()")))
    (one-or-more (syntax whitespace))
 
    ;; Function name
