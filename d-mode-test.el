@@ -256,17 +256,24 @@ If the resulting indentation ends up being different, raise an error."
 		      "Got:     \n--------------------\n%s\n--------------------\n")
 	      orig (buffer-string))))))
 
+(defmacro d-test-deftest (name filename expected-result)
+  "Define a d-mode test using the given FILENAME.
+
+EXPECTED-RESULT should return t if the test
+is expected to succeed, and nil otherwise."
+  `(ert-deftest ,name ()
+     :expected-result (if ,expected-result :passed :failed)
+     (should (do-one-test ,filename))))
+
 ;; Run the tests
-(ert-deftest d-mode-basic ()
-  (should (equal (do-one-test "tests/imenu.d") t))
-  (should (equal (do-one-test "tests/I0021.d") t))
-  (should (equal (do-one-test "tests/I0026.d") t))
-  (should (equal (do-one-test "tests/I0035.d") (version< "24.4" emacs-version)))
-  (should (equal (do-one-test "tests/I0039.d") (version< "24.4" emacs-version)))
-  (should (equal (do-one-test "tests/I0064.d") t))
-  (should (equal (do-one-test "tests/I0069.txt") t))
-  (should (equal (do-one-test "tests/I0072.txt") t))
-  )
+(d-test-deftest imenu "tests/imenu.d" t)
+(d-test-deftest i0021 "tests/I0021.d" t)
+(d-test-deftest i0026 "tests/I0026.d" t)
+(d-test-deftest i0035 "tests/I0035.d" (version< "24.4" emacs-version))
+(d-test-deftest i0039 "tests/I0039.d" (version< "24.4" emacs-version))
+(d-test-deftest i0064 "tests/I0064.d" t)
+(d-test-deftest i0069 "tests/I0069.txt" t)
+(d-test-deftest i0072 "tests/I0072.txt" t)
 
 ;;----------------------------------------------------------------------------
 
