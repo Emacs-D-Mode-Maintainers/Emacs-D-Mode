@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201610111901
+;; Version:  201610111913
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
@@ -491,7 +491,14 @@ The expression is added to `compilation-error-regexp-alist' and
     (zero-or-more (syntax whitespace)))
 
    ;; Arguments
-   "(" (zero-or-more (not (any ")"))) ")"
+   "("
+   (zero-or-more (not (any "()")))
+   (zero-or-more
+    "("
+    (one-or-more (not (any "()")))
+    ")"
+    (zero-or-more (not (any "()"))))
+   ")"
    (zero-or-more (syntax whitespace))
 
    ;; Pure/const etc.
