@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201610111915
+;; Version:  201610111924
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
@@ -468,27 +468,27 @@ The expression is added to `compilation-error-regexp-alist' and
   (rx
    ;; Whitespace
    bol
-   (zero-or-more (syntax whitespace))
+   (zero-or-more space)
 
    ;; Qualifiers
    (zero-or-more
     (one-or-more (any "a-z_@()C+"))
-    (one-or-more (syntax whitespace)))
+    (one-or-more space))
 
    ;; Type
    (group
     (one-or-more (any "a-zA-Z0-9_.*![]()")))
-   (one-or-more (syntax whitespace))
+   (one-or-more space)
 
    ;; Function name
    (group
     (one-or-more (any "a-zA-Z0-9_")))
-   (zero-or-more (syntax whitespace))
+   (zero-or-more space)
 
    ;; Type arguments
    (zero-or-one
     "(" (zero-or-more (not (any ")"))) ")"
-    (zero-or-more (syntax whitespace)))
+    (zero-or-more space))
 
    ;; Arguments
    "("
@@ -499,17 +499,19 @@ The expression is added to `compilation-error-regexp-alist' and
     ")"
     (zero-or-more (not (any "()"))))
    ")"
-   (zero-or-more (syntax whitespace))
+   (zero-or-more (any " \t\n"))
 
    ;; Pure/const etc.
    (zero-or-more
     (one-or-more (any "a-z@"))
-    (zero-or-more (syntax whitespace)))
+    (zero-or-more (any " \t\n")))
 
    ;; ';' or 'if' or '{'
    (or
     ";"
-    (and (zero-or-more (any " \t\n")) (or "if" "{")))
+    (and
+     (zero-or-more (any " \t\n"))
+     (or "if" "{")))
    ))
 
 (defun d-imenu-method-index-function ()

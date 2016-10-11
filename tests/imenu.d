@@ -1,5 +1,5 @@
 // #run: (d-test-get-imenu-lines)
-// #out: (4 6 11 14 17 19 22)
+// #out: (4 6 11 14 17 19 22 25)
 
 void foo(int x) {}
 
@@ -20,4 +20,12 @@ void test(const(char)* str)
 {}
 
 extern (C++) static const(char)* searchPath(Strings* path, const(char)* name, bool cwd)
+{}
+
+auto execute(in char[][] args,
+             const string[string] env = null,
+             Config config = Config.none,
+             size_t maxOutput = size_t.max,
+             in char[] workDir = null)
+    @trusted
 {}
