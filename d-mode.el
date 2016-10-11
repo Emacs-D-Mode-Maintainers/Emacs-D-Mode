@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201610111813
+;; Version:  201610111856
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
@@ -472,7 +472,7 @@ The expression is added to `compilation-error-regexp-alist' and
 
    ;; Qualifiers
    (zero-or-more
-    (one-or-more (any "a-z_@"))
+    (one-or-more (any "a-z_@()C+"))
     (one-or-more (syntax whitespace)))
 
    ;; Type

@@ -1,5 +1,5 @@
 // #run: (d-test-get-imenu-lines)
-// #out: (4 6)
+// #out: (4 6 11 14)
 
 void foo(int x) {}
 
@@ -7,3 +7,9 @@ void bar(int x)
 {
 	return foo(x);
 }
+
+extern(C) void _d_throwdwarf(Throwable o)
+{}
+
+extern (C) int rt_init()
+{}
