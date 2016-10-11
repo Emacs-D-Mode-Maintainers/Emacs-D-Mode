@@ -1,4 +1,4 @@
--*-compilation-*-
+-*- mode: compilation  -*-
 
 // #run: (d-test-get-compilation-lines)
 // #out: (7)
