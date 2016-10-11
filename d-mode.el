@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201610111121
+;; Version:  201610111435
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
@@ -592,11 +592,7 @@ Key bindings:
   (c-init-language-vars d-mode)
   (when (fboundp 'c-make-noise-macro-regexps)
     (c-make-noise-macro-regexps))
-  (c-common-init 'd-mode)
-  (easy-menu-add d-menu)
-  (c-run-mode-hooks 'c-mode-common-hook 'd-mode-hook)
-  (c-update-modeline)
-  (cc-imenu-init d-imenu-generic-expression)
+
   ;; Generate a function that applies D-specific syntax properties.
   ;; Concretely, inside back-quoted string literals the backslash
   ;; character '\' is treated as a punctuation symbol.  See help for
@@ -617,7 +613,13 @@ Key bindings:
 	   (zero-or-more
 	    (not (any "`\\"))))))
 	"`")
-       (1 "."))))))
+       (1 ".")))))
+
+  (c-common-init 'd-mode)
+  (easy-menu-add d-menu)
+  (c-run-mode-hooks 'c-mode-common-hook 'd-mode-hook)
+  (c-update-modeline)
+  (cc-imenu-init d-imenu-generic-expression))
 
 ;;----------------------------------------------------------------------------
 ;; "Hideous hacks" to support appropriate font-lock behaviour.
