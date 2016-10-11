@@ -602,8 +602,22 @@ Key bindings:
   ;; character '\' is treated as a punctuation symbol.  See help for
   ;; syntax-propertize-rules function for more information.
   (when (version<= "24.3" emacs-version)
-    (setq-local syntax-propertize-function
-                (syntax-propertize-rules ("`[^\\\\`]*?\\(\\(\\\\\\)[^\\\\`]*?\\)+?`" (2 "."))))))
+    (setq-local
+     syntax-propertize-function
+     (syntax-propertize-rules
+      ((rx
+	"`"
+	(minimal-match
+	 (zero-or-more
+	  (not (any "`\\"))))
+	(minimal-match
+	 (one-or-more
+	  (submatch "\\")
+	  (minimal-match
+	   (zero-or-more
+	    (not (any "`\\"))))))
+	"`")
+       (1 "."))))))
 
 ;;----------------------------------------------------------------------------
 ;; "Hideous hacks" to support appropriate font-lock behaviour.
