@@ -296,6 +296,7 @@ is expected to succeed, and nil otherwise."
 (d-test-deftest fonts "tests/fonts.d" t)
 (d-test-deftest i0021 "tests/I0021.d" t)
 (d-test-deftest i0026 "tests/I0026.d" t)
+(d-test-deftest i0030 "tests/I0030.d" t)
 (d-test-deftest i0035 "tests/I0035.d" (version< "24.4" emacs-version))
 (d-test-deftest i0039 "tests/I0039.d" (version< "24.4" emacs-version))
 (d-test-deftest i0064 "tests/I0064.d" t)

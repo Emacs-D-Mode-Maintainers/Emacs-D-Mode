@@ -1,0 +1,12 @@
+<span class="comment-delimiter">// </span><span class="comment">#run: (d-test-fontification)
+</span>
+<span class="keyword">const class</span> C
+{
+	<span class="type">int</span> <span class="function-name">getFoo</span>() <span class="keyword">const</span> { <span class="keyword">return</span> 42; }
+
+	<span class="keyword">const</span> <span class="type">void</span> <span class="function-name">bar</span>()
+	{
+		<span class="keyword">auto</span> <span class="variable-name">foo</span> = getFoo();
+		<span class="keyword">const</span> <span class="variable-name">baz</span> = getFoo();
+	}
+}

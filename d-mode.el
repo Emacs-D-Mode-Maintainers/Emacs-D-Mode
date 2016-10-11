@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201610111435
+;; Version:  201610111813
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
@@ -245,7 +245,7 @@ The expression is added to `compilation-error-regexp-alist' and
 
 ;; Keywords that can prefix normal declarations of identifiers
 (c-lang-defconst c-modifier-kwds
-  d '("__gshared" "abstract" "const" "deprecated" "extern"
+  d '("__gshared" "abstract" "deprecated" "extern"
       "final" "in" "out" "inout" "lazy" "mixin" "override" "private"
       "protected" "public" "ref" "scope" "shared" "static" "synchronized"
       "volatile" "__vector"))
@@ -259,7 +259,7 @@ The expression is added to `compilation-error-regexp-alist' and
 ;;   d '("enum"))
 
 (c-lang-defconst c-type-modifier-kwds
-  d '("__gshared" "const" "inout" "lazy" "shared" "volatile"
+  d '("__gshared" "inout" "lazy" "shared" "volatile"
       "invariant" "enum" "__vector"))
 
 (c-lang-defconst c-type-prefix-kwds
@@ -288,7 +288,7 @@ The expression is added to `compilation-error-regexp-alist' and
 (c-lang-defconst c-protection-kwds
   ;; Access protection label keywords in classes.
   d '("deprecated" "static" "extern" "final" "synchronized" "override"
-      "abstract" "scope" "const" "inout" "shared" "__gshared"
+      "abstract" "scope" "inout" "shared" "__gshared"
       "private" "package" "protected" "public" "export"))
 
 ;;(c-lang-defconst c-postfix-decl-spec-kwds
@@ -624,7 +624,7 @@ Key bindings:
 ;;----------------------------------------------------------------------------
 ;; "Hideous hacks" to support appropriate font-lock behaviour.
 ;;
-;; * auto/immutable: If we leave them in c-modifier-kwds (like
+;; * auto/const/immutable: If we leave them in c-modifier-kwds (like
 ;;   c++-mode) then in the form "auto var;" var will be highlighted in
 ;;   type name face. Moving auto/immutable to font-lock-add-keywords
 ;;   lets cc-mode seeing them as a type name, so the next symbol can
@@ -657,7 +657,7 @@ Key bindings:
 (defun d-match-fun-decl (limit)
   (d-try-match-decl d-fun-decl-pattern))
 (defun d-match-auto (limit)
-  (c-syntactic-re-search-forward "\\<\\(auto\\|immutable\\)\\>" limit t))
+  (c-syntactic-re-search-forward "\\<\\(auto\\|const\\|immutable\\)\\>" limit t))
 
 (font-lock-add-keywords
  'd-mode
