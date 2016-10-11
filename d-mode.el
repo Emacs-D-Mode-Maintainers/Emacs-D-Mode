@@ -557,10 +557,68 @@ The expression is added to `compilation-error-regexp-alist' and
            (not invis))))))
 
 (defvar d-imenu-generic-expression
-  `(("*Classes*" "^\\s-*\\(?:\\(?:final\\|abstract\\)\\s-+\\)?\\<class\\s-+\\([a-zA-Z0-9_]+\\)" 1)
-    ("*Interfaces*" "^\\s-*\\<interface\\s-+\\([a-zA-Z0-9_]+\\)" 1)
-    ("*Structs*" "^\\s-*\\<struct\\s-+\\([a-zA-Z0-9_]+\\)" 1)
-    ("*Templates*" "^\\s-*\\(?:mixin\\s-+\\)?\\<template\\s-+\\([a-zA-Z0-9_]+\\)" 1)
+  `(("*Classes*"
+     ,(rx
+       line-start
+       (zero-or-more (syntax whitespace))
+       (zero-or-one
+	(or "final" "abstract")
+	(one-or-more (syntax whitespace)))
+       word-start
+       "class"
+       (one-or-more (syntax whitespace))
+       (submatch
+	(one-or-more
+	 (any ?_
+	      (?0 . ?9)
+	      (?A . ?Z)
+	      (?a . ?z)))))
+     1)
+    ("*Interfaces*"
+     ,(rx
+       line-start
+       (zero-or-more (syntax whitespace))
+       word-start
+       "interface"
+       (one-or-more (syntax whitespace))
+       (submatch
+	(one-or-more
+	 (any ?_
+	      (?0 . ?9)
+	      (?A . ?Z)
+	      (?a . ?z)))))
+     1)
+    ("*Structs*"
+     ,(rx
+       line-start
+       (zero-or-more (syntax whitespace))
+       word-start
+       "struct"
+       (one-or-more (syntax whitespace))
+       (submatch
+	(one-or-more
+	 (any ?_
+	      (?0 . ?9)
+	      (?A . ?Z)
+	      (?a . ?z)))))
+     1)
+    ("*Templates*"
+     ,(rx
+       line-start
+       (zero-or-more (syntax whitespace))
+       (zero-or-one
+	"mixin"
+	(one-or-more (syntax whitespace)))
+       word-start
+       "template"
+       (one-or-more (syntax whitespace))
+       (submatch
+	(one-or-more
+	 (any ?_
+	      (?0 . ?9)
+	      (?A . ?Z)
+	      (?a . ?z)))))
+     1)
     (nil d-imenu-method-index-function 2)))
 
 ;;----------------------------------------------------------------------------
