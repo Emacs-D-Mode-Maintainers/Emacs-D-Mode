@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201610110325
+;; Version:  201610111121
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
@@ -590,6 +590,8 @@ Key bindings:
         abbrev-mode t)
   (use-local-map d-mode-map)
   (c-init-language-vars d-mode)
+  (when (fboundp 'c-make-noise-macro-regexps)
+    (c-make-noise-macro-regexps))
   (c-common-init 'd-mode)
   (easy-menu-add d-menu)
   (c-run-mode-hooks 'c-mode-common-hook 'd-mode-hook)
