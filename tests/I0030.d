@@ -9,4 +9,7 @@ const class C
 		auto foo = getFoo();
 		const baz = getFoo();
 	}
+
+	const auto foo = 4;
+	immutable auto boo = 4;
 }
