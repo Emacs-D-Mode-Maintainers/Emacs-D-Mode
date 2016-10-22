@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201610111956
+;; Version:  201610221417
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
@@ -238,7 +238,7 @@ The expression is added to `compilation-error-regexp-alist' and
 
 ;; Built-in basic types
 (c-lang-defconst c-primitive-type-kwds
-  d '("bit" "bool" "byte" "ubyte" "char" "delegate" "double" "float"
+  d '("bool" "byte" "ubyte" "char" "delegate" "double" "float"
       "function" "int" "long" "short" "uint" "ulong" "ushort"
       "cent" "ucent" "real" "ireal" "idouble" "ifloat" "creal" "cfloat" "cdouble"
       "wchar" "dchar" "void" "string" "wstring" "dstring"))
