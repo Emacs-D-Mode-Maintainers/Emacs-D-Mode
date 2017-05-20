@@ -140,7 +140,7 @@
 
 (c-lang-defconst c-opt-cpp-prefix
   ;; Preprocessor directive recognizer.  D doesn't have cpp, but it has #line
-  d "\\s *#\\s *")
+  d "\\s *\\#\\s *")
 
 (c-lang-defconst c-cpp-message-directives d nil)
 (c-lang-defconst c-cpp-include-directives d nil)
