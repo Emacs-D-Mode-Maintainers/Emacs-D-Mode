@@ -1,7 +1,8 @@
 # Based on https://github.com/flycheck/emacs-travis
 
 language: emacs-lisp
-sudo: false
+sudo: required
+dist: trusty
 # Allow Emacs snapshot builds to fail and don’t wait for these as they can take
 # a looooong time
 matrix:
