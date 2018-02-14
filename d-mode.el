@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201610221417
+;; Version:  201802141931
 ;; Keywords:  D programming language emacs cc-mode
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
@@ -752,7 +752,7 @@ Key bindings:
 	 (zero-or-more
 	  (not (any "`\\"))))
 	(minimal-match
-	 (one-or-more
+	 (zero-or-more
 	  (submatch "\\")
 	  (minimal-match
 	   (zero-or-more
