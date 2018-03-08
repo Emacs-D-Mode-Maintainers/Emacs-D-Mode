@@ -14,17 +14,21 @@ The best way of installing this major mode, at least for Emacs 24, is to use the
 or MELPA Stable to the list of repositories to access this mode. For those who want only formal, tagged
 releases use MELPA Stable:
 
-    (require 'package)
-    (add-to-list 'package-archives
-             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-    (package-initialize)
+```elisp
+(require 'package)
+(add-to-list 'package-archives
+         '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
+```
 
 For those who want rolling releases as they happen use MELPA:
 
-    (require 'package)
-    (add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
-    (package-initialize)
+```elisp
+(require 'package)
+(add-to-list 'package-archives
+         '("melpa" . "https://melpa.org/packages/") t)
+(package-initialize)
+```
 
 and then use M-x package-list-packages to get to the package listing and install from there. MELPA tracks
 this Git repository and updates relatively soon after each commit or formal release. For more detail on
