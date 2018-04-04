@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201804041204
+;; Version:  201804041719
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -77,6 +77,11 @@
 ;; Needed to prevent
 ;;   "Symbol's value as variable is void: compilation-error-regexp-alist-alist" errors
 (require 'compile)
+
+;; Work around Emacs (cc-mode) bug #18845
+(eval-when-compile
+  (when (and (= emacs-major-version 24) (>= emacs-minor-version 4))
+    (require 'cl)))
 
 ;; The set-difference function is used from the Common Lisp extensions.
 (require 'cl-lib)
