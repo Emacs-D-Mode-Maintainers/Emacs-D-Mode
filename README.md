@@ -8,7 +8,7 @@
 
 An Emacs major mode for editing D code.
 
-This mode is currently known to work with Emacs 24 and 25, and believed to work with Emacs 23.
+This mode is currently known to work with Emacs 24 and 25.
 
 The best way of installing this major mode, at least for Emacs 24, is to use the packaging system. Add MELPA
 or MELPA Stable to the list of repositories to access this mode. For those who want only formal, tagged
