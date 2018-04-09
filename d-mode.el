@@ -7,8 +7,9 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201802141931
+;; Version:  201804041719
 ;; Keywords:  D programming language emacs cc-mode
+;; Package-Requires: ((emacs "24.3"))
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
 ;;;; A hook to update it automatically on save is available here:
@@ -77,11 +78,13 @@
 ;;   "Symbol's value as variable is void: compilation-error-regexp-alist-alist" errors
 (require 'compile)
 
+;; Work around Emacs (cc-mode) bug #18845
+(eval-when-compile
+  (when (and (= emacs-major-version 24) (>= emacs-minor-version 4))
+    (require 'cl)))
+
 ;; The set-difference function is used from the Common Lisp extensions.
-;; Note that this line produces a compilation warning in Emacs 24 and newer,
-;; however the replacement (cl-seq.el for our use case) was introduced
-;; in the same major version.
-(require 'cl)
+(require 'cl-lib)
 
 ;; Used to specify regular expressions in a sane way.
 (require 'rx)
@@ -171,8 +174,8 @@ operators."
 
 (c-lang-defconst c-block-prefix-disallowed-chars
   ;; Allow ':' for inherit list starters.
-  d (set-difference (c-lang-const c-block-prefix-disallowed-chars)
-                    '(?:)))
+  d (cl-set-difference (c-lang-const c-block-prefix-disallowed-chars)
+		       '(?:)))
 
 (defconst doxygen-font-lock-doc-comments
   (let ((symbol "[a-zA-Z0-9_]+")
@@ -715,12 +718,8 @@ The expression is added to `compilation-error-regexp-alist' and
   :type 'hook
   :group 'c)
 
-;; For compatibility with Emacs < 24
-(defalias 'd-parent-mode
-  (if (fboundp 'prog-mode) 'prog-mode 'fundamental-mode))
-
 ;;;###autoload
-(define-derived-mode d-mode d-parent-mode "D"
+(define-derived-mode d-mode prog-mode "D"
   "Major mode for editing code written in the D Programming Language.
 
 See http://dlang.org for more information about the D language.
