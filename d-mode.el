@@ -33,8 +33,12 @@
 ;; Boston, MA 02111-1307, USA.
 
 ;;; Usage:
-;; Put this line in your init file:
+;; Put these lines in your init file.
 ;;   (autoload 'd-mode "d-mode" "Major mode for editing D code." t)
+;;   (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
+;;
+;; Alternatively you can load d-mode.el explicitly:
+;;   (load "d-mode.el")
 ;;
 ;; cc-mode version 5.30 or greater is required.
 ;; You can check your cc-mode with the command M-x c-version.
