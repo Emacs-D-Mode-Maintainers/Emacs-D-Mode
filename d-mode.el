@@ -37,6 +37,9 @@
 ;;   (autoload 'd-mode "d-mode" "Major mode for editing D code." t)
 ;;   (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
 ;;
+;; Alternatively you can load d-mode.el explicitly:
+;;   (load "d-mode.el")
+;;
 ;; cc-mode version 5.30 or greater is required.
 ;; You can check your cc-mode with the command M-x c-version.
 ;; You can get the latest version of cc-mode at http://cc-mode.sourceforge.net
@@ -709,7 +712,8 @@ The expression is added to `compilation-error-regexp-alist' and
   (advice-add 'c-add-stmt-syntax :around #'d-around--c-add-stmt-syntax))
 
 ;;----------------------------------------------------------------------------
-;;;###autoload (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
 
 ;; Custom variables
 ;;;###autoload
