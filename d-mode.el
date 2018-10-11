@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201804041719
+;; Version:  201810111924
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -118,7 +118,7 @@
 ;; D has pointers
 (c-lang-defconst c-type-decl-prefix-key
   d (concat "\\("
-		   "[*\(]"
+		   "[*(]"
 		   "\\|"
 		   (c-lang-const c-type-decl-prefix-key)
 		   "\\)"
@@ -236,7 +236,7 @@ The expression is added to `compilation-error-regexp-alist' and
 
 (add-to-list 'compilation-error-regexp-alist-alist
              '(d-exceptions
-               "^[a-zA-z0-9\.]*?@\\(.*?\\)(\\([0-9]+\\)):"
+               "^[a-zA-z0-9.]*?@\\(.*?\\)(\\([0-9]+\\)):"
                1 2 nil 2))
 (add-to-list 'compilation-error-regexp-alist 'd-exceptions)
 
@@ -382,7 +382,9 @@ The expression is added to `compilation-error-regexp-alist' and
 
 (defcustom d-font-lock-extra-types nil
   "*List of extra types (aside from the type keywords) to recognize in D mode.
-   Each list item should be a regexp matching a single identifier."
+
+Each list item should be a regexp matching a single identifier."
+  :type '(repeat regexp)
   :group 'd-mode)
 
 (defconst d-font-lock-keywords-1 (c-lang-const c-matchers-1 d)
@@ -398,10 +400,13 @@ The expression is added to `compilation-error-regexp-alist' and
   "Default expressions to highlight in D mode.")
 
 (defun d-font-lock-keywords-2 ()
+  "Function to get fast normal highlighting for D mode."
   (c-compose-keywords-list d-font-lock-keywords-2))
 (defun d-font-lock-keywords-3 ()
+  "Function to get accurate normal highlighting for D mode."
   (c-compose-keywords-list d-font-lock-keywords-3))
 (defun d-font-lock-keywords ()
+  "Function to get default expressions to highlight in D mode."
   (c-compose-keywords-list d-font-lock-keywords))
 
 (defvar d-mode-syntax-table nil
@@ -540,6 +545,7 @@ The expression is added to `compilation-error-regexp-alist' and
    ))
 
 (defun d-imenu-method-index-function ()
+  "Find D function declarations for imenu."
   (and
    (let ((pt))
      (setq pt (re-search-backward d-imenu-method-name-pattern nil t))
@@ -689,6 +695,8 @@ The expression is added to `compilation-error-regexp-alist' and
 ;;----------------------------------------------------------------------------
 ;;; Workaround for special case of 'else static if' not being handled properly
 (defun d-special-case-looking-at (orig-fun &rest args)
+  ;; checkdoc-params: (orig-fun args)
+  "Advice function for fixing cc-mode indentation in certain D constructs."
   (let ((rxp (car args)))
     (if (and (stringp rxp) (string= rxp "if\\>[^_]"))
         (or (apply orig-fun '("static\\>\\s-+if\\>[^_]"))
@@ -698,6 +706,8 @@ The expression is added to `compilation-error-regexp-alist' and
       (apply orig-fun args))))
 
 (defun d-around--c-add-stmt-syntax (orig-fun &rest args)
+  ;; checkdoc-params: (orig-fun args)
+  "Advice function for fixing cc-mode indentation in certain D constructs."
   (if (not (string= major-mode "d-mode"))
       (apply orig-fun args)
     (progn
@@ -792,6 +802,7 @@ Key bindings:
 (defconst d-var-decl-pattern "^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9.!]+\\)\\(?:\\[[^]]*\\]\\|\\*\\)?[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*[;=]")
 (defconst d-fun-decl-pattern "^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9.!]+\\)\\(?:\\[[^]]*\\]\\|\\*\\)?[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*(")
 (defmacro d-try-match-decl (regex)
+  "Helper macro." ;; checkdoc-params: regex
   `(let ((pt))
      (setq pt (re-search-forward ,regex limit t))
      (while (let ((type (match-string 1)))
@@ -801,10 +812,13 @@ Key bindings:
        (setq pt (re-search-forward ,regex limit t)))
      pt))
 (defun d-match-var-decl (limit)
+  "Helper function." ;; checkdoc-params: limit
   (d-try-match-decl d-var-decl-pattern))
 (defun d-match-fun-decl (limit)
+  "Helper function." ;; checkdoc-params: limit
   (d-try-match-decl d-fun-decl-pattern))
 (defun d-match-auto (limit)
+  "Helper function." ;; checkdoc-params: limit
   (c-syntactic-re-search-forward "\\<\\(auto\\|const\\|immutable\\)\\>" limit t))
 
 (font-lock-add-keywords
@@ -832,9 +846,10 @@ Key bindings:
   (add-to-list 'c-offsets-alist '(statement-cont . d-lineup-cascaded-calls)))
 
 (defun d-lineup-cascaded-calls (langelem)
-  "This is a modified `c-lineup-cascaded-calls' function for the
-D programming language which accounts for optional parenthesis
-and compile-time parameters in function calls."
+  "D version of `c-lineup-cascaded-calls'.
+
+This version accounts for optional parenthesis and compile-time
+parameters in function calls." ;; checkdoc-params: langelem
 
   (if (and (eq (c-langelem-sym langelem) 'arglist-cont-nonempty)
            (not (eq (c-langelem-2nd-pos c-syntactic-element)
