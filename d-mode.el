@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201810111924
+;; Version:  201812050604
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -529,6 +529,7 @@ Each list item should be a regexp matching a single identifier."
    ;; Pure/const etc.
    (zero-or-more
     (one-or-more (any "a-z@"))
+    symbol-end
     (zero-or-more (any " \t\n")))
 
    (zero-or-more

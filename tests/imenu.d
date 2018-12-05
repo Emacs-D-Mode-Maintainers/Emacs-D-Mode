@@ -57,3 +57,8 @@ void test()
 {
 	alias foo = bar;
 }
+
+// Imenu hang in std.internal.cstring (reduced)
+/**
+a a (a) aaaaaaaaaaaaaaaaaaaaaaaaaaaa
+*/
