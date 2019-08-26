@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201908262322
+;; Version:  201908262327
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -492,40 +492,53 @@ Each list item should be a regexp matching a single identifier."
      (zero-or-more space))
 
     (zero-or-more
-     word-start
      (or
-      ;; StorageClass
-      "deprecated"
-      "static"
-      "extern"
-      "abstract"
-      "final"
-      "override"
-      "synchronized"
-      "scope"
-      "nothrow"
-      "pure"
-      "ref"
-      (seq
-       (or
-	"extern"
-	"deprecated"
-	"package"
-	)
-       (zero-or-more space)
-       "("
-       (zero-or-more space)
-       (one-or-more (not (any "()")))
-       (zero-or-more space)
-       ")")
+      word-start
+      (or
+       ;; StorageClass
+       "deprecated"
+       "static"
+       "extern"
+       "abstract"
+       "final"
+       "override"
+       "synchronized"
+       "scope"
+       "nothrow"
+       "pure"
+       "ref"
+       (seq
+	(or
+	 "extern"
+	 "deprecated"
+	 "package"
+	 )
+	(zero-or-more space)
+	"("
+	(zero-or-more space)
+	(one-or-more (not (any "()")))
+	(zero-or-more space)
+	")")
 
-      ;; VisibilityAttribute
-      "private"
-      "package"
-      "protected"
-      "public"
-      "export"
-      )
+       ;; VisibilityAttribute
+       "private"
+       "package"
+       "protected"
+       "public"
+       "export"
+       )
+
+      ;; AtAttribute
+      (seq
+       "@"
+       (one-or-more (any "a-zA-Z0-9_"))
+       (zero-or-one
+	(zero-or-more space)
+	"("
+	(zero-or-more space)
+	(one-or-more (not (any "()")))
+	(zero-or-more space)
+	")")))
      (zero-or-more space))
 
     ))
@@ -537,11 +550,6 @@ Each list item should be a regexp matching a single identifier."
    (zero-or-more space)
 
    (eval d--imenu-rx-def-start)
-
-   ;; Qualifiers
-   (zero-or-more
-    (one-or-more (any "a-z_@()C+"))
-    (one-or-more space))
 
    ;; Type
    (group
