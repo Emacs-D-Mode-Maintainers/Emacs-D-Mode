@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201908262243
+;; Version:  201908262253
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -475,25 +475,29 @@ Each list item should be a regexp matching a single identifier."
 (easy-menu-define d-menu d-mode-map "D Mode Commands"
   (cons "D" (c-lang-const c-mode-menu d)))
 
+(defconst d--imenu-rx-def-start
+  '(seq
+    ;; Whitespace
+    bol
+    (zero-or-more space)
+
+    ;; Conditionals
+    (zero-or-one
+     "else"
+     (zero-or-more space))
+    (zero-or-one
+     "version"
+     (zero-or-more space)
+     "("
+     (zero-or-more space)
+     (one-or-more (any "a-zA-Z0-9_"))
+     (zero-or-more space)
+     ")"
+     (zero-or-more space))))
+
 (defconst d-imenu-method-name-pattern
   (rx
-   ;; Whitespace
-   bol
-   (zero-or-more space)
-
-   ;; Conditionals
-   (zero-or-one
-    "else"
-    (zero-or-more space))
-   (zero-or-one
-    "version"
-    (zero-or-more space)
-    "("
-    (zero-or-more space)
-    (one-or-more (any "a-zA-Z0-9_"))
-    (zero-or-more space)
-    ")"
-    (zero-or-more space))
+   (eval d--imenu-rx-def-start)
 
    ;; Qualifiers
    (zero-or-more
@@ -574,8 +578,7 @@ Each list item should be a regexp matching a single identifier."
 (defvar d-imenu-generic-expression
   `(("*Classes*"
      ,(rx
-       line-start
-       (zero-or-more (syntax whitespace))
+       (eval d--imenu-rx-def-start)
        (zero-or-more
 	(or "final" "abstract" "private" "package" "protected" "public" "export" "static")
 	(one-or-more (syntax whitespace)))
@@ -591,8 +594,7 @@ Each list item should be a regexp matching a single identifier."
      1)
     ("*Interfaces*"
      ,(rx
-       line-start
-       (zero-or-more (syntax whitespace))
+       (eval d--imenu-rx-def-start)
        word-start
        "interface"
        (one-or-more (syntax whitespace))
@@ -605,8 +607,7 @@ Each list item should be a regexp matching a single identifier."
      1)
     ("*Structs*"
      ,(rx
-       line-start
-       (zero-or-more (syntax whitespace))
+       (eval d--imenu-rx-def-start)
        (zero-or-more
 	(or "private" "package" "protected" "public" "export" "static")
 	(one-or-more (syntax whitespace)))
@@ -622,8 +623,7 @@ Each list item should be a regexp matching a single identifier."
      1)
     ("*Templates*"
      ,(rx
-       line-start
-       (zero-or-more (syntax whitespace))
+       (eval d--imenu-rx-def-start)
        (zero-or-one
 	"mixin"
 	(one-or-more (syntax whitespace)))
@@ -639,8 +639,7 @@ Each list item should be a regexp matching a single identifier."
      1)
     ("*Enums*"
      ,(rx
-       line-start
-       (zero-or-more (syntax whitespace))
+       (eval d--imenu-rx-def-start)
        word-start
        "enum"
        (one-or-more (syntax whitespace))
