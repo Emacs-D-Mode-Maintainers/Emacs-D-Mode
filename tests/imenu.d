@@ -1,5 +1,5 @@
 // #run: (d-test-get-imenu-lines)
-// #out: (4 6 11 14 17 19 22 25 33 34 37 40 43 46 49 52 54 56 67 75)
+// #out: (4 6 11 14 17 19 22 25 33 34 37 40 43 46 49 52 54 56 67 75 78)
 
 void foo(int x) {}
 
@@ -73,3 +73,6 @@ Entry getLog()
 
 // Conditional declarations
 version(CoreDdoc) enum ClockType {}
+
+// Extern declarations
+extern (D) void peekSlice() {}
