@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201908262331
+;; Version:  201908262342
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -251,9 +251,9 @@ The expression is added to `compilation-error-regexp-alist' and
 
 ;; Keywords that can prefix normal declarations of identifiers
 (c-lang-defconst c-modifier-kwds
-  d '("__gshared" "abstract" "deprecated" "extern"
-      "final" "in" "out" "inout" "lazy" "mixin" "override" "private"
-      "protected" "public" "ref" "scope" "shared" "static" "synchronized"
+  d '("abstract" "deprecated" "extern"
+      "final" "in" "out" "lazy" "mixin" "override" "private"
+      "protected" "public" "ref" "scope" "static" "synchronized"
       "volatile" "__vector"))
 
 (c-lang-defconst c-class-decl-kwds
@@ -265,7 +265,7 @@ The expression is added to `compilation-error-regexp-alist' and
 ;;   d '("enum"))
 
 (c-lang-defconst c-type-modifier-kwds
-  d '("__gshared" "inout" "lazy" "shared" "volatile"
+  d '("lazy" "volatile"
       "invariant" "enum" "__vector"))
 
 (c-lang-defconst c-type-prefix-kwds
@@ -294,7 +294,7 @@ The expression is added to `compilation-error-regexp-alist' and
 (c-lang-defconst c-protection-kwds
   ;; Access protection label keywords in classes.
   d '("deprecated" "static" "extern" "final" "synchronized" "override"
-      "abstract" "scope" "inout" "shared" "__gshared"
+      "abstract" "scope"
       "private" "package" "protected" "public" "export"))
 
 ;;(c-lang-defconst c-postfix-decl-spec-kwds
@@ -879,7 +879,19 @@ Key bindings:
   (d-try-match-decl d-fun-decl-pattern))
 (defun d-match-auto (limit)
   "Helper function." ;; checkdoc-params: limit
-  (c-syntactic-re-search-forward "\\<\\(auto\\|const\\|immutable\\)\\>" limit t))
+  (c-syntactic-re-search-forward
+   (rx
+    word-start
+    (group
+     (or
+      "auto"
+      "const"
+      "immutable"
+      "inout"
+      "shared"
+      "__gshared"))
+    word-end)
+   limit t))
 
 (font-lock-add-keywords
  'd-mode
