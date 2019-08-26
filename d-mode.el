@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201812050604
+;; Version:  201908262243
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -556,7 +556,9 @@ Each list item should be a regexp matching a single identifier."
      (while (let ((type (match-string 1)))
               (and pt type
                    (save-match-data
-                     (string-match (c-lang-const c-regular-keywords-regexp) type))))
+                     (string-match
+		      (concat "\\<" (c-lang-const c-regular-keywords-regexp))
+		      type))))
        (setq pt (re-search-backward d-imenu-method-name-pattern nil t)))
      pt)
    ;; Do not count invisible definitions.
