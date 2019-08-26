@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201908262320
+;; Version:  201908262322
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -711,6 +711,11 @@ Each list item should be a regexp matching a single identifier."
 	      (?A . ?Z)
 	      (?a . ?z))))
        (zero-or-more (syntax whitespace))
+       (zero-or-one
+        "("
+        (zero-or-more (not (any "()")))
+        ")"
+        (zero-or-more (syntax whitespace)))
        "=")
      1)
     ("*Aliases*"

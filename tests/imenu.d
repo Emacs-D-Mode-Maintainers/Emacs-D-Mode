@@ -1,5 +1,5 @@
 // #run: (d-test-get-imenu-lines)
-// #out: (4 6 11 14 17 19 22 25 33 34 37 40 43 46 49 52 54 56 67 75 78 81)
+// #out: (4 6 11 14 17 19 22 25 33 34 37 40 43 46 49 52 54 56 67 75 78 81 84)
 
 void foo(int x) {}
 
@@ -79,3 +79,6 @@ extern (D) void peekSlice() {}
 
 // Aliases with VisibilityAttribute / StorageClass
 public alias foo=bar;
+
+// alias template
+public alias Regex(Char) = std.regex.internal.ir.Regex!(Char);
