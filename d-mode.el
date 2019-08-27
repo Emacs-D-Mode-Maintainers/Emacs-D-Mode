@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201908270011
+;; Version:  201908270026
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -379,6 +379,11 @@ The expression is added to `compilation-error-regexp-alist' and
   d '("__gshared" "__traits" "assert" "cast" "is" "nothrow" "pure" "ref"
       "sizeof" "typeid" "typeof"))
 
+
+(c-lang-defconst c-recognize-post-brace-list-type-p
+  ;; Set to t when we recognize a colon and then a type after an enum,
+  ;; e.g., enum foo : int { A, B, C };"
+  d t)
 
 (defcustom d-font-lock-extra-types nil
   "*List of extra types (aside from the type keywords) to recognize in D mode.
