@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201908262342
+;; Version:  201908270011
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -781,6 +781,30 @@ Each list item should be a regexp matching a single identifier."
 (when (version<= "24.4" emacs-version)
   (advice-add 'c-add-stmt-syntax :around #'d-around--c-add-stmt-syntax))
 
+;; Borrowed from https://github.com/josteink/csharp-mode/blob/master/csharp-mode.el
+(defun d--syntax-propertize-function (beg end)
+  "Apply syntax table properties to special constructs in region BEG to END.
+Currently handles `-delimited string literals."
+  (save-excursion
+    (goto-char beg)
+    (while (search-forward "`" end t)
+      (let ((in-comment-or-string-p (save-excursion
+                                      (goto-char (match-beginning 0))
+                                      (or (nth 3 (syntax-ppss))
+                                          (nth 4 (syntax-ppss))))))
+        (when (not in-comment-or-string-p)
+          (let (done)
+            (while (and (not done) (< (point) end))
+              (skip-chars-forward "^`\\\\" end)
+              (cond
+               ((= (following-char) ?\\)
+                (put-text-property (point) (1+ (point))
+                                   'syntax-table (string-to-syntax "."))
+                (forward-char 1))
+               ((= (following-char) ?\`)
+                (forward-char 1)
+		(setq done t))))))))))
+
 ;;----------------------------------------------------------------------------
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
@@ -818,20 +842,7 @@ Key bindings:
   (when (version<= "24.3" emacs-version)
     (setq-local
      syntax-propertize-function
-     (syntax-propertize-rules
-      ((rx
-	"`"
-	(minimal-match
-	 (zero-or-more
-	  (not (any "`\\"))))
-	(minimal-match
-	 (zero-or-more
-	  (submatch "\\")
-	  (minimal-match
-	   (zero-or-more
-	    (not (any "`\\"))))))
-	"`")
-       (1 ".")))))
+     #'d--syntax-propertize-function))
 
   (c-common-init 'd-mode)
   (easy-menu-add d-menu)
