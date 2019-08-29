@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201908290919
+;; Version:  201908291019
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -1131,6 +1131,23 @@ parameters in function calls." ;; checkdoc-params: langelem
             (setq col (current-column)))
 
           (vector col))))))
+
+;;----------------------------------------------------------------------------
+
+(defun d-lineup-arglists (elem)
+  "Line up runtime argument list with compile-time argument list.
+
+Works with: func-decl-cont." ;; checkdoc-params: (elem)
+  (save-excursion
+    (beginning-of-line)
+    (c-backward-syntactic-ws)
+    (let ((c (char-before)))
+      (cond
+       ((eq c ?\))
+	(c-go-list-backward)
+	(vector (current-column)))
+       (t
+	"+")))))
 
 ;;----------------------------------------------------------------------------
 
