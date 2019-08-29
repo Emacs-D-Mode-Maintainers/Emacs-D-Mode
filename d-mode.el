@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201908290531
+;; Version:  201908290919
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -297,12 +297,11 @@ The expression is added to `compilation-error-regexp-alist' and
       "abstract" "scope"
       "private" "package" "protected" "public" "export"))
 
-;;(c-lang-defconst c-postfix-decl-spec-kwds
-;;  ;Keywords introducing extra declaration specifiers in the region
-;;  ;between the header and the body (i.e. the "K&R-region") in
-;;  ;declarations.
-;;; This doesn't seem to have any effect.  They aren't exactly "K&R-regions".
-;;  d '("in" "out" "body"))
+(c-lang-defconst c-postfix-spec-kwds
+ ;Keywords introducing extra declaration specifiers in the region
+ ;between the header and the body (i.e. the "K&R-region") in
+ ;declarations.
+ d '("if" "in" "out" "body"))
 
 (c-lang-defconst c-recognize-knr-p
   d t)
@@ -789,6 +788,50 @@ Each list item should be a regexp matching a single identifier."
 (when (version<= "24.4" emacs-version)
   (advice-add 'c-add-stmt-syntax :around #'d-around--c-add-stmt-syntax))
 
+;;----------------------------------------------------------------------------
+;;; Implements handling of D constructors
+;;; Fixes e.g. indentation of contracts on constructors.
+
+;; Make it so that inside c-forward-decl-or-cast-1,
+;; "this" looks like a function identifier but not a type identifier.
+
+(defun d-special-case-c-forward-name (orig-fun &rest args)
+  ;; checkdoc-params: (orig-fun args)
+  "Advice function for fixing cc-mode handling of D constructors."
+  (if (not (looking-at (c-make-keywords-re t '("this"))))
+      (apply orig-fun args)
+    (forward-char 4)
+    t))
+
+(defun d-special-case-c-forward-type (orig-fun &rest args)
+  ;; checkdoc-params: (orig-fun args)
+  "Advice function for fixing cc-mode handling of D constructors."
+  (if (not (looking-at (c-make-keywords-re t '("this"))))
+      (apply orig-fun args)
+    nil))
+
+(defun d-around--c-forward-decl-or-cast-1 (orig-fun &rest args)
+  ;; checkdoc-params: (orig-fun args)
+  "Advice function for fixing cc-mode handling of D constructors."
+  (if (not (c-major-mode-is 'd-mode))
+      (apply orig-fun args)
+    (progn
+      (add-function :around (symbol-function 'c-forward-name)
+		    #'d-special-case-c-forward-name)
+      (add-function :around (symbol-function 'c-forward-type)
+		    #'d-special-case-c-forward-type)
+      (unwind-protect
+	  (apply orig-fun args)
+	(remove-function (symbol-function 'c-forward-name)
+			 #'d-special-case-c-forward-name)
+	(remove-function (symbol-function 'c-forward-type)
+			 #'d-special-case-c-forward-type)
+	))))
+
+(when (version<= "24.4" emacs-version)
+  (advice-add 'c-forward-decl-or-cast-1 :around #'d-around--c-forward-decl-or-cast-1))
+
+;;----------------------------------------------------------------------------
 ;; Borrowed from https://github.com/josteink/csharp-mode/blob/master/csharp-mode.el
 (defun d--syntax-propertize-function (beg end)
   "Apply syntax table properties to special constructs in region BEG to END.
@@ -921,6 +964,20 @@ Key bindings:
 
 ;;----------------------------------------------------------------------------
 
+(defun d--on-func-identifier ()
+  "Version of `c-on-identifier', but also match D constructors."
+
+  (save-excursion
+    (skip-syntax-backward "w_")
+
+    (or
+     ;; Check for a normal (non-keyword) identifier.
+     (and (looking-at c-symbol-start)
+	  (or
+	   (looking-at (c-make-keywords-re t '("this")))
+	   (not (looking-at c-keywords-regexp)))
+	  (point)))))
+
 (defun d-in-knr-argdecl (&optional lim)
   "Modified version of `c-in-knr-argdecl' for d-mode." ;; checkdoc-params: lim
   (save-excursion
@@ -971,11 +1028,11 @@ Key bindings:
 		     (progn
 		       (goto-char before-lparen)
 		       (eq (c-backward-token-2) 0)
-		       (or (eq (c-on-identifier) (point))
+		       (or (eq (d--on-func-identifier) (point))
 			   (and (eq (char-after) ?\))
 				(c-go-up-list-backward)
 				(eq (c-backward-token-2) 0)
-				(eq (c-on-identifier) (point)))))
+				(eq (d--on-func-identifier) (point)))))
 
 		     ;; (... original c-in-knr-argdecl logic omitted here ...)
 		     t)
