@@ -314,6 +314,7 @@ is expected to succeed, and nil otherwise."
 (d-test-deftest i0054 "tests/I0054.d" t)
 (d-test-deftest i0058 "tests/I0058.d" (version< "24.4" emacs-version))
 (d-test-deftest i0064 "tests/I0064.d" t)
+(d-test-deftest i0067 "tests/I0067.d" t)
 (d-test-deftest i0069 "tests/I0069.txt" t)
 (d-test-deftest i0072 "tests/I0072.txt" t)
 (d-test-deftest i0090 "tests/I0090.d" t)
