@@ -981,71 +981,64 @@ Key bindings:
 (defun d-in-knr-argdecl (&optional lim)
   "Modified version of `c-in-knr-argdecl' for d-mode." ;; checkdoc-params: lim
   (save-excursion
-    (save-restriction
-      ;; If we're in a macro, our search range is restricted to it.  Narrow to
-      ;; the searchable range.
-      (let* ((macro-start (save-excursion (and (c-beginning-of-macro) (point))))
-	     (macro-end (save-excursion (and macro-start (c-end-of-macro) (point))))
-	     (low-lim (max (or lim (point-min))   (or macro-start (point-min))))
-	     before-lparen after-rparen
-	     (here (point))
-	     (pp-count-out 20)	; Max number of paren/brace constructs before
+    ;; If we're in a macro, our search range is restricted to it.  Narrow to
+    ;; the searchable range.
+    (let* (before-lparen
+	   after-rparen
+	   (pp-count-out 20)	; Max number of paren/brace constructs before
 				; we give up.
-	     ids	      ; List of identifiers in the parenthesized list.
-	     id-start after-prec-token decl-or-cast decl-res
-	     c-last-identifier-range identifier-ok)
-	(narrow-to-region low-lim (or macro-end (point-max)))
+	   c-last-identifier-range)
 
-	(catch 'knr
-	  (while (> pp-count-out 0) ; go back one paren/bracket pair each time.
-	    (setq pp-count-out (1- pp-count-out))
-	    (c-syntactic-skip-backward "^)]}=")
-	    (cond ((eq (char-before) ?\))
-		   (setq after-rparen (point)))
-		  ((eq (char-before) ?\])
-		   (setq after-rparen nil))
-		  (t ; either } (hit previous defun) or = or no more
-		     ; parens/brackets.
-		   (throw 'knr nil)))
+      (catch 'knr
+	(while (> pp-count-out 0) ; go back one paren/bracket pair each time.
+	  (setq pp-count-out (1- pp-count-out))
+	  (c-syntactic-skip-backward "^)]}=")
+	  (cond ((eq (char-before) ?\))
+		 (setq after-rparen (point)))
+		((eq (char-before) ?\])
+		 (setq after-rparen nil))
+		(t ; either } (hit previous defun) or = or no more
+					; parens/brackets.
+		 (throw 'knr nil)))
 
-	    (if after-rparen
-		;; We're inside a paren.  Could it be our argument list....?
-		(if
-		    (and
-		     (progn
-		       (goto-char after-rparen)
-		       (unless (c-go-list-backward) (throw 'knr nil)) ;
-		       ;; FIXME!!!  What about macros between the parens?  2007/01/20
-		       (setq before-lparen (point)))
+	  (if after-rparen
+	      ;; We're inside a paren.  Could it be our argument list....?
+	      (if
+		  (and
+		   (progn
+		     (goto-char after-rparen)
+		     (unless (c-go-list-backward) (throw 'knr nil)) ;
+		     ;; FIXME!!!  What about macros between the parens?  2007/01/20
+		     (setq before-lparen (point)))
 
-		     ;; It can't be the arg list if next token is ; or {
-		     (progn (goto-char after-rparen)
-			    (c-forward-syntactic-ws)
-			    (not (memq (char-after) '(?\; ?\{ ?\=))))
+		   ;; It can't be the arg list if next token is ; or {
+		   (progn (goto-char after-rparen)
+			  (c-forward-syntactic-ws)
+			  (not (memq (char-after) '(?\; ?\{ ?\=))))
 
-		     ;; Is the thing preceding the list an identifier (the
-		     ;; function name), or a macro expansion?
-		     (progn
-		       (goto-char before-lparen)
-		       (eq (c-backward-token-2) 0)
-		       (or (eq (d--on-func-identifier) (point))
-			   (and (eq (char-after) ?\))
-				(c-go-up-list-backward)
-				(eq (c-backward-token-2) 0)
-				(eq (d--on-func-identifier) (point)))))
+		   ;; Is the thing preceding the list an identifier (the
+		   ;; function name), or a macro expansion?
+		   (progn
+		     (goto-char before-lparen)
+		     (eq (c-backward-token-2) 0)
+		     (or (eq (d--on-func-identifier) (point))
+			 (and (eq (char-after) ?\))
+			      (c-go-up-list-backward)
+			      (eq (c-backward-token-2) 0)
+			      (eq (d--on-func-identifier) (point)))))
 
-		     ;; (... original c-in-knr-argdecl logic omitted here ...)
-		     t)
-		    ;; ...Yes.  We've identified the function's argument list.
-		    (throw 'knr
-			   (progn (goto-char after-rparen)
-				  (c-forward-syntactic-ws)
-				  (point)))
-		  ;; ...No.  The current parens aren't the function's arg list.
-		  (goto-char before-lparen))
+		   ;; (... original c-in-knr-argdecl logic omitted here ...)
+		   t)
+		  ;; ...Yes.  We've identified the function's argument list.
+		  (throw 'knr
+			 (progn (goto-char after-rparen)
+				(c-forward-syntactic-ws)
+				(point)))
+		;; ...No.  The current parens aren't the function's arg list.
+		(goto-char before-lparen))
 
-	      (or (c-go-list-backward)	; backwards over [ .... ]
-		  (throw 'knr nil)))))))))
+	    (or (c-go-list-backward)	; backwards over [ .... ]
+		(throw 'knr nil))))))))
 
 (defun d-around--c-in-knr-argdecl (orig-fun &rest args)
   ;; checkdoc-params: (orig-fun args)
