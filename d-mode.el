@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201908290244
+;; Version:  201908290531
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -776,7 +776,7 @@ Each list item should be a regexp matching a single identifier."
 (defun d-around--c-add-stmt-syntax (orig-fun &rest args)
   ;; checkdoc-params: (orig-fun args)
   "Advice function for fixing cc-mode indentation in certain D constructs."
-  (if (not (string= major-mode "d-mode"))
+  (if (not (c-major-mode-is 'd-mode))
       (apply orig-fun args)
     (progn
       (add-function :around (symbol-function 'looking-at)
@@ -994,7 +994,7 @@ Key bindings:
   ;; checkdoc-params: (orig-fun args)
   "Advice function for fixing cc-mode indentation in certain D constructs."
   (apply
-   (if (string= major-mode "d-mode")
+   (if (c-major-mode-is 'd-mode)
        #'d-in-knr-argdecl
      orig-fun)
    args))
