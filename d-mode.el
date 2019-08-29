@@ -983,10 +983,12 @@ Key bindings:
   (save-excursion
     ;; If we're in a macro, our search range is restricted to it.  Narrow to
     ;; the searchable range.
-    (let* (before-lparen
+    (let* ((start (point))
+	   before-lparen
 	   after-rparen
 	   (pp-count-out 20)	; Max number of paren/brace constructs before
 				; we give up.
+	   knr-start
 	   c-last-identifier-range)
 
       (catch 'knr
@@ -1027,13 +1029,21 @@ Key bindings:
 			      (eq (c-backward-token-2) 0)
 			      (eq (d--on-func-identifier) (point)))))
 
+		   ;; Check that we're outside of the template arg list (D-specific).
+		   (progn
+		     (setq knr-start
+			   (progn (goto-char after-rparen)
+				  (c-forward-syntactic-ws)
+				  (when (eq (char-after) ?\()
+				    (c-go-list-forward)
+				    (c-forward-syntactic-ws))
+				  (point)))
+		     (<= knr-start start))
+
 		   ;; (... original c-in-knr-argdecl logic omitted here ...)
 		   t)
 		  ;; ...Yes.  We've identified the function's argument list.
-		  (throw 'knr
-			 (progn (goto-char after-rparen)
-				(c-forward-syntactic-ws)
-				(point)))
+		  (throw 'knr knr-start)
 		;; ...No.  The current parens aren't the function's arg list.
 		(goto-char before-lparen))
 
