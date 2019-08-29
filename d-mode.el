@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201908270026
+;; Version:  201908281339
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -305,10 +305,10 @@ The expression is added to `compilation-error-regexp-alist' and
 ;;  d '("in" "out" "body"))
 
 (c-lang-defconst c-type-list-kwds
-  d '("import"))
+  d nil)
 
 (c-lang-defconst c-ref-list-kwds
-  d '("module"))
+  d '("import" "module"))
 
 (c-lang-defconst c-colon-type-list-kwds
   ;; Keywords that may be followed (not necessarily directly) by a colon
@@ -372,7 +372,7 @@ The expression is added to `compilation-error-regexp-alist' and
   d nil)
 
 (c-lang-defconst c-other-decl-kwds
-  d '("module" "import"))
+  d nil)
 
 (c-lang-defconst c-other-kwds
   ;; Keywords not accounted for by any other `*-kwds' language constant.

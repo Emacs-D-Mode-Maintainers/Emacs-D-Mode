@@ -1,0 +1,16 @@
+<span class="comment-delimiter">// </span><span class="comment">#run: (d-test-fontification)
+</span>
+<span class="keyword">module</span> <span class="constant">aaa</span>;
+
+<span class="keyword">import</span> <span class="constant">bbb</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">FIXME:
+</span>
+<span class="keyword">module</span> aaa.bbb.<span class="constant">ccc</span>;
+
+<span class="keyword">import</span> aaa.<span class="constant">bbb</span>;
+<span class="keyword">import</span> <span class="constant">aaa</span>.<span class="constant">Bbb</span>;
+<span class="keyword">import</span> aaa.bbb.<span class="constant">ccc</span>;
+<span class="keyword">import</span> <span class="constant">Aaa</span>.Bbb.<span class="constant">ccc</span>;
+<span class="keyword">import</span> <span class="constant">Aaa</span>.<span class="constant">Bbb</span>.<span class="constant">Ccc</span>;
+<span class="keyword">import</span> <span class="constant">aaa</span>.<span class="constant">bbb</span>.<span class="constant">Ccc</span>;
