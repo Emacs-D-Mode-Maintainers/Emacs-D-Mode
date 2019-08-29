@@ -304,6 +304,9 @@ The expression is added to `compilation-error-regexp-alist' and
 ;;; This doesn't seem to have any effect.  They aren't exactly "K&R-regions".
 ;;  d '("in" "out" "body"))
 
+(c-lang-defconst c-recognize-knr-p
+  d t)
+
 (c-lang-defconst c-type-list-kwds
   d nil)
 
@@ -915,6 +918,89 @@ Key bindings:
    (d-match-var-decl (1 font-lock-type-face) (2 font-lock-variable-name-face))
    (d-match-fun-decl (1 font-lock-type-face) (2 font-lock-function-name-face)))
  t)
+
+;;----------------------------------------------------------------------------
+
+(defun d-in-knr-argdecl (&optional lim)
+  "Modified version of `c-in-knr-argdecl' for d-mode." ;; checkdoc-params: lim
+  (save-excursion
+    (save-restriction
+      ;; If we're in a macro, our search range is restricted to it.  Narrow to
+      ;; the searchable range.
+      (let* ((macro-start (save-excursion (and (c-beginning-of-macro) (point))))
+	     (macro-end (save-excursion (and macro-start (c-end-of-macro) (point))))
+	     (low-lim (max (or lim (point-min))   (or macro-start (point-min))))
+	     before-lparen after-rparen
+	     (here (point))
+	     (pp-count-out 20)	; Max number of paren/brace constructs before
+				; we give up.
+	     ids	      ; List of identifiers in the parenthesized list.
+	     id-start after-prec-token decl-or-cast decl-res
+	     c-last-identifier-range identifier-ok)
+	(narrow-to-region low-lim (or macro-end (point-max)))
+
+	(catch 'knr
+	  (while (> pp-count-out 0) ; go back one paren/bracket pair each time.
+	    (setq pp-count-out (1- pp-count-out))
+	    (c-syntactic-skip-backward "^)]}=")
+	    (cond ((eq (char-before) ?\))
+		   (setq after-rparen (point)))
+		  ((eq (char-before) ?\])
+		   (setq after-rparen nil))
+		  (t ; either } (hit previous defun) or = or no more
+		     ; parens/brackets.
+		   (throw 'knr nil)))
+
+	    (if after-rparen
+		;; We're inside a paren.  Could it be our argument list....?
+		(if
+		    (and
+		     (progn
+		       (goto-char after-rparen)
+		       (unless (c-go-list-backward) (throw 'knr nil)) ;
+		       ;; FIXME!!!  What about macros between the parens?  2007/01/20
+		       (setq before-lparen (point)))
+
+		     ;; It can't be the arg list if next token is ; or {
+		     (progn (goto-char after-rparen)
+			    (c-forward-syntactic-ws)
+			    (not (memq (char-after) '(?\; ?\{ ?\=))))
+
+		     ;; Is the thing preceding the list an identifier (the
+		     ;; function name), or a macro expansion?
+		     (progn
+		       (goto-char before-lparen)
+		       (eq (c-backward-token-2) 0)
+		       (or (eq (c-on-identifier) (point))
+			   (and (eq (char-after) ?\))
+				(c-go-up-list-backward)
+				(eq (c-backward-token-2) 0)
+				(eq (c-on-identifier) (point)))))
+
+		     ;; (... original c-in-knr-argdecl logic omitted here ...)
+		     t)
+		    ;; ...Yes.  We've identified the function's argument list.
+		    (throw 'knr
+			   (progn (goto-char after-rparen)
+				  (c-forward-syntactic-ws)
+				  (point)))
+		  ;; ...No.  The current parens aren't the function's arg list.
+		  (goto-char before-lparen))
+
+	      (or (c-go-list-backward)	; backwards over [ .... ]
+		  (throw 'knr nil)))))))))
+
+(defun d-around--c-in-knr-argdecl (orig-fun &rest args)
+  ;; checkdoc-params: (orig-fun args)
+  "Advice function for fixing cc-mode indentation in certain D constructs."
+  (apply
+   (if (string= major-mode "d-mode")
+       #'d-in-knr-argdecl
+     orig-fun)
+   args))
+
+(when (version<= "24.4" emacs-version)
+  (advice-add 'c-in-knr-argdecl :around #'d-around--c-in-knr-argdecl))
 
 ;;----------------------------------------------------------------------------
 ;;
