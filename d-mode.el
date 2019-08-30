@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201908291019
+;; Version:  201908300712
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -482,73 +482,74 @@ Each list item should be a regexp matching a single identifier."
 (easy-menu-define d-menu d-mode-map "D Mode Commands"
   (cons "D" (c-lang-const c-mode-menu d)))
 
-(defconst d--imenu-rx-def-start
-  '(seq
-    ;; Conditionals
-    (zero-or-one
-     "else"
-     (zero-or-more space))
-    (zero-or-one
-     "version"
-     (zero-or-more space)
-     "("
-     (zero-or-more space)
-     (one-or-more (any "a-zA-Z0-9_"))
-     (zero-or-more space)
-     ")"
-     (zero-or-more space))
-
-    (zero-or-more
-     (or
-      word-start
-      (or
-       ;; StorageClass
-       "deprecated"
-       "static"
-       "extern"
-       "abstract"
-       "final"
-       "override"
-       "synchronized"
-       "scope"
-       "nothrow"
-       "pure"
-       "ref"
-       (seq
-	(or
-	 "extern"
-	 "deprecated"
-	 "package"
-	 )
-	(zero-or-more space)
-	"("
-	(zero-or-more space)
-	(one-or-more (not (any "()")))
-	(zero-or-more space)
-	")")
-
-       ;; VisibilityAttribute
-       "private"
-       "package"
-       "protected"
-       "public"
-       "export"
-       )
-
-      ;; AtAttribute
-      (seq
-       "@"
+(eval-when-compile
+  (defconst d--imenu-rx-def-start
+    '(seq
+      ;; Conditionals
+      (zero-or-one
+       "else"
+       (zero-or-more space))
+      (zero-or-one
+       "version"
+       (zero-or-more space)
+       "("
+       (zero-or-more space)
        (one-or-more (any "a-zA-Z0-9_"))
-       (zero-or-one
-	(zero-or-more space)
-	"("
-	(zero-or-more space)
-	(one-or-more (not (any "()")))
-	(zero-or-more space)
-	")")))
-     (zero-or-more space))
+       (zero-or-more space)
+       ")"
+       (zero-or-more space))
 
-    ))
+      (zero-or-more
+       (or
+	word-start
+	(or
+	 ;; StorageClass
+	 "deprecated"
+	 "static"
+	 "extern"
+	 "abstract"
+	 "final"
+	 "override"
+	 "synchronized"
+	 "scope"
+	 "nothrow"
+	 "pure"
+	 "ref"
+	 (seq
+	  (or
+	   "extern"
+	   "deprecated"
+	   "package"
+	   )
+	  (zero-or-more space)
+	  "("
+	  (zero-or-more space)
+	  (one-or-more (not (any "()")))
+	  (zero-or-more space)
+	  ")")
+
+	 ;; VisibilityAttribute
+	 "private"
+	 "package"
+	 "protected"
+	 "public"
+	 "export"
+	 )
+
+	;; AtAttribute
+	(seq
+	 "@"
+	 (one-or-more (any "a-zA-Z0-9_"))
+	 (zero-or-one
+	  (zero-or-more space)
+	  "("
+	  (zero-or-more space)
+	  (one-or-more (not (any "()")))
+	  (zero-or-more space)
+	  ")")))
+       (zero-or-more space))
+
+      )))
 
 (defconst d-imenu-method-name-pattern
   (rx
