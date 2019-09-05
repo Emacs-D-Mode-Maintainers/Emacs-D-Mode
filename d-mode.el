@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909051350
+;; Version:  201909051403
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -1024,7 +1024,7 @@ Key bindings:
       (catch 'knr
 	(while (> pp-count-out 0) ; go back one paren/bracket pair each time.
 	  (setq pp-count-out (1- pp-count-out))
-	  (c-syntactic-skip-backward "^)]}=")
+	  (c-syntactic-skip-backward "^)]}=;")
 	  (cond ((eq (char-before) ?\))
 		 (setq after-rparen (point)))
 		((eq (char-before) ?\])

@@ -33,3 +33,7 @@ body
   {
     return b;
   }
+
+
+int fun() @nogc;
+int bar;
