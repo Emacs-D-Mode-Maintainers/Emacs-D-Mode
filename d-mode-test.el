@@ -292,35 +292,36 @@ the reference file, raise an error."
 		     "Got:     \n--------------------\n%s\n--------------------\n")
 	     expected actual))))
 
-(defmacro d-test-deftest (name filename expected-result)
-  "Define a d-mode test using the given FILENAME.
+(defun d-test-get-expected-result (filename)
+  (with-temp-buffer
+    (insert-file-contents filename)
+    (let* ((min-ver
+            (if (re-search-forward "^// #min-version: \\(.+\\)$" nil t)
+                (match-string 1)
+              "0")))
+      (version<= min-ver emacs-version))))
 
-EXPECTED-RESULT should return t if the test
-is expected to succeed, and nil otherwise."
-  `(ert-deftest ,name ()
-     :expected-result (if ,expected-result :passed :failed)
-     (should (do-one-test ,filename))))
-
-;; Run the tests
-(d-test-deftest imenu "tests/imenu.d" t)
-(d-test-deftest fonts "tests/fonts.d" t)
-(d-test-deftest fonts_enums "tests/fonts_enums.d" (version< "26.2" emacs-version))
-(d-test-deftest i0019 "tests/I0019.d" (version< "26.2" emacs-version))
-(d-test-deftest i0021 "tests/I0021.d" t)
-(d-test-deftest i0026 "tests/I0026.d" t)
-(d-test-deftest i0030 "tests/I0030.d" t)
-(d-test-deftest i0035 "tests/I0035.d" (version< "24.4" emacs-version))
-(d-test-deftest i0039 "tests/I0039.d" (version< "24.4" emacs-version))
-(d-test-deftest i0049 "tests/I0049.d" t)
-(d-test-deftest i0054 "tests/I0054.d" t)
-(d-test-deftest i0058 "tests/I0058.d" (version< "24.4" emacs-version))
-(d-test-deftest i0064 "tests/I0064.d" t)
-(d-test-deftest i0067 "tests/I0067.d" (version< "24.4" emacs-version))
-(d-test-deftest i0069 "tests/I0069.txt" t)
-(d-test-deftest i0070 "tests/I0070.d" (version< "24.4" emacs-version))
-(d-test-deftest i0072 "tests/I0072.txt" t)
-(d-test-deftest i0082 "tests/I0082.d" (version< "24.4" emacs-version))
-(d-test-deftest i0090 "tests/I0090.d" t)
+(defmacro d-test-dir (dir)
+  "Register all test files from DIR with ert."
+  (apply #'nconc
+         '(progn)
+         (mapcar
+          (lambda (filename)
+            (let ((path (expand-file-name filename dir)))
+              (cond
+               ((string-match-p "\\`\\.\\.?\\'" filename)
+                nil)
+               ((string-match-p "\\.\\(d\\|txt\\)\\'" filename)
+                `((ert-deftest ,(intern (file-name-sans-extension filename)) ()
+                    :expected-result (if (d-test-get-expected-result ,path) :passed :failed)
+                    (should (do-one-test ,path)))))
+               ((string-match-p "\\.d\\.html\\'" filename)
+                nil)
+               (t
+                (message "Ignoring test file with unknown extension: %s" filename)
+                nil))))
+          (directory-files dir))))
+(d-test-dir "tests")
 
 ;;----------------------------------------------------------------------------
 

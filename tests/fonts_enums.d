@@ -1,3 +1,4 @@
+// #min-version: 26.2
 // #run: (d-test-fontification)
 
 auto var = true;
