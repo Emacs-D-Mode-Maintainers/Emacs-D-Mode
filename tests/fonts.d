@@ -8,4 +8,6 @@ void main()
 	assert(s in aa);
 
 	aa[s].length;
+
+	run(a ~ b);
 }
