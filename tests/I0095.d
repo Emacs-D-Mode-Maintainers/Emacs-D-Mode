@@ -1,5 +1,4 @@
 // #run: (d-test-fontification)
-// #min-version: 24.5
 
 alias Type = int;
 

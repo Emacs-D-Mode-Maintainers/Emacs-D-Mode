@@ -1,4 +1,3 @@
-// #min-version: 24.5
 // #run: (d-test-indent)
 
 double foo(double b)

@@ -7,9 +7,9 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909081759
+;; Version:  201909081807
 ;; Keywords:  D programming language emacs cc-mode
-;; Package-Requires: ((emacs "24.3"))
+;; Package-Requires: ((emacs "25.1"))
 
 ;;;; NB Version number is date and time yyyymmddhhMM UTC.
 ;;;; A hook to update it automatically on save is available here:
@@ -814,8 +814,7 @@ Each list item should be a regexp matching a single identifier."
         (remove-function (symbol-function 'looking-at)
                          #'d-special-case-looking-at)))))
 
-(when (version<= "24.4" emacs-version)
-  (advice-add 'c-add-stmt-syntax :around #'d-around--c-add-stmt-syntax))
+(advice-add 'c-add-stmt-syntax :around #'d-around--c-add-stmt-syntax)
 
 ;;----------------------------------------------------------------------------
 ;;; Implements handling of D constructors
@@ -857,8 +856,7 @@ Each list item should be a regexp matching a single identifier."
 			 #'d-special-case-c-forward-type)
 	))))
 
-(when (version<= "24.4" emacs-version)
-  (advice-add 'c-forward-decl-or-cast-1 :around #'d-around--c-forward-decl-or-cast-1))
+(advice-add 'c-forward-decl-or-cast-1 :around #'d-around--c-forward-decl-or-cast-1)
 
 ;;----------------------------------------------------------------------------
 ;;; Fixes fontification of constructor parameter lists in D code.
@@ -886,8 +884,7 @@ Each list item should be a regexp matching a single identifier."
 			 #'d-special-case-looking-at-2)
 	))))
 
-(when (version<= "24.4" emacs-version)
-  (advice-add 'c-font-lock-declarations :around #'d-around--c-font-lock-declarations))
+(advice-add 'c-font-lock-declarations :around #'d-around--c-font-lock-declarations)
 
 ;;----------------------------------------------------------------------------
 ;; Borrowed from https://github.com/josteink/csharp-mode/blob/master/csharp-mode.el
@@ -948,10 +945,9 @@ Key bindings:
   ;; Concretely, inside back-quoted string literals the backslash
   ;; character '\' is treated as a punctuation symbol.  See help for
   ;; syntax-propertize-rules function for more information.
-  (when (version<= "24.3" emacs-version)
-    (setq-local
-     syntax-propertize-function
-     #'d--syntax-propertize-function))
+  (setq-local
+   syntax-propertize-function
+   #'d--syntax-propertize-function)
 
   (c-common-init 'd-mode)
   (easy-menu-add d-menu)
@@ -1117,8 +1113,7 @@ Key bindings:
      orig-fun)
    args))
 
-(when (version<= "24.4" emacs-version)
-  (advice-add 'c-in-knr-argdecl :around #'d-around--c-in-knr-argdecl))
+(advice-add 'c-in-knr-argdecl :around #'d-around--c-in-knr-argdecl)
 
 ;;----------------------------------------------------------------------------
 ;; We can't include "enum" in `c-typedef-decl-kwds', as that will not
@@ -1159,8 +1154,7 @@ Key bindings:
      orig-fun)
    args))
 
-(when (version<= "24.4" emacs-version)
-  (advice-add 'c-font-lock-enum-body :around #'d-around--c-font-lock-enum-body))
+(advice-add 'c-font-lock-enum-body :around #'d-around--c-font-lock-enum-body)
 
 ;;----------------------------------------------------------------------------
 
@@ -1389,8 +1383,7 @@ Key bindings:
      orig-fun)
    args))
 
-(when (version<= "24.4" emacs-version)
-  (advice-add 'c-forward-type :around #'d-around--c-forward-type))
+(advice-add 'c-forward-type :around #'d-around--c-forward-type)
 
 ;;----------------------------------------------------------------------------
 ;;
