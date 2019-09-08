@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909081931
+;; Version:  201909082054
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -265,8 +265,7 @@ The expression is added to `compilation-error-regexp-alist' and
 ;;   d '("enum"))
 
 (c-lang-defconst c-type-modifier-kwds
-  d '("lazy" "volatile"
-      "invariant" "enum" "__vector"))
+  d nil)
 
 (c-lang-defconst c-type-prefix-kwds
   ;; Keywords where the following name - if any - is a type name, and
@@ -414,6 +413,12 @@ The expression is added to `compilation-error-regexp-alist' and
   ;; Set to t when we recognize a colon and then a type after an enum,
   ;; e.g., enum foo : int { A, B, C };"
   d t)
+
+;; Enabled for java-mode, but we don't need it.
+;; (We can't reuse this for D templates because this is hard-wired to
+;; the < and > characters.)
+(c-lang-defconst c-recognize-<>-arglists
+  d nil)
 
 (defcustom d-font-lock-extra-types nil
   "*List of extra types (aside from the type keywords) to recognize in D mode.
