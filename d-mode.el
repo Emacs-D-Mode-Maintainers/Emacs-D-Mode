@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909051403
+;; Version:  201909081425
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -284,9 +284,16 @@ The expression is added to `compilation-error-regexp-alist' and
 ;;  ;;   TODO: figure out how to make this work properly
 ;;  d '("with" "version" "extern"))
 
+;; Remove "enum" from d-mode's value.
+;; By default this c-typedef-decl-kwds includes c-brace-list-decl-kwds,
+;; which is '("enum") by default.
+;; Instead, parse enums manually (see d-font-lock-enum-body) to avoid
+;; confusion with manifest constants.
 (c-lang-defconst c-typedef-decl-kwds
- d (append (c-lang-const c-typedef-decl-kwds)
-	    '("typedef" "alias")))
+  ;; Keywords introducing declarations where the identifier(s) being
+  ;; declared are types.
+ d (append (c-lang-const c-class-decl-kwds)
+	   '("typedef" "alias")))
 
 (c-lang-defconst c-decl-hangon-kwds
   d '("export"))
@@ -1091,6 +1098,48 @@ Key bindings:
 
 (when (version<= "24.4" emacs-version)
   (advice-add 'c-in-knr-argdecl :around #'d-around--c-in-knr-argdecl))
+
+;;----------------------------------------------------------------------------
+;; We can't include "enum" in `c-typedef-decl-kwds', as that will not
+;; work well with D manifest constants (enum [TYPE] NAME = VALUE).
+;; Instead, omit it from `c-typedef-decl-kwds' (which allows manifest
+;; constants to be fontified properly), and handle actual enumerations
+;; manually by adding fontification of the enum name as a type name to
+;; our version of `c-font-lock-enum-body' below:
+
+(defun d-font-lock-enum-body (limit)
+  "Modified version of `c-font-lock-enum-body' for d-mode." ;; checkdoc-params: limit
+  (while (search-forward-regexp c-enum-clause-introduction-re limit t)
+    (when (save-excursion
+            (backward-char)
+	    (when (c-backward-over-enum-header)
+	      ;; Fontify type name here
+	      (c-forward-token-2)       ; Over "enum"
+	      (c-forward-syntactic-ws)
+	      (c-fontify-types-and-refs ((id-start (point)))
+		(when (c-forward-type)
+		  (c-backward-syntactic-ws)
+		  (c-put-font-lock-face id-start
+					(point)
+					'font-lock-type-face)))
+	      t))
+      ;; As in the original `c-font-lock-enum-body', fontify the body
+      ;; (enum members).
+      (c-forward-syntactic-ws)
+      (c-font-lock-declarators limit t nil t)))
+  nil)
+
+(defun d-around--c-font-lock-enum-body (orig-fun &rest args)
+  ;; checkdoc-params: (orig-fun args)
+  "Advice function for fixing fontification for D enums."
+  (apply
+   (if (c-major-mode-is 'd-mode)
+       #'d-font-lock-enum-body
+     orig-fun)
+   args))
+
+(when (version<= "24.4" emacs-version)
+  (advice-add 'c-font-lock-enum-body :around #'d-around--c-font-lock-enum-body))
 
 ;;----------------------------------------------------------------------------
 ;;

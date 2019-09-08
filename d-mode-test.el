@@ -304,7 +304,8 @@ is expected to succeed, and nil otherwise."
 ;; Run the tests
 (d-test-deftest imenu "tests/imenu.d" t)
 (d-test-deftest fonts "tests/fonts.d" t)
-(d-test-deftest i0019 "tests/I0019.d" (version< "25.1" emacs-version))
+(d-test-deftest fonts_enums "tests/fonts_enums.d" (version< "26.2" emacs-version))
+(d-test-deftest i0019 "tests/I0019.d" (version< "26.2" emacs-version))
 (d-test-deftest i0021 "tests/I0021.d" t)
 (d-test-deftest i0026 "tests/I0026.d" t)
 (d-test-deftest i0030 "tests/I0030.d" t)
