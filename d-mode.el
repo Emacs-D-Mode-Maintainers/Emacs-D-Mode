@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909081431
+;; Version:  201909081643
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -329,10 +329,26 @@ The expression is added to `compilation-error-regexp-alist' and
   ;; contain type identifiers.
   d '("version" "debug" "extern" "macro" "mixin" "pragma"))
 
+(c-lang-defconst d-type-modifier-kwds
+  ;; D's type modifiers.
+  d '("const" "immutable" "inout" "shared"))
+
 (c-lang-defconst c-paren-type-kwds
   ;; Keywords that may be followed by a parenthesis expression containing
   ;; type identifiers separated by arbitrary tokens.
-  d  '("delete" "throw"))
+  d (append (list "delete" "throw")
+	    (c-lang-const d-type-modifier-kwds)))
+
+;; D: Also exclude d-type-modifier-kwds
+(c-lang-defconst c-regular-keywords-regexp
+  ;; Adorned regexp matching all keywords that should be fontified
+  ;; with the keywords face.  I.e. that aren't types or constants.
+  d (c-make-keywords-re t
+      (c--set-difference (c-lang-const c-keywords)
+			 (append (c-lang-const c-primitive-type-kwds)
+				 (c-lang-const c-constant-kwds)
+				 (c-lang-const d-type-modifier-kwds))
+			 :test 'string-equal)))
 
 (c-lang-defconst c-block-stmt-1-kwds
   ;; Statement keywords followed directly by a substatement.
