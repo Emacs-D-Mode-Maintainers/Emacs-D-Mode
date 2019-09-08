@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909081643
+;; Version:  201909081759
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -126,7 +126,7 @@
 
 ;; D has fixed arrays
 (c-lang-defconst c-opt-type-suffix-key
-  d "\\(\\[[^]]*\\]\\|\\.\\.\\.\\)")
+  d "\\(\\[[^]]*\\]\\|\\.\\.\\.\\|\\*\\)")
 
 (c-lang-defconst c-identifier-ops
   ;; For recognizing "~this", ".foo", and "foo.bar.baz" as identifiers
@@ -332,6 +332,11 @@ The expression is added to `compilation-error-regexp-alist' and
 (c-lang-defconst d-type-modifier-kwds
   ;; D's type modifiers.
   d '("const" "immutable" "inout" "shared"))
+
+(c-lang-defconst d-type-modifier-key
+  ;; Regex of `d-type-modifier-kwds'.
+  d (c-make-keywords-re t
+      (c-lang-const d-type-modifier-kwds)))
 
 (c-lang-defconst c-paren-type-kwds
   ;; Keywords that may be followed by a parenthesis expression containing
@@ -1156,6 +1161,236 @@ Key bindings:
 
 (when (version<= "24.4" emacs-version)
   (advice-add 'c-font-lock-enum-body :around #'d-around--c-font-lock-enum-body))
+
+;;----------------------------------------------------------------------------
+
+(defun d-forward-type (&optional brace-block-too)
+  "Modified version of `c-forward-type' for d-mode." ;; checkdoc-params: brace-block-too
+  (let ((start (point)) pos res name-res id-start id-end id-range)
+    (cond
+     ;; const/immutable/...
+     ((looking-at (c-lang-const d-type-modifier-key))
+      (when
+	  (and
+	   ;; Followed by a ( ?
+	   (progn
+	     (goto-char (match-end 1))
+	     (c-forward-syntactic-ws)
+	     (looking-at "("))
+	   ;; Followed by a type in the parens?
+	   (progn
+	     (forward-char)
+	     (c-forward-syntactic-ws)
+	     (c-forward-type))
+	   ;; Followed by a closing ) ?
+	   (progn
+	     (c-forward-syntactic-ws)
+	     (looking-at ")")))
+	(forward-char)
+	(c-forward-syntactic-ws)
+	(setq res 'prefix)))
+
+     ;; Identifier
+     ((progn
+	(setq pos nil)
+	(if (looking-at c-identifier-start)
+	    (save-excursion
+	      (setq id-start (point)
+		    name-res (c-forward-name))
+	      (when name-res
+		(setq id-end (point)
+		      id-range c-last-identifier-range))))
+	(and (cond ((looking-at c-primitive-type-key)
+		    (setq res t))
+		   ((c-with-syntax-table c-identifier-syntax-table
+		      (looking-at c-known-type-key))
+		    (setq res 'known)))
+	     (or (not id-end)
+		 (>= (save-excursion
+		       (save-match-data
+			 (goto-char (match-end 1))
+			 (c-forward-syntactic-ws)
+			 (setq pos (point))))
+		     id-end)
+		 (setq res nil))))
+      ;; Looking at a primitive or known type identifier.  We've
+      ;; checked for a name first so that we don't go here if the
+      ;; known type match only is a prefix of another name.
+
+      (setq id-end (match-end 1))
+
+      (when (and c-record-type-identifiers
+		 (or c-promote-possible-types (eq res t)))
+	(c-record-type-id (cons (match-beginning 1) (match-end 1))))
+
+      (if (and c-opt-type-component-key
+	       (save-match-data
+		 (looking-at c-opt-type-component-key)))
+	  ;; There might be more keywords for the type.
+	  (let (safe-pos)
+	    (c-forward-keyword-clause 1)
+	    (while (progn
+		     (setq safe-pos (point))
+		     (looking-at c-opt-type-component-key))
+	      (when (and c-record-type-identifiers
+			 (looking-at c-primitive-type-key))
+		(c-record-type-id (cons (match-beginning 1)
+					(match-end 1))))
+	      (c-forward-keyword-clause 1))
+	    (if (looking-at c-primitive-type-key)
+		(progn
+		  (when c-record-type-identifiers
+		    (c-record-type-id (cons (match-beginning 1)
+					    (match-end 1))))
+		  (c-forward-keyword-clause 1)
+		  (setq res t))
+	      (goto-char safe-pos)
+	      (setq res 'prefix)))
+	(unless (save-match-data (c-forward-keyword-clause 1))
+	  (if pos
+	      (goto-char pos)
+	    (goto-char (match-end 1))
+	    (c-forward-syntactic-ws)))))
+
+     (name-res
+      (cond ((eq name-res t)
+	     ;; A normal identifier.
+	     (goto-char id-end)
+	     (if (or res c-promote-possible-types)
+		 (progn
+		   (c-add-type id-start id-end)
+		   (when (and c-record-type-identifiers id-range)
+		     (c-record-type-id id-range))
+		   (unless res
+		     (setq res 'found)))
+	       (setq res (if (c-check-type id-start id-end)
+			     ;; It's an identifier that has been used as
+			     ;; a type somewhere else.
+			     'found
+			   ;; It's an identifier that might be a type.
+			   'maybe))))
+	    ((eq name-res 'template)
+	     ;; A template is sometimes a type.
+	     (goto-char id-end)
+	     (c-forward-syntactic-ws)
+	     (setq res
+		   (if (eq (char-after) ?\()
+		       (if (c-check-type id-start id-end)
+			   ;; It's an identifier that has been used as
+			   ;; a type somewhere else.
+			   'found
+			 ;; It's an identifier that might be a type.
+			 'maybe)
+		     t)))
+	    (t
+	     ;; Otherwise it's an operator identifier, which is not a type.
+	     (goto-char start)
+	     (setq res nil)))))
+
+    (when res
+      ;; Skip trailing type modifiers.  If any are found we know it's
+      ;; a type.
+      (when c-opt-type-modifier-key
+	(while (looking-at c-opt-type-modifier-key) ; e.g. "const", "volatile"
+	  (goto-char (match-end 1))
+	  (c-forward-syntactic-ws)
+	  (setq res t)))
+
+      ;; D: Skip over template parameters, if any
+      (when (looking-at "!")
+	(forward-char)
+	(c-forward-syntactic-ws)
+	(c-forward-sexp)
+	(c-forward-syntactic-ws))
+
+      ;; Step over any type suffix operator.  Do not let the existence
+      ;; of these alter the classification of the found type, since
+      ;; these operators typically are allowed in normal expressions
+      ;; too.
+      (when c-opt-type-suffix-key	; e.g. "..."
+	(while (looking-at c-opt-type-suffix-key)
+	  (goto-char (match-end 1))
+	  (c-forward-syntactic-ws)))
+
+      ;; Skip any "WS" identifiers (e.g. "final" or "override" in C++)
+      (while (looking-at c-type-decl-suffix-ws-ids-key)
+	(goto-char (match-end 1))
+	(c-forward-syntactic-ws)
+	(setq res t))
+
+      (when c-opt-type-concat-key	; Only/mainly for pike.
+	;; Look for a trailing operator that concatenates the type
+	;; with a following one, and if so step past that one through
+	;; a recursive call.  Note that we don't record concatenated
+	;; types in `c-found-types' - it's the component types that
+	;; are recorded when appropriate.
+	(setq pos (point))
+	(let* ((c-promote-possible-types (or (memq res '(t known))
+					     c-promote-possible-types))
+	       ;; If we can't promote then set `c-record-found-types' so that
+	       ;; we can merge in the types from the second part afterwards if
+	       ;; it turns out to be a known type there.
+	       (c-record-found-types (and c-record-type-identifiers
+					  (not c-promote-possible-types)))
+	       subres)
+	  (if (and (looking-at c-opt-type-concat-key)
+
+		   (progn
+		     (goto-char (match-end 1))
+		     (c-forward-syntactic-ws)
+		     (setq subres (c-forward-type))))
+
+	      (progn
+		;; If either operand certainly is a type then both are, but we
+		;; don't let the existence of the operator itself promote two
+		;; uncertain types to a certain one.
+		(cond ((eq res t))
+		      ((eq subres t)
+		       (unless (eq name-res 'template)
+			 (c-add-type id-start id-end))
+		       (when (and c-record-type-identifiers id-range)
+			 (c-record-type-id id-range))
+		       (setq res t))
+		      ((eq res 'known))
+		      ((eq subres 'known)
+		       (setq res 'known))
+		      ((eq res 'found))
+		      ((eq subres 'found)
+		       (setq res 'found))
+		      (t
+		       (setq res 'maybe)))
+
+		(when (and (eq res t)
+			   (consp c-record-found-types))
+		  ;; Merge in the ranges of any types found by the second
+		  ;; `c-forward-type'.
+		  (setq c-record-type-identifiers
+			;; `nconc' doesn't mind that the tail of
+			;; `c-record-found-types' is t.
+			(nconc c-record-found-types
+			       c-record-type-identifiers))))
+
+	    (goto-char pos))))
+
+      (when (and c-record-found-types (memq res '(known found)) id-range)
+	(setq c-record-found-types
+	      (cons id-range c-record-found-types))))
+
+    ;;(message "c-forward-type %s -> %s: %s" start (point) res)
+
+    res))
+
+(defun d-around--c-forward-type (orig-fun &rest args)
+  ;; checkdoc-params: (orig-fun args)
+  "Advice function for fixing fontification for D enums."
+  (apply
+   (if (c-major-mode-is 'd-mode)
+       #'d-forward-type
+     orig-fun)
+   args))
+
+(when (version<= "24.4" emacs-version)
+  (advice-add 'c-forward-type :around #'d-around--c-forward-type))
 
 ;;----------------------------------------------------------------------------
 ;;

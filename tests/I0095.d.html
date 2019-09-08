@@ -1,8 +1,13 @@
 <span class="comment-delimiter">// </span><span class="comment">#run: (d-test-fontification)
-</span><span class="comment-delimiter">// </span><span class="comment">TODO: fontify param as variable-name
+</span><span class="comment-delimiter">// </span><span class="comment">#min-version: 24.5
 </span>
 <span class="keyword">alias</span> <span class="type">Type</span> = <span class="type">int</span>;
 
-<span class="type">void</span> <span class="function-name">foo</span>(<span class="keyword">const</span>(<span class="type">Type</span>) param);
+<span class="type">void</span> <span class="function-name">foo</span>(<span class="keyword">const</span>(<span class="type">Type</span>) <span class="variable-name">param</span>);
 
-<span class="keyword">const</span>(<span class="type">Type</span>) bar(<span class="keyword">const</span>(<span class="type">Type</span>) param);
+<span class="keyword">const</span>(<span class="type">Type</span>) <span class="function-name">bar</span>(<span class="keyword">const</span>(<span class="type">Type</span>) <span class="variable-name">param</span>);
+
+<span class="keyword">const</span>(<span class="type">Type</span>) <span class="function-name">baz</span>(<span class="keyword">ref const</span>(<span class="type">Type</span>) <span class="variable-name">param</span>, <span class="keyword">lazy</span> <span class="type">int</span> <span class="variable-name">param2</span>);
+
+<span class="keyword">const</span>(<span class="type">Tpl</span><span class="negation-char">!</span><span class="type">int</span>) <span class="variable-name">var1</span>;
+<span class="keyword">const</span>(<span class="type">Tpl</span><span class="negation-char">!</span>(<span class="type">int</span>, <span class="string">&quot;&quot;</span>, [1, 2, 3])*) <span class="variable-name">var2</span>;
