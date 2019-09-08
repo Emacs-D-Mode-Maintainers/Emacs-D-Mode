@@ -1,4 +1,4 @@
-// #min-version: 26.2
+// #min-version: 25.1
 // #run: (d-test-indent)
 
 enum OtherValues2 : uint {
