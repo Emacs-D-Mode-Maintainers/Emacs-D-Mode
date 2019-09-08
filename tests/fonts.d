@@ -6,4 +6,6 @@ void main()
 
 	string[string] aa; string s;
 	assert(s in aa);
+
+	aa[s].length;
 }

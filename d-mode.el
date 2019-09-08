@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909081807
+;; Version:  201909081908
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -130,7 +130,8 @@
 
 (c-lang-defconst c-identifier-ops
   ;; For recognizing "~this", ".foo", and "foo.bar.baz" as identifiers
-  d '((prefix "~")(prefix ".")(left-assoc ".")))
+  d '((prefix "~")
+      (left-assoc ".")))
 
 (c-lang-defconst c-after-id-concat-ops
   ;; Also for handling ~this
