@@ -3,4 +3,7 @@
 void main()
 {
 	assert(true);
+
+	string[string] aa; string s;
+	assert(s in aa);
 }

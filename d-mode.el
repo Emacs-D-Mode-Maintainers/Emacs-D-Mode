@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909081425
+;; Version:  201909081431
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -252,7 +252,7 @@ The expression is added to `compilation-error-regexp-alist' and
 ;; Keywords that can prefix normal declarations of identifiers
 (c-lang-defconst c-modifier-kwds
   d '("abstract" "deprecated" "extern"
-      "final" "in" "out" "lazy" "mixin" "override" "private"
+      "final" "out" "lazy" "mixin" "override" "private"
       "protected" "public" "ref" "scope" "static" "synchronized"
       "volatile" "__vector"))
 
@@ -385,7 +385,7 @@ The expression is added to `compilation-error-regexp-alist' and
 
 (c-lang-defconst c-other-kwds
   ;; Keywords not accounted for by any other `*-kwds' language constant.
-  d '("__gshared" "__traits" "assert" "cast" "is" "nothrow" "pure" "ref"
+  d '("__gshared" "__traits" "assert" "cast" "in" "is" "nothrow" "pure" "ref"
       "sizeof" "typeid" "typeof"))
 
 
