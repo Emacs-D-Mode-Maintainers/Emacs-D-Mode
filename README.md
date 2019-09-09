@@ -9,6 +9,7 @@
 An Emacs major mode for editing D code.
 
 This mode is currently known to work with Emacs 25 and 26.
+For best results, use Emacs 26.
 
 The best way of installing this major mode, at least for Emacs 26, is to use the packaging system. Add MELPA
 or MELPA Stable to the list of repositories to access this mode. For those who want only formal, tagged
