@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909091921
+;; Version:  201909092009
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -558,284 +558,88 @@ Each list item should be a regexp matching a single identifier."
 (easy-menu-define d-menu d-mode-map "D Mode Commands"
   (cons "D" (c-lang-const c-mode-menu d)))
 
-(eval-when-compile
-  (defconst d--imenu-rx-def-start
-    '(seq
-      ;; Conditionals
-      (zero-or-one
-       "else"
-       (zero-or-more space))
-      (zero-or-one
-       "version"
-       (zero-or-more space)
-       "("
-       (zero-or-more space)
-       (one-or-more (any "a-zA-Z0-9_"))
-       (zero-or-more space)
-       ")"
-       (zero-or-more space))
+(defun d-imenu-create-index-function ()
+  "Create imenu entries for D-mode."
+  (goto-char (point-min))
+  (let (d-spots last-spot)
+    (c-find-decl-spots
+     (point-max)
+     c-decl-start-re
+     (eval c-maybe-decl-faces)
+     (lambda (match-pos inside-macro toplev)
+       (let* ((got-context
+	       (c-get-fontification-context
+		match-pos nil toplev))
+	      (context (car got-context))
+	      (decl-or-cast
+	       (when (eq context 'top)
+		 (c-forward-decl-or-cast-1
+		  match-pos
+		  context
+		  nil ; last-cast-end
+		  ))))
+	 (when (and decl-or-cast (not (eq (car decl-or-cast) last-spot)))
+	   (let* ((id-start (progn
+			      (goto-char (car decl-or-cast))
+			      (when (eq (char-after) ?=)
+				(c-backward-syntactic-ws)
+				(c-simple-skip-symbol-backward))
+			      (point)))
+		  (id-end (progn
+			    (goto-char id-start)
+			    (forward-char)
+			    (c-end-of-current-token)
+			    (point)))
+		  (name (buffer-substring-no-properties id-start id-end))
+		  (id-prev-token (progn
+				   (goto-char id-start)
+				   (c-backward-syntactic-ws)
+				   (let ((end (point)))
+				     (when (c-simple-skip-symbol-backward)
+				       (buffer-substring-no-properties (point) end)))))
+		  (type-start (cadddr decl-or-cast))
+		  (type-prev-token (when type-start
+				     (goto-char type-start)
+				     (c-backward-syntactic-ws)
+				     (let ((end (point)))
+				       (when (c-simple-skip-symbol-backward)
+					 (buffer-substring-no-properties (point) end)))))
+		  (next-char (progn
+			       (goto-char id-end)
+			       (c-forward-syntactic-ws)
+			       (char-after)))
+		  (kind (cond
+			 ((eq id-prev-token nil)
+			  nil)
+			 ((equal id-prev-token "enum")
+			  "Enums")
+			 ((equal id-prev-token "class")
+			  "Classes")
+			 ((equal id-prev-token "struct")
+			  "Structs")
+			 ((equal id-prev-token "template")
+			  "Templates")
+			 ((equal id-prev-token "alias")
+			  "Aliases")
+			 ((equal type-prev-token "alias")
+			  "Aliases")    ; old-style alias
+			 ((memq next-char '(?\; ?= ?,))
+			  "Variables")
+			 ((memq next-char '(?\())
+			  nil) ; function
+			 (t ; unknown
+			  id-prev-token))))
 
-      (zero-or-more
-       (or
-	word-start
-	(or
-	 ;; StorageClass
-	 "deprecated"
-	 "static"
-	 "extern"
-	 "abstract"
-	 "final"
-	 "override"
-	 "synchronized"
-	 "scope"
-	 "nothrow"
-	 "pure"
-	 "ref"
-	 (seq
-	  (or
-	   "extern"
-	   "deprecated"
-	   "package"
-	   )
-	  (zero-or-more space)
-	  "("
-	  (zero-or-more space)
-	  (one-or-more (not (any "()")))
-	  (zero-or-more space)
-	  ")")
-
-	 ;; VisibilityAttribute
-	 "private"
-	 "package"
-	 "protected"
-	 "public"
-	 "export"
-	 )
-
-	;; AtAttribute
-	(seq
-	 "@"
-	 (one-or-more (any "a-zA-Z0-9_"))
-	 (zero-or-one
-	  (zero-or-more space)
-	  "("
-	  (zero-or-more space)
-	  (one-or-more (not (any "()")))
-	  (zero-or-more space)
-	  ")")))
-       (zero-or-more space))
-
-      )))
-
-(defconst d-imenu-method-name-pattern
-  (rx
-   ;; Whitespace
-   bol
-   (zero-or-more space)
-
-   (eval d--imenu-rx-def-start)
-
-   ;; Type
-   (group
-    (one-or-more (any "a-zA-Z0-9_.*![]()")))
-   (one-or-more space)
-
-   ;; Function name
-   (group
-    (one-or-more (any "a-zA-Z0-9_")))
-   (zero-or-more space)
-
-   ;; Type arguments
-   (zero-or-one
-    "(" (zero-or-more (not (any ")"))) ")"
-    (zero-or-more (any " \t\n")))
-
-   ;; Arguments
-   "("
-   (zero-or-more (not (any "()")))
-   (zero-or-more
-    "("
-    (zero-or-more (not (any "()")))
-    ")"
-    (zero-or-more (not (any "()"))))
-   ")"
-   (zero-or-more (any " \t\n"))
-
-   ;; Pure/const etc.
-   (zero-or-more
-    (one-or-more (any "a-z@"))
-    symbol-end
-    (zero-or-more (any " \t\n")))
-
-   (zero-or-more
-    "//"
-    (zero-or-more not-newline)
-    (zero-or-more space))
-
-   ;; ';' or 'if' or '{'
-   (or
-    ";"
-    (and
-     (zero-or-more (any " \t\n"))
-     (or "if" "{")))
-   ))
-
-(defun d-imenu-method-index-function ()
-  "Find D function declarations for imenu."
-  (and
-   (let ((pt))
-     (setq pt (re-search-backward d-imenu-method-name-pattern nil t))
-     ;; The method name regexp will match lines like
-     ;; "return foo(x);" or "static if(x) {"
-     ;; so we exclude type name 'static' or 'return' here
-     (while (let ((type (match-string 1))
-		  (name (match-string 2)))
-              (and pt name
-                   (save-match-data
-		     (or
-		      (string-match (c-lang-const d-non-func-type-kwds-re) type)
-		      (string-match (c-lang-const d-non-func-name-kwds-re) name)))))
-       (setq pt (re-search-backward d-imenu-method-name-pattern nil t)))
-     pt)
-   ;; Do not count invisible definitions.
-   (let ((invis (invisible-p (point))))
-     (or (not invis)
-         (progn
-           (while (and invis
-                       (not (bobp)))
-             (setq invis (not (re-search-backward
-                               d-imenu-method-name-pattern nil 'move))))
-           (not invis))))))
-
-(defvar d-imenu-generic-expression
-  `(("*Classes*"
-     ,(rx
-       bol
-       (zero-or-more space)
-       (eval d--imenu-rx-def-start)
-       word-start
-       "class"
-       (one-or-more (syntax whitespace))
-       (submatch
-	(one-or-more
-	 (any ?_
-	      (?0 . ?9)
-	      (?A . ?Z)
-	      (?a . ?z)))))
-     1)
-    ("*Interfaces*"
-     ,(rx
-       bol
-       (zero-or-more space)
-       (eval d--imenu-rx-def-start)
-       word-start
-       "interface"
-       (one-or-more (syntax whitespace))
-       (submatch
-	(one-or-more
-	 (any ?_
-	      (?0 . ?9)
-	      (?A . ?Z)
-	      (?a . ?z)))))
-     1)
-    ("*Structs*"
-     ,(rx
-       bol
-       (zero-or-more space)
-       (eval d--imenu-rx-def-start)
-       word-start
-       "struct"
-       (one-or-more (syntax whitespace))
-       (submatch
-	(one-or-more
-	 (any ?_
-	      (?0 . ?9)
-	      (?A . ?Z)
-	      (?a . ?z)))))
-     1)
-    ("*Templates*"
-     ,(rx
-       bol
-       (zero-or-more space)
-       (eval d--imenu-rx-def-start)
-       (zero-or-one
-	"mixin"
-	(one-or-more (syntax whitespace)))
-       word-start
-       "template"
-       (one-or-more (syntax whitespace))
-       (submatch
-	(one-or-more
-	 (any ?_
-	      (?0 . ?9)
-	      (?A . ?Z)
-	      (?a . ?z)))))
-     1)
-    ("*Enums*"
-     ,(rx
-       bol
-       (zero-or-more space)
-       (eval d--imenu-rx-def-start)
-       word-start
-       "enum"
-       (one-or-more (syntax whitespace))
-       (submatch
-	(one-or-more
-	 (any ?_
-	      (?0 . ?9)
-	      (?A . ?Z)
-	      (?a . ?z))))
-       (zero-or-more (any " \t\n"))
-       (or ":" "{"))
-     1)
-    ;; NB: We can't easily distinguish aliases declared outside
-    ;; functions from local ones, so just search for those that are
-    ;; declared at the beginning of lines.
-    ("*Aliases*"
-     ,(rx
-       bol
-       (eval d--imenu-rx-def-start)
-       "alias"
-       (one-or-more (syntax whitespace))
-       (submatch
-	(one-or-more
-	 (any ?_
-	      (?0 . ?9)
-	      (?A . ?Z)
-	      (?a . ?z))))
-       (zero-or-more (syntax whitespace))
-       (zero-or-one
-        "("
-        (zero-or-more (not (any "()")))
-        ")"
-        (zero-or-more (syntax whitespace)))
-       "=")
-     1)
-    ("*Aliases*"
-     ,(rx
-       bol
-       (eval d--imenu-rx-def-start)
-       "alias"
-       (one-or-more (syntax whitespace))
-       (one-or-more
-	(not (any ";")))
-       (one-or-more (syntax whitespace))
-       (submatch
-	(one-or-more
-	 (any ?_
-	      (?0 . ?9)
-	      (?A . ?Z)
-	      (?a . ?z))))
-       (zero-or-more (syntax whitespace))
-       ";"
-       (zero-or-more (syntax whitespace))
-       (or
-	eol
-	"//"
-	"/*")
-       )
-     1)
-    (nil d-imenu-method-index-function 2)))
+	     (setq last-spot (car decl-or-cast)
+		   d-spots
+		   (cons
+		    (list
+		     kind
+		     (cons
+		      name
+		      (car decl-or-cast)))
+		    d-spots)))))))
+    (nreverse d-spots)))
 
 ;;----------------------------------------------------------------------------
 ;;; Workaround for special case of 'else static if' not being handled properly
@@ -1017,7 +821,7 @@ Key bindings:
   (easy-menu-add d-menu)
   (c-run-mode-hooks 'c-mode-common-hook 'd-mode-hook)
   (c-update-modeline)
-  (cc-imenu-init d-imenu-generic-expression))
+  (cc-imenu-init nil #'d-imenu-create-index-function))
 
 ;;----------------------------------------------------------------------------
 
