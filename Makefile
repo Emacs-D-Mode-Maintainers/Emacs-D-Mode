@@ -11,4 +11,12 @@ clean:
 	rm -f d-mode.elc
 	find tests -name '*.res.*' -delete
 
-.PHONY:	all test
+# Show just the differences between the actual and expected results.
+test-diff:
+	for f in tests/*.res.* ; do diff --color -u "$${f/.res/}" "$$f" ; done
+
+# Accept any mismatching actual output as the expected output.
+test-accept:
+	for f in tests/*.res.* ; do mv "$$f" "$${f/.res/}" ; done
+
+.PHONY:	all test compile clean test-diff test-accept
