@@ -526,7 +526,7 @@ Each list item should be a regexp matching a single identifier."
 (c-lang-defconst c-mode-menu
   ;; The definition for the mode menu.  The menu title is prepended to
   ;; this before it's fed to `easy-menu-define'.
-  t `(["Comment Out Region"     comment-region
+  d `(["Comment Out Region"     comment-region
        (c-fn-region-is-active-p)]
       ["Uncomment Region"       (comment-region (region-beginning)
 						(region-end) '(4))
