@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909091759
+;; Version:  201909091921
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -127,6 +127,9 @@
 ;; D has fixed arrays
 (c-lang-defconst c-opt-type-suffix-key
   d "\\(\\[[^]]*\\]\\|\\.\\.\\.\\|\\*\\)")
+
+(c-lang-defconst c-decl-prefix-re
+  d "\\([{}();:,]+\\)")
 
 (c-lang-defconst c-identifier-ops
   ;; For recognizing "~this", ".foo", and "foo.bar.baz" as identifiers

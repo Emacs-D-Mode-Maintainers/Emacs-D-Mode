@@ -11,3 +11,5 @@ void main()
 
 	run(a ~ b);
 }
+
+version(none) string readLink();
