@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909092103
+;; Version:  201909092106
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -380,22 +380,6 @@ The expression is added to `compilation-error-regexp-alist' and
   ;; type identifiers separated by arbitrary tokens.
   d (append (list "delete" "throw")
 	    (c-lang-const d-type-modifier-kwds)))
-
-;; D: Like `c-regular-keywords-regexp', but contains keywords which
-;; cannot occur in a function type.
-(c-lang-defconst d-non-func-type-kwds-re
-  d (concat "\\<"
-	    (c-make-keywords-re t
-	      (c--set-difference (c-lang-const c-keywords)
-				 (append (c-lang-const c-primitive-type-kwds)
-					 (c-lang-const d-decl-storage-class-kwds))
-				 :test 'string-equal))))
-
-;; D: Like `c-regular-keywords-regexp', but contains keywords which
-;; cannot occur in a function name.
-(c-lang-defconst d-non-func-name-kwds-re
-  d (concat "\\<"
-	    (c-make-keywords-re t (c-lang-const c-keywords))))
 
 (c-lang-defconst c-block-stmt-1-kwds
   ;; Statement keywords followed directly by a substatement.
