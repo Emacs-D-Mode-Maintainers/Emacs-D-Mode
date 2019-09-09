@@ -253,6 +253,17 @@ Called from the #run snippet of individual test files."
      imenu--index-alist))
    '<))
 
+(defun d-test-save-result (filename)
+  "In case of an unexpected result, save it to a file.
+
+FILENAME is the original (versioned) file name."
+  (write-region
+   nil nil
+   (concat
+    (file-name-sans-extension filename)
+    ".res"
+    (file-name-extension filename t))))
+
 (defun d-test-indent ()
   "Re-indent the current file.
 
@@ -262,7 +273,8 @@ If the resulting indentation ends up being different, raise an error."
     (error
      (let ((orig (buffer-string)))
        (let (buffer-read-only)
-	 (c-indent-region (point-min) (point-max)))
+	 (c-indent-region (point-min) (point-max))
+         (d-test-save-result (buffer-file-name)))
        (error (concat "Test case has been indented differently.\n"
 		      "Expected:\n--------------------\n%s\n--------------------\n"
 		      "Got:     \n--------------------\n%s\n--------------------\n")
@@ -282,11 +294,13 @@ the reference file, raise an error."
 	  (default-value 'font-lock-fontify-region-function)))
 
   (let* ((hfy-optimisations '(body-text-only merge-adjacent-tags))
+         (html-filename (concat filename ".html"))
 	 (actual (with-current-buffer (htmlfontify-buffer nil "test.d") (buffer-string)))
 	 (expected (with-temp-buffer
-		     (insert-file-contents (concat filename ".html"))
+		     (insert-file-contents html-filename)
 		     (buffer-string))))
     (unless (equal actual expected)
+      (with-temp-buffer (insert actual) (d-test-save-result html-filename))
       (error (concat "Test case has been fontified differently.\n"
 		     "Expected:\n--------------------\n%s\n--------------------\n"
 		     "Got:     \n--------------------\n%s\n--------------------\n")

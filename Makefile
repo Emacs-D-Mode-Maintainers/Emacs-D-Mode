@@ -9,5 +9,6 @@ compile:
 
 clean:
 	rm -f d-mode.elc
+	find tests -name '*.res.*' -delete
 
 .PHONY:	all test
