@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909091517
+;; Version:  201909091520
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -849,13 +849,12 @@ Each list item should be a regexp matching a single identifier."
   "Advice function for fixing cc-mode indentation in certain D constructs."
   (if (not (c-major-mode-is 'd-mode))
       (apply orig-fun args)
-    (progn
-      (add-function :around (symbol-function 'looking-at)
-                    #'d-special-case-looking-at)
-      (unwind-protect
-          (apply orig-fun args)
-        (remove-function (symbol-function 'looking-at)
-                         #'d-special-case-looking-at)))))
+    (add-function :around (symbol-function 'looking-at)
+		  #'d-special-case-looking-at)
+    (unwind-protect
+	(apply orig-fun args)
+      (remove-function (symbol-function 'looking-at)
+		       #'d-special-case-looking-at))))
 
 (advice-add 'c-add-stmt-syntax :around #'d-around--c-add-stmt-syntax)
 
@@ -919,14 +918,12 @@ Each list item should be a regexp matching a single identifier."
   "Advice function for fixing cc-mode handling of D constructors."
   (if (not (c-major-mode-is 'd-mode))
       (apply orig-fun args)
-    (progn
-      (add-function :around (symbol-function 'looking-at)
-		    #'d-special-case-looking-at-2)
-      (unwind-protect
-	  (apply orig-fun args)
-	(remove-function (symbol-function 'looking-at)
-			 #'d-special-case-looking-at-2)
-	))))
+    (add-function :around (symbol-function 'looking-at)
+		  #'d-special-case-looking-at-2)
+    (unwind-protect
+	(apply orig-fun args)
+      (remove-function (symbol-function 'looking-at)
+		       #'d-special-case-looking-at-2))))
 
 (advice-add 'c-font-lock-declarations :around #'d-around--c-font-lock-declarations)
 
