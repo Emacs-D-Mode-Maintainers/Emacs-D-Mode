@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909092055
+;; Version:  201909092103
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -567,74 +567,75 @@ Each list item should be a regexp matching a single identifier."
      c-decl-start-re
      (eval c-maybe-decl-faces)
      (lambda (match-pos inside-macro toplev)
-       (let* ((got-context
-	       (c-get-fontification-context
-		match-pos nil toplev))
-	      (context (car got-context))
-	      (decl-or-cast
-	       (when (eq context 'top)
-		 (c-forward-decl-or-cast-1
-		  match-pos
-		  context
-		  nil ; last-cast-end
-		  ))))
-	 (when (and decl-or-cast (not (eq (car decl-or-cast) last-spot)))
-	   (let* ((id-start (progn
-			      (goto-char (car decl-or-cast))
-			      (when (eq (char-after) ?=)
-				(c-backward-syntactic-ws)
-				(c-simple-skip-symbol-backward))
+       (when toplev
+	 (let* ((got-context
+		 (c-get-fontification-context
+		  match-pos nil toplev))
+		(context (car got-context))
+		(decl-or-cast
+		 (when (eq context 'top)
+		   (c-forward-decl-or-cast-1
+		    match-pos
+		    context
+		    nil ; last-cast-end
+		    ))))
+	   (when (and decl-or-cast (not (eq (car decl-or-cast) last-spot)))
+	     (let* ((id-start (progn
+				(goto-char (car decl-or-cast))
+				(when (eq (char-after) ?=)
+				  (c-backward-syntactic-ws)
+				  (c-simple-skip-symbol-backward))
+				(point)))
+		    (id-end (progn
+			      (goto-char id-start)
+			      (forward-char)
+			      (c-end-of-current-token)
 			      (point)))
-		  (id-end (progn
-			    (goto-char id-start)
-			    (forward-char)
-			    (c-end-of-current-token)
-			    (point)))
-		  (name (buffer-substring-no-properties id-start id-end))
-		  (id-prev-token (progn
-				   (goto-char id-start)
-				   (c-backward-syntactic-ws)
-				   (let ((end (point)))
-				     (when (c-simple-skip-symbol-backward)
-				       (buffer-substring-no-properties (point) end)))))
-		  (type-start (cadddr decl-or-cast))
-		  (type-prev-token (when type-start
-				     (goto-char type-start)
+		    (name (buffer-substring-no-properties id-start id-end))
+		    (id-prev-token (progn
+				     (goto-char id-start)
 				     (c-backward-syntactic-ws)
 				     (let ((end (point)))
 				       (when (c-simple-skip-symbol-backward)
 					 (buffer-substring-no-properties (point) end)))))
-		  (next-char (progn
-			       (goto-char id-end)
-			       (c-forward-syntactic-ws)
-			       (char-after)))
-		  (kind (cond
-			 ((equal id-prev-token "enum")
-			  "Enums")
-			 ((equal id-prev-token "class")
-			  "Classes")
-			 ((equal id-prev-token "struct")
-			  "Structs")
-			 ((equal id-prev-token "template")
-			  "Templates")
-			 ((equal id-prev-token "alias")
-			  "Aliases")
-			 ((equal type-prev-token "alias")
-			  "Aliases")    ; old-style alias
-			 ((memq next-char '(?\; ?= ?,))
-			  "Variables")
-			 ((memq next-char '(?\())
-			  nil) ; function
-			 (t ; unknown
-			  id-prev-token))))
+		    (type-start (cadddr decl-or-cast))
+		    (type-prev-token (when type-start
+				       (goto-char type-start)
+				       (c-backward-syntactic-ws)
+				       (let ((end (point)))
+					 (when (c-simple-skip-symbol-backward)
+					   (buffer-substring-no-properties (point) end)))))
+		    (next-char (progn
+				 (goto-char id-end)
+				 (c-forward-syntactic-ws)
+				 (char-after)))
+		    (kind (cond
+			   ((equal id-prev-token "enum")
+			    "Enums")
+			   ((equal id-prev-token "class")
+			    "Classes")
+			   ((equal id-prev-token "struct")
+			    "Structs")
+			   ((equal id-prev-token "template")
+			    "Templates")
+			   ((equal id-prev-token "alias")
+			    "Aliases")
+			   ((equal type-prev-token "alias")
+			    "Aliases")    ; old-style alias
+			   ((memq next-char '(?\; ?= ?,))
+			    "Variables")
+			   ((memq next-char '(?\())
+			    nil) ; function
+			   (t ; unknown
+			    id-prev-token))))
 
-	     (setq last-spot (car decl-or-cast)
-		   d-spots
-		   (cons
-		    (if kind
-			(list kind (cons name (car decl-or-cast)))
-		      (cons name (car decl-or-cast)))
-		    d-spots)))))))
+	       (setq last-spot (car decl-or-cast)
+		     d-spots
+		     (cons
+		      (if kind
+			  (list kind (cons name (car decl-or-cast)))
+			(cons name (car decl-or-cast)))
+		      d-spots))))))))
     (nreverse d-spots)))
 
 ;;----------------------------------------------------------------------------
