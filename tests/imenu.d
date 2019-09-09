@@ -1,5 +1,5 @@
 // #run: (d-test-get-imenu-lines)
-// #out: (4 6 11 14 17 19 22 25 33 34 37 40 43 46 49 52 54 56 67 75 78 81 84 87 89 93 94 96 97 99)
+// #out: (4 6 11 14 17 19 22 25 33 34 37 40 43 46 49 52 54 56 67 75 78 81 84 87 89 93 94 96 97 99 104)
 
 void foo(int x) {}
 
@@ -99,3 +99,8 @@ Parameter!("foo()") run(string command) {}
 string[string] environment;
 
 static import std.process;
+
+alias
+	Number
+	=
+	int;

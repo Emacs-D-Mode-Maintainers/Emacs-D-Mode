@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909092113
+;; Version:  201909092122
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -620,8 +620,8 @@ Each list item should be a regexp matching a single identifier."
 		       d-spots
 		       (cons
 			(if (eq kind t)
-			    (cons name (car decl-or-cast))
-			  (list kind (cons name (car decl-or-cast))))
+			    (cons name id-start)
+			  (list kind (cons name id-start)))
 			d-spots)))))))))
     (nreverse d-spots)))
 
