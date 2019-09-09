@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909082055
+;; Version:  201909090915
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -1252,11 +1252,18 @@ Key bindings:
 
     (when res
       ;; D: Skip over template parameters, if any
-      (when (looking-at "!")            ; TODO: maybe use c-opt-type-concat-key instead
+      (when (looking-at "!")
 	(forward-char)
 	(c-forward-syntactic-ws)
 	(c-forward-sexp)
 	(c-forward-syntactic-ws))
+
+      ;; D: Descend into scope names
+      (when (looking-at "[.]")
+	(forward-char)
+	(c-forward-syntactic-ws)
+	(unless (d-forward-type)
+	  (setq res nil)))
 
       ;; Step over any type suffix operator.  Do not let the existence
       ;; of these alter the classification of the found type, since
