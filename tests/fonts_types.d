@@ -8,3 +8,6 @@ assert(to!string(d) == to!string(double.max));
 private void resetFile(string name, scope const(char)[] stdioOpenmode, bool isPopened) @trusted {}
 
 Parameter!("foo()").Foo var;
+
+void foo(in Type var);
+void foo(out Type var);

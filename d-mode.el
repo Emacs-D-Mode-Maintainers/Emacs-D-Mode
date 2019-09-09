@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909090915
+;; Version:  201909091501
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -337,22 +337,59 @@ The expression is added to `compilation-error-regexp-alist' and
   d (c-make-keywords-re t
       (c-lang-const d-type-modifier-kwds)))
 
+(c-lang-defconst d-common-storage-class-kwds
+  ;; D's storage classes (keywords that can prefix or entirely
+  ;; substitute a type in a parameter or variable declaration).
+  d `(;; Constness
+      ,@(c-lang-const d-type-modifier-kwds)
+      ;; Storage classes that apply to either parameters and declarations
+      "scope"))
+
+(c-lang-defconst d-decl-storage-class-kwds
+  d `(;; Common keywords
+      ,@(c-lang-const d-common-storage-class-kwds)
+      ;; auto (no-effect placeholder)
+      "auto"
+      ;; Storage class
+      "extern" "static" "__gshared"))
+
+(c-lang-defconst d-param-storage-class-kwds
+  d `(;; Common keywords
+      ,@(c-lang-const d-common-storage-class-kwds)
+      ;; Function parameters
+      "in" "out" "ref" "lazy"))
+
+(c-lang-defconst d-storage-class-kwds
+  d (c--delete-duplicates (append (c-lang-const d-decl-storage-class-kwds)
+				  (c-lang-const d-param-storage-class-kwds))
+			  :test 'string-equal))
+
+(c-lang-defconst d-storage-class-key
+  ;; Regex of `d-storage-class-kwds'.
+  d (c-make-keywords-re t
+      (c-lang-const d-storage-class-kwds)))
+
 (c-lang-defconst c-paren-type-kwds
   ;; Keywords that may be followed by a parenthesis expression containing
   ;; type identifiers separated by arbitrary tokens.
   d (append (list "delete" "throw")
 	    (c-lang-const d-type-modifier-kwds)))
 
-;; D: Also exclude d-type-modifier-kwds
-(c-lang-defconst c-regular-keywords-regexp
-  ;; Adorned regexp matching all keywords that should be fontified
-  ;; with the keywords face.  I.e. that aren't types or constants.
-  d (c-make-keywords-re t
-      (c--set-difference (c-lang-const c-keywords)
-			 (append (c-lang-const c-primitive-type-kwds)
-				 (c-lang-const c-constant-kwds)
-				 (c-lang-const d-type-modifier-kwds))
-			 :test 'string-equal)))
+;; D: Like `c-regular-keywords-regexp', but contains keywords which
+;; cannot occur in a function type.
+(c-lang-defconst d-non-func-type-kwds-re
+  d (concat "\\<"
+	    (c-make-keywords-re t
+	      (c--set-difference (c-lang-const c-keywords)
+				 (append (c-lang-const c-primitive-type-kwds)
+					 (c-lang-const d-decl-storage-class-kwds))
+				 :test 'string-equal))))
+
+;; D: Like `c-regular-keywords-regexp', but contains keywords which
+;; cannot occur in a function name.
+(c-lang-defconst d-non-func-name-kwds-re
+  d (concat "\\<"
+	    (c-make-keywords-re t (c-lang-const c-keywords))))
 
 (c-lang-defconst c-block-stmt-1-kwds
   ;; Statement keywords followed directly by a substatement.
@@ -401,7 +438,7 @@ The expression is added to `compilation-error-regexp-alist' and
   d nil)
 
 (c-lang-defconst c-other-decl-kwds
-  d nil)
+  d (c-lang-const d-storage-class-kwds))
 
 (c-lang-defconst c-other-kwds
   ;; Keywords not accounted for by any other `*-kwds' language constant.
@@ -645,12 +682,13 @@ Each list item should be a regexp matching a single identifier."
      ;; The method name regexp will match lines like
      ;; "return foo(x);" or "static if(x) {"
      ;; so we exclude type name 'static' or 'return' here
-     (while (let ((type (match-string 1)))
-              (and pt type
+     (while (let ((type (match-string 1))
+		  (name (match-string 2)))
+              (and pt name
                    (save-match-data
-                     (string-match
-		      (concat "\\<" (c-lang-const c-regular-keywords-regexp))
-		      type))))
+		     (or
+		      (string-match (c-lang-const d-non-func-type-kwds-re) type)
+		      (string-match (c-lang-const d-non-func-name-kwds-re) name)))))
        (setq pt (re-search-backward d-imenu-method-name-pattern nil t)))
      pt)
    ;; Do not count invisible definitions.
@@ -846,20 +884,33 @@ Each list item should be a regexp matching a single identifier."
 (defun d-around--c-forward-decl-or-cast-1 (orig-fun &rest args)
   ;; checkdoc-params: (orig-fun args)
   "Advice function for fixing cc-mode handling of D constructors."
-  (if (not (c-major-mode-is 'd-mode))
-      (apply orig-fun args)
-    (progn
-      (add-function :around (symbol-function 'c-forward-name)
-		    #'d-special-case-c-forward-name)
-      (add-function :around (symbol-function 'c-forward-type)
-		    #'d-special-case-c-forward-type)
-      (unwind-protect
-	  (apply orig-fun args)
-	(remove-function (symbol-function 'c-forward-name)
-			 #'d-special-case-c-forward-name)
-	(remove-function (symbol-function 'c-forward-type)
-			 #'d-special-case-c-forward-type)
-	))))
+  (cond
+   ((not (c-major-mode-is 'd-mode))
+    (apply orig-fun args))
+
+   ;; D: The logic in cc-mode's `c-forward-decl-or-cast-1' will
+   ;; recognize "someIdentifier in" as a variable declaration,
+   ;; fontifying someIdentifier as a type. Prevent this here.
+   ((save-excursion
+      (and
+       (looking-at c-identifier-start)
+       (progn
+	 (c-forward-token-2)
+	 (looking-at (c-make-keywords-re t '("in"))))))
+    nil)
+
+   (t
+    (add-function :around (symbol-function 'c-forward-name)
+		  #'d-special-case-c-forward-name)
+    (add-function :around (symbol-function 'c-forward-type)
+		  #'d-special-case-c-forward-type)
+    (unwind-protect
+	(apply orig-fun args)
+      (remove-function (symbol-function 'c-forward-name)
+		       #'d-special-case-c-forward-name)
+      (remove-function (symbol-function 'c-forward-type)
+		       #'d-special-case-c-forward-type)
+      ))))
 
 (advice-add 'c-forward-decl-or-cast-1 :around #'d-around--c-forward-decl-or-cast-1)
 
@@ -963,12 +1014,6 @@ Key bindings:
 ;;----------------------------------------------------------------------------
 ;; "Hideous hacks" to support appropriate font-lock behaviour.
 ;;
-;; * auto/const/immutable: If we leave them in c-modifier-kwds (like
-;;   c++-mode) then in the form "auto var;" var will be highlighted in
-;;   type name face. Moving auto/immutable to font-lock-add-keywords
-;;   lets cc-mode seeing them as a type name, so the next symbol can
-;;   be fontified as a variable.
-;;
 ;; * public/protected/private appear both in c-modifier-kwds and in
 ;;   c-protection-kwds. This causes cc-mode to fail parsing the first
 ;;   declaration after an access level label (because cc-mode trys to
@@ -998,26 +1043,10 @@ Key bindings:
 (defun d-match-fun-decl (limit)
   "Helper function." ;; checkdoc-params: limit
   (d-try-match-decl d-fun-decl-pattern))
-(defun d-match-auto (limit)
-  "Helper function." ;; checkdoc-params: limit
-  (c-syntactic-re-search-forward
-   (rx
-    word-start
-    (group
-     (or
-      "auto"
-      "const"
-      "immutable"
-      "inout"
-      "shared"
-      "__gshared"))
-    word-end)
-   limit t))
 
 (font-lock-add-keywords
  'd-mode
- '((d-match-auto 1 font-lock-keyword-face t)
-   (d-match-var-decl (1 font-lock-type-face) (2 font-lock-variable-name-face))
+ '((d-match-var-decl (1 font-lock-type-face) (2 font-lock-variable-name-face))
    (d-match-fun-decl (1 font-lock-type-face) (2 font-lock-function-name-face)))
  t)
 
@@ -1165,9 +1194,34 @@ Key bindings:
 
 (defun d-forward-type (&optional brace-block-too)
   "Modified version of `c-forward-type' for d-mode." ;; checkdoc-params: brace-block-too
-  (let ((start (point)) pos res name-res id-start id-end id-range)
+  (let ((start (point)) pos res name-res id-start id-end id-range saw-storage-class)
+
+    ;; D: Parse storage classes and similar keywords.
+    ;; Technically these are not part of the type, but we parse them here
+    ;; because they can substitute the type declaration (for type inference).
+    (while (and
+            (looking-at (c-lang-const d-storage-class-key))
+
+	    (save-excursion
+              (goto-char (match-end 1))
+              (c-forward-syntactic-ws)
+	      (setq pos (point))
+              (looking-at c-identifier-start))) ; Variable name or
+                                        ; continuation, but NOT (
+      (goto-char pos)
+      (setq saw-storage-class t))
+
     (cond
-     ;; const/immutable/...
+     ;; D: Storage class substituting the type (e.g. auto)
+     ((and
+       saw-storage-class
+       (not (looking-at (c-lang-const d-type-modifier-key)))
+       (save-excursion
+	 (c-forward-token-2)            ; maybe variable/function name
+	 (not (looking-at c-identifier-start)))) ; ( or ; or =
+      (setq res t))
+
+     ;; D: const/immutable/...(...)
      ((looking-at (c-lang-const d-type-modifier-key))
       (when
 	  (and
