@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909092122
+;; Version:  201909092140
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -608,10 +608,10 @@ Each list item should be a regexp matching a single identifier."
 			    "Aliases")    ; old-style alias
 			   ((memq next-char '(?\; ?= ?,))
 			    "Variables")
+			   ((member name '("import" "if"))
+			    nil) ; static import/if
 			   ((memq next-char '(?\())
 			    t) ; function
-			   ((equal name "import")
-			    nil) ; static import
 			   (t ; unknown
 			    id-prev-token))))
 
