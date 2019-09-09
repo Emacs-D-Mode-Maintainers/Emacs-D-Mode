@@ -97,3 +97,5 @@ void run(Parameter!("foo()") command) {}
 Parameter!("foo()") run(string command) {}
 
 string[string] environment;
+
+static import std.process;

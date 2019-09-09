@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909092109
+;; Version:  201909092113
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -609,17 +609,20 @@ Each list item should be a regexp matching a single identifier."
 			   ((memq next-char '(?\; ?= ?,))
 			    "Variables")
 			   ((memq next-char '(?\())
-			    nil) ; function
+			    t) ; function
+			   ((equal name "import")
+			    nil) ; static import
 			   (t ; unknown
 			    id-prev-token))))
 
-	       (setq last-spot (car decl-or-cast)
-		     d-spots
-		     (cons
-		      (if kind
-			  (list kind (cons name (car decl-or-cast)))
-			(cons name (car decl-or-cast)))
-		      d-spots))))))))
+	       (when kind
+		 (setq last-spot (car decl-or-cast)
+		       d-spots
+		       (cons
+			(if (eq kind t)
+			    (cons name (car decl-or-cast))
+			  (list kind (cons name (car decl-or-cast))))
+			d-spots)))))))))
     (nreverse d-spots)))
 
 ;;----------------------------------------------------------------------------
