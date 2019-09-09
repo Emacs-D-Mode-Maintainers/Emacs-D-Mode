@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909091656
+;; Version:  201909091759
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -179,6 +179,9 @@ operators."
   ;; Allow ':' for inherit list starters.
   d (cl-set-difference (c-lang-const c-block-prefix-disallowed-chars)
 		       '(?:)))
+
+(c-lang-defconst c-post-protection-token
+  d  ":")
 
 (defconst doxygen-font-lock-doc-comments
   (let ((symbol "[a-zA-Z0-9_]+")
@@ -1012,45 +1015,6 @@ Key bindings:
   (c-run-mode-hooks 'c-mode-common-hook 'd-mode-hook)
   (c-update-modeline)
   (cc-imenu-init d-imenu-generic-expression))
-
-;;----------------------------------------------------------------------------
-;; "Hideous hacks" to support appropriate font-lock behaviour.
-;;
-;; * public/protected/private appear both in c-modifier-kwds and in
-;;   c-protection-kwds. This causes cc-mode to fail parsing the first
-;;   declaration after an access level label (because cc-mode trys to
-;;   parse them as modifier but will fail due to the colon). But
-;;   unfortunately we cannot remove them from either c-modifier-kwds
-;;   or c-protection-kwds. Removing them from the former causes valid
-;;   syntax like "private int foo() {}" to fail. Removing them from
-;;   the latter cause indentation of the access level labels to
-;;   fail. The solution used here is to use font-lock-add-keywords to
-;;   add back the syntax highlight.
-
-(defconst d-var-decl-pattern "^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9.!]+\\)\\(?:\\[[^]]*\\]\\|\\*\\)?[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*[;=]")
-(defconst d-fun-decl-pattern "^[ \t]*\\(?:[_a-zA-Z0-9]+[ \t\n]+\\)*\\([_a-zA-Z0-9.!]+\\)\\(?:\\[[^]]*\\]\\|\\*\\)?[ \t\n]+\\([_a-zA-Z0-9]+\\)[ \t\n]*(")
-(defmacro d-try-match-decl (regex)
-  "Helper macro." ;; checkdoc-params: regex
-  `(let ((pt))
-     (setq pt (re-search-forward ,regex limit t))
-     (while (let ((type (match-string 1)))
-              (and pt type
-                   (save-match-data
-                     (string-match (c-lang-const c-regular-keywords-regexp) type))))
-       (setq pt (re-search-forward ,regex limit t)))
-     pt))
-(defun d-match-var-decl (limit)
-  "Helper function." ;; checkdoc-params: limit
-  (d-try-match-decl d-var-decl-pattern))
-(defun d-match-fun-decl (limit)
-  "Helper function." ;; checkdoc-params: limit
-  (d-try-match-decl d-fun-decl-pattern))
-
-(font-lock-add-keywords
- 'd-mode
- '((d-match-var-decl (1 font-lock-type-face) (2 font-lock-variable-name-face))
-   (d-match-fun-decl (1 font-lock-type-face) (2 font-lock-function-name-face)))
- t)
 
 ;;----------------------------------------------------------------------------
 
