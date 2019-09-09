@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909091501
+;; Version:  201909091517
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -874,13 +874,6 @@ Each list item should be a regexp matching a single identifier."
     (forward-char 4)
     t))
 
-(defun d-special-case-c-forward-type (orig-fun &rest args)
-  ;; checkdoc-params: (orig-fun args)
-  "Advice function for fixing cc-mode handling of D constructors."
-  (if (not (looking-at (c-make-keywords-re t '("this"))))
-      (apply orig-fun args)
-    nil))
-
 (defun d-around--c-forward-decl-or-cast-1 (orig-fun &rest args)
   ;; checkdoc-params: (orig-fun args)
   "Advice function for fixing cc-mode handling of D constructors."
@@ -902,15 +895,10 @@ Each list item should be a regexp matching a single identifier."
    (t
     (add-function :around (symbol-function 'c-forward-name)
 		  #'d-special-case-c-forward-name)
-    (add-function :around (symbol-function 'c-forward-type)
-		  #'d-special-case-c-forward-type)
     (unwind-protect
 	(apply orig-fun args)
       (remove-function (symbol-function 'c-forward-name)
-		       #'d-special-case-c-forward-name)
-      (remove-function (symbol-function 'c-forward-type)
-		       #'d-special-case-c-forward-type)
-      ))))
+		       #'d-special-case-c-forward-name)))))
 
 (advice-add 'c-forward-decl-or-cast-1 :around #'d-around--c-forward-decl-or-cast-1)
 
@@ -1212,6 +1200,11 @@ Key bindings:
       (setq saw-storage-class t))
 
     (cond
+     ;; D: "this" is not a type, even though it appears at the
+     ;; beginning of a "function" (constructor) declaration.
+     ((looking-at (c-make-keywords-re t '("this")))
+      nil)
+
      ;; D: Storage class substituting the type (e.g. auto)
      ((and
        saw-storage-class
