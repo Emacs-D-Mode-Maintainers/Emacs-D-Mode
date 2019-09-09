@@ -1,5 +1,5 @@
 // #run: (d-test-get-imenu-lines)
-// #out: (4 6 11 14 17 19 22 25 33 34 37 40 43 46 49 52 54 56 67 75 78 81 84 87 89 93 94)
+// #out: (4 6 11 14 17 19 22 25 33 34 37 40 43 46 49 52 54 56 67 75 78 81 84 87 89 93 94 96 97)
 
 void foo(int x) {}
 
@@ -92,3 +92,6 @@ string relativePath(CaseSensitive cs = CaseSensitive.osDefault)
 
 inout(ubyte) bytes(){}
 immutable(ubyte) bytes(){}
+
+void run(Parameter!("foo()") command) {}
+Parameter!("foo()") run(string command) {}
