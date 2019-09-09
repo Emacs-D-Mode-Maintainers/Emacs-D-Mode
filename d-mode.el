@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909091520
+;; Version:  201909091656
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -900,6 +900,23 @@ Each list item should be a regexp matching a single identifier."
 		       #'d-special-case-c-forward-name)))))
 
 (advice-add 'c-forward-decl-or-cast-1 :around #'d-around--c-forward-decl-or-cast-1)
+
+;;----------------------------------------------------------------------------
+
+(defun d-around--c-get-fontification-context (orig-fun match-pos &rest args)
+  ;; checkdoc-params: (orig-fun match-pos args)
+  "Advice function for fixing cc-mode handling of D lambda parameter lists."
+  (let ((res (apply orig-fun match-pos args)))
+    (when (and
+	   (c-major-mode-is 'd-mode)
+	   (eq (car res) nil)
+	   (save-excursion
+	     (goto-char match-pos )
+	     (c-backward-syntactic-ws)
+	     (eq (char-before) ?\()))
+      (setq res (cons 'arglist t)))
+    res))
+(advice-add 'c-get-fontification-context :around #'d-around--c-get-fontification-context)
 
 ;;----------------------------------------------------------------------------
 ;;; Fixes fontification of constructor parameter lists in D code.
