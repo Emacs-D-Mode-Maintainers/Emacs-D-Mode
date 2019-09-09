@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909092042
+;; Version:  201909092051
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -561,7 +561,7 @@ Each list item should be a regexp matching a single identifier."
 (defun d-imenu-create-index-function ()
   "Create imenu entries for D-mode."
   (goto-char (point-min))
-  (let (d-spots last-spot)
+  (c-save-buffer-state (d-spots last-spot)
     (c-find-decl-spots
      (point-max)
      c-decl-start-re
