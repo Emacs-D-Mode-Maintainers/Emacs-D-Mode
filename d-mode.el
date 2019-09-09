@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909092140
+;; Version:  201909092149
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -983,7 +983,7 @@ Key bindings:
        (not (looking-at (c-lang-const d-type-modifier-key)))
        (save-excursion
 	 (c-forward-token-2)            ; maybe variable/function name
-	 (not (looking-at c-identifier-start)))) ; ( or ; or =
+	 (looking-at "[(;=]")))
       (setq res t))
 
      ;; D: const/immutable/...(...)

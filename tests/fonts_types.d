@@ -11,3 +11,5 @@ Parameter!("foo()").Foo var;
 
 void foo(in Type var);
 void foo(out Type var);
+
+static string[string] applyEnv(in string[string] target, in string[string] source);
