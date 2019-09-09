@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909092106
+;; Version:  201909092109
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -1092,6 +1092,10 @@ Key bindings:
 	      (cons id-range c-record-found-types))))
 
     ;;(message "c-forward-type %s -> %s: %s" start (point) res)
+
+    (unless res
+      (when saw-storage-class
+	(goto-char start)))
 
     res))
 
