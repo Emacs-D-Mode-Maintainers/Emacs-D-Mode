@@ -428,7 +428,8 @@ The expression is added to `compilation-error-regexp-alist' and
   d nil)
 
 (c-lang-defconst c-other-decl-kwds
-  d (c-lang-const d-storage-class-kwds))
+  d (append (list "else")
+	    (c-lang-const d-storage-class-kwds)))
 
 (c-lang-defconst c-other-kwds
   ;; Keywords not accounted for by any other `*-kwds' language constant.
@@ -594,6 +595,8 @@ Each list item should be a regexp matching a single identifier."
 				 (c-forward-syntactic-ws)
 				 (char-after)))
 		    (kind (cond
+			   ((equal id-prev-token "else")
+			    nil) ; false positive after else
 			   ((equal id-prev-token "enum")
 			    "Enums")
 			   ((equal id-prev-token "class")
