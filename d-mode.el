@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909092149
+;; Version:  201909092218
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -428,8 +428,10 @@ The expression is added to `compilation-error-regexp-alist' and
   d nil)
 
 (c-lang-defconst c-other-decl-kwds
-  d (append (list "else")
-	    (c-lang-const d-storage-class-kwds)))
+  d (c-lang-const d-storage-class-kwds))
+
+(c-lang-defconst c-decl-start-kwds
+  d '("else"))
 
 (c-lang-defconst c-other-kwds
   ;; Keywords not accounted for by any other `*-kwds' language constant.
@@ -687,6 +689,19 @@ Each list item should be a regexp matching a single identifier."
 	 (c-forward-token-2)
 	 (looking-at (c-make-keywords-re t '("in"))))))
     nil)
+
+   ;; D: The "else" following a "version" or "static if" can start a
+   ;; declaration even without a { } block. For this reason, "else" is
+   ;; in `c-decl-start-kwds'.
+   ;; However, cc-mode invokes `c-forward-decl-or-cast-1' with point
+   ;; at the "else" keyword, which, when followed by a function call,
+   ;; is mis-parsed as a function declaration.
+   ;; Fix this by moving point forward, past the "else" keyword, to
+   ;; put cc-mode on the right track.
+   ((looking-at (c-make-keywords-re t '("else")))
+    (goto-char (match-end 1))
+    (c-forward-syntactic-ws)
+    (apply orig-fun args))
 
    (t
     (add-function :around (symbol-function 'c-forward-name)
