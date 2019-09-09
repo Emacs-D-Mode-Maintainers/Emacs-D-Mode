@@ -16,3 +16,6 @@ version(none) string readLink();
 
 static if (true) {} else fun();
 static if (true) {} else void fun();
+
+scope(exit) fun();
+scope(exit) void fun();

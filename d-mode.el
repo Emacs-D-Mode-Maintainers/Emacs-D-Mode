@@ -690,6 +690,17 @@ Each list item should be a regexp matching a single identifier."
 	 (looking-at (c-make-keywords-re t '("in"))))))
     nil)
 
+   ;; D: cc-mode gets confused due to "scope" being a keyword that can
+   ;; both be part of declarations (as a storage class), and a
+   ;; statement (e.g. "scope(exit)"). Disambiguate them here.
+   ((save-excursion
+      (and
+       (looking-at (c-make-keywords-re t '("scope")))
+       (progn
+	 (c-forward-token-2)
+	 (looking-at "("))))
+    nil)
+
    ;; D: The "else" following a "version" or "static if" can start a
    ;; declaration even without a { } block. For this reason, "else" is
    ;; in `c-decl-start-kwds'.
