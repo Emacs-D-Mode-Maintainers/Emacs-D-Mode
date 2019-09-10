@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909101903
+;; Version:  201909102141
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -843,7 +843,8 @@ Each list item should be a regexp matching a single identifier."
 (defun d-imenu-create-index-function ()
   "Create imenu entries for D-mode."
   (goto-char (point-min))
-  (c-save-buffer-state (d-spots last-spot)
+  (c-save-buffer-state
+      (d-spots last-spot (d-blocks (make-hash-table)))
     (c-find-decl-spots
      (point-max)
      c-decl-start-re
@@ -862,7 +863,8 @@ Each list item should be a regexp matching a single identifier."
 		    nil ; last-cast-end
 		    ))))
 	   (when (and decl-or-cast (not (eq (car decl-or-cast) last-spot)))
-	     (let* ((id-start (progn
+	     (let* ((decl-end (point))
+		    (id-start (progn
 				(goto-char (car decl-or-cast))
 				(when (eq (char-after) ?=)
 				  (c-backward-syntactic-ws)
@@ -892,41 +894,67 @@ Each list item should be a regexp matching a single identifier."
 				 (goto-char id-end)
 				 (c-forward-syntactic-ws)
 				 (char-after)))
-		    (kind (cond
-			   ((null name)
-			    nil)
-			   ((equal id-prev-token "else")
-			    nil) ; false positive after else
-			   ((equal name "{")
-			    nil) ; false positive with decl-start keyword and {...} group
-			   ((equal id-prev-token "enum")
-			    "Enums")
-			   ((equal id-prev-token "class")
-			    "Classes")
-			   ((equal id-prev-token "struct")
-			    "Structs")
-			   ((equal id-prev-token "template")
-			    "Templates")
-			   ((equal id-prev-token "alias")
-			    "Aliases")
-			   ((equal type-prev-token "alias")
-			    "Aliases")    ; old-style alias
-			   ((memq next-char '(?\; ?= ?,))
-			    "Variables")
-			   ((member name '("import" "if"))
-			    nil) ; static import/if
-			   ((memq next-char '(?\())
-			    t) ; function
-			   (t ; unknown
-			    id-prev-token))))
+		    (res (cond
+			  ((null name)
+			   nil)
+			  ((equal id-prev-token "else")
+			   nil) ; false positive after else
+			  ((equal name "{")
+			   nil) ; false positive with decl-start keyword and {...} group
+			  ((equal id-prev-token "enum")
+			   '("enum" t))
+			  ((equal id-prev-token "class")
+			   '("class" t))
+			  ((equal id-prev-token "struct")
+			   '("struct" t))
+			  ((equal id-prev-token "template")
+			   '("template" t))
+			  ((equal id-prev-token "alias")
+			   '("alias" nil))
+			  ((equal type-prev-token "alias")
+			   '("alias" nil)) ; old-style alias
+			  ((memq next-char '(?\; ?= ?,))
+			   '("variable" nil))
+			  ((member name '("import" "if"))
+			   nil) ; static import/if
+			  ((memq next-char '(?\())
+			   '("function" t)) ; function
+			  (t ; unknown
+			   (list id-prev-token nil))))
+		    (kind (car res))
+		    (have-block (cadr res))
+		    (paren-state (when res (c-parse-state)))
+		    (outer-brace match-pos)
+		    d-context
+		    d-fqpath)
 
-	       (when kind
+	       (when res
+		 (when paren-state
+		   ;; Find brace with known context
+		   (while (and outer-brace
+			       (not d-context))
+		     (setq outer-brace (c-most-enclosing-brace paren-state outer-brace))
+		     (setq d-context (gethash outer-brace d-blocks))))
+
+		 (setq d-fqpath (append d-context (list (concat kind " " name))))
+
+		 (when have-block
+		   (goto-char decl-end)
+		   (when (and (c-syntactic-re-search-forward "[{};]" nil t)
+			      (eq (char-before) ?{))
+		     (puthash (1- (point)) d-fqpath d-blocks)))
+
 		 (setq last-spot (car decl-or-cast)
 		       d-spots
 		       (cons
-			(if (eq kind t)
-			    (cons name id-start)
-			  (list kind (cons name id-start)))
+			(let (res)
+			  (mapc (lambda (e)
+				  (setq res
+					(if res
+					    (list e res)
+					  (cons e id-start))))
+				(nreverse d-fqpath))
+			  res)
 			d-spots)))))))))
     (nreverse d-spots)))
 
