@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909102143
+;; Version:  201909102153
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -953,7 +953,7 @@ Each list item should be a regexp matching a single identifier."
 					(if res
 					    (list e res)
 					  (cons e id-start))))
-				(nreverse d-fqpath))
+				(reverse d-fqpath))
 			  res)
 			d-spots)))))))))
     (nreverse d-spots)))
