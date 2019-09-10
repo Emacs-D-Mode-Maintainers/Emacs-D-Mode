@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909100950
+;; Version:  201909101232
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -278,16 +278,6 @@ The expression is added to `compilation-error-regexp-alist' and
   ;; where the keyword together with the symbol works as a type in
   ;; declarations.  In this case, like "mixin foo!(x) bar;"
   d    '("mixin" "align"))
-
-;;(c-lang-defconst c-other-block-decl-kwds
-;;  ;; Keywords where the following block (if any) contains another
-;;  ;; declaration level that should not be considered a class.
-;;  ;; Each of these has associated offsets e.g.
-;;  ;;   'with-open', 'with-close' and 'inwith'
-;;  ;; that can be customized individually
-;;  ;;   TODO: maybe also do this for 'static if' ?  in/out?
-;;  ;;   TODO: figure out how to make this work properly
-;;  d '("with" "version" "extern"))
 
 ;; Remove "enum" from d-mode's value.
 ;; By default this c-typedef-decl-kwds includes c-brace-list-decl-kwds,
@@ -1444,6 +1434,117 @@ Key bindings:
    args))
 
 (advice-add 'c-forward-type :around #'d-around--c-forward-type)
+
+;;----------------------------------------------------------------------------
+
+(c-lang-defconst d-flat-decl-maybe-block-kwds
+  ;; Keywords which don't introduce a scope, and may or may not be
+  ;; followed by a {...} block.
+  d (append (c-lang-const c-modifier-kwds)
+	    (list "else" ; for version / static if
+		  "if" ; static if
+		  "version")))
+(c-lang-defconst d-flat-decl-maybe-block-re
+  d (c-make-keywords-re t (c-lang-const d-flat-decl-maybe-block-kwds)))
+
+(defun d-update-brace-stack (stack from to)
+  "Modified version of `c-update-brace-stack' for d-mode." ;; checkdoc-params: (stack from to)
+  ;; Given a brace-stack which has the value STACK at position FROM, update it
+  ;; to its value at position TO, where TO is after (or equal to) FROM.
+  ;; Return a cons of either TO (if it is outside a literal) and this new
+  ;; value, or of the next position after TO outside a literal and the new
+  ;; value.
+  (let (match kwd-sym (prev-match-pos 1)
+	      (s (cdr stack))
+	      (bound-<> (car stack)))
+    (save-excursion
+      (cond
+       ((and bound-<> (<= to bound-<>))
+	(goto-char to))			; Nothing to do.
+       (bound-<>
+	(goto-char bound-<>)
+	(setq bound-<> nil))
+       (t (goto-char from)))
+      (while (and (< (point) to)
+		  (c-syntactic-re-search-forward
+		   (if (<= (car s) 0)
+		       c-brace-stack-thing-key
+		     c-brace-stack-no-semi-key)
+		   to 'after-literal)
+		  (> (point) prev-match-pos)) ; prevent infinite loop.
+	(setq prev-match-pos (point))
+	(setq match (match-string-no-properties 1)
+	      kwd-sym (c-keyword-sym match))
+	(cond
+	 ((and (equal match "{")
+	       (progn (backward-char)
+		      (prog1 (looking-at "\\s(")
+			(forward-char))))
+	  (setq s (if s
+		      ;; D: Constructs such as "version", "static if", or
+		      ;; "extern(...)" may or may not enclose their declarations
+		      ;; in a {...} block. For this reason, we can't blindly
+		      ;; update the cc-mode brace stack when we see these keywords
+		      ;; (otherwise, if they are not immediately succeeded by a
+		      ;; {...} block, then the brace stack change will apply to
+		      ;; the next encountered {...} block such as that of a
+		      ;; function's).
+		      (if (save-excursion
+			    (backward-char)
+			    (c-backward-syntactic-ws)
+			    (when (eq (char-before) ?\))
+			      (c-backward-sexp)
+			      (c-backward-syntactic-ws))
+			    (c-backward-token-2)
+			    (looking-at (c-lang-const d-flat-decl-maybe-block-re)))
+			  ;; D: Keep the brace stack state from the parent
+			  ;; context. I.e., the contents of a "static if" at the
+			  ;; top level should remain top-level, but in a function,
+			  ;; it should remain non-top-level.
+			  s
+			(cons (if (<= (car s) 0)
+				  1
+				(1+ (car s)))
+			      (cdr s)))
+		    (list 1))))
+	 ((and (equal match "}")
+	       (progn (backward-char)
+		      (prog1 (looking-at "\\s)")
+			(forward-char))))
+	  (setq s
+		(cond
+		 ((and s (> (car s) 1))
+		  (cons (1- (car s)) (cdr s)))
+		 ((and (cdr s) (eq (car s) 1))
+		  (cdr s))
+		 (t s))))
+	 ((and (equal match ":")
+	       s
+	       (eq (car s) 0))
+	  (setq s (cons -1 (cdr s))))
+	 ((and (equal match ",")
+	       (eq (car s) -1)))	; at "," in "class foo : bar, ..."
+	 ((member match '(";" "," ")"))
+	  (when (and s (cdr s) (<= (car s) 0))
+	    (setq s (cdr s))))
+	 ((c-keyword-member kwd-sym 'c-flat-decl-block-kwds)
+	  (push 0 s))))
+      ;; The failing `c-syntactic-re-search-forward' may have left us in the
+      ;; middle of a token, which might be a significant token.  Fix this!
+      (c-beginning-of-current-token)
+      (cons (point)
+	    (cons bound-<> s)))))
+
+(defun d-around--c-update-brace-stack (orig-fun &rest args)
+  ;; checkdoc-params: (orig-fun args)
+  "Advice function for fixing cc-mode handling of certain D constructs."
+  (apply
+   (if (c-major-mode-is 'd-mode)
+       #'d-update-brace-stack
+     orig-fun)
+   args))
+
+(advice-add 'c-update-brace-stack :around #'d-around--c-update-brace-stack)
 
 ;;----------------------------------------------------------------------------
 ;;
