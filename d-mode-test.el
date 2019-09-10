@@ -234,21 +234,18 @@ Called from the #run snippet of individual test files."
 
 (require 'imenu)
 
-(defun d-test-imenu-to-lines (l)
-  (apply #'append
-	 (mapcar
-	  (lambda (e)
-	    (if (imenu--subalist-p e)
-		(d-test-imenu-to-lines (cdr e))
-	      (list (line-number-at-pos (cdr e)))))
-	  l)))
+(defun d-test--imenu-to-lines (x)
+  "Extracts line numbers from one possibly-nested imenu--index-alist element X."
+  (if (imenu--subalist-p x)
+      (apply #'append (mapcar #'d-test--imenu-to-lines (cdr x)))
+    (list (line-number-at-pos (cdr x)))))
 
 (defun d-test-get-imenu-lines ()
   "Get list of line numbers of lines recognized as imenu entries.
 
 Called from the #run snippet of individual test files."
   (imenu--make-index-alist t)
-  (sort (d-test-imenu-to-lines imenu--index-alist) '<))
+  (sort (d-test--imenu-to-lines (cons nil imenu--index-alist)) '<))
 
 (defun d-test-save-result (filename)
   "In case of an unexpected result, save it to a file.
