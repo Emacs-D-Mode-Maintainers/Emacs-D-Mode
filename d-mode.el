@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909101232
+;; Version:  201909101234
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -890,6 +890,8 @@ Each list item should be a regexp matching a single identifier."
 		    (kind (cond
 			   ((equal id-prev-token "else")
 			    nil) ; false positive after else
+			   ((equal name "{")
+			    nil) ; false positive with decl-start keyword and {...} group
 			   ((equal id-prev-token "enum")
 			    "Enums")
 			   ((equal id-prev-token "class")

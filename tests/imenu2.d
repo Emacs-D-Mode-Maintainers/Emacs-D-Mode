@@ -1,6 +1,6 @@
 // #min-version: 26.1
 // #run: (d-test-get-imenu-lines)
-// #out: (5 6 8 13 18 20 24 28 33 37)
+// #out: (5 6 8 13 18 20 24 28 33 37 40 42 46)
 
 void run(Parameter!("foo()") command) {}
 Parameter!("foo()") run(string command) {}
@@ -35,4 +35,14 @@ static if (true)
 else
 {
 	int gun();
+}
+
+struct S
+{
+	int fun();
+
+	private
+	{
+		int gun();
+	}
 }
