@@ -1,6 +1,6 @@
 // #min-version: 26.1
 // #run: (d-test-get-imenu-lines)
-// #out: (5 6 8 13 18 20 24 28 33 37 40 42 46 49 50 51 52)
+// #out: (5 6 13 18 20 24 28 33 37 40 42 46 49 50 51 52)
 
 void run(Parameter!("foo()") command) {}
 Parameter!("foo()") run(string command) {}
