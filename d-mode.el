@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909101234
+;; Version:  201909101903
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -118,11 +118,15 @@
 ;; D has pointers
 (c-lang-defconst c-type-decl-prefix-key
   d (concat "\\("
-		   "[*(]"
+		   "[*(~]"
 		   "\\|"
 		   (c-lang-const c-type-decl-prefix-key)
 		   "\\)"
 		   "\\([^=]\\|$\\)"))
+
+(c-lang-defconst c-decl-start-re
+  d "[[:alpha:]_@~]")
+  ;; d "[[:alpha:]_@]")
 
 ;; D has fixed arrays
 (c-lang-defconst c-opt-type-suffix-key
@@ -866,10 +870,11 @@ Each list item should be a regexp matching a single identifier."
 				(point)))
 		    (id-end (progn
 			      (goto-char id-start)
-			      (forward-char)
-			      (c-end-of-current-token)
-			      (point)))
-		    (name (buffer-substring-no-properties id-start id-end))
+			      (when (d-forward-name)
+				(c-backward-syntactic-ws)
+				(point))))
+		    (name (when id-end
+			    (buffer-substring-no-properties id-start id-end)))
 		    (id-prev-token (progn
 				     (goto-char id-start)
 				     (c-backward-syntactic-ws)
@@ -883,11 +888,13 @@ Each list item should be a regexp matching a single identifier."
 				       (let ((end (point)))
 					 (when (c-simple-skip-symbol-backward)
 					   (buffer-substring-no-properties (point) end)))))
-		    (next-char (progn
+		    (next-char (when id-end
 				 (goto-char id-end)
 				 (c-forward-syntactic-ws)
 				 (char-after)))
 		    (kind (cond
+			   ((null name)
+			    nil)
 			   ((equal id-prev-token "else")
 			    nil) ; false positive after else
 			   ((equal name "{")
@@ -960,10 +967,12 @@ Each list item should be a regexp matching a single identifier."
 (defun d-special-case-c-forward-name (orig-fun &rest args)
   ;; checkdoc-params: (orig-fun args)
   "Advice function for fixing cc-mode handling of D constructors."
-  (if (not (looking-at (c-make-keywords-re t '("this"))))
+  (if (not (looking-at (c-make-keywords-re t '("this" "~this"))))
       (apply orig-fun args)
-    (forward-char 4)
+    (goto-char (match-end 1))
     t))
+
+(defsubst d-forward-name () "Shorthand." (d-special-case-c-forward-name #'c-forward-name))
 
 (defun d-around--c-forward-decl-or-cast-1 (orig-fun &rest args)
   ;; checkdoc-params: (orig-fun args)
@@ -1143,7 +1152,7 @@ Key bindings:
      ;; Check for a normal (non-keyword) identifier.
      (and (looking-at c-symbol-start)
 	  (or
-	   (looking-at (c-make-keywords-re t '("this")))
+	   (looking-at (c-make-keywords-re t '("this" "~this")))
 	   (not (looking-at c-keywords-regexp)))
 	  (point)))))
 
