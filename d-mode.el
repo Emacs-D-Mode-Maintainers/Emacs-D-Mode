@@ -902,23 +902,23 @@ Each list item should be a regexp matching a single identifier."
 			  ((equal name "{")
 			   nil) ; false positive with decl-start keyword and {...} group
 			  ((equal id-prev-token "enum")
-			   '("enum" t))
+			   '("[E]" t))
 			  ((equal id-prev-token "class")
-			   '("class" t))
+			   '("[C]" t))
 			  ((equal id-prev-token "struct")
-			   '("struct" t))
+			   '("[S]" t))
 			  ((equal id-prev-token "template")
-			   '("template" t))
+			   '("[T]" t))
 			  ((equal id-prev-token "alias")
-			   '("alias" nil))
+			   '("[A]" nil))
 			  ((equal type-prev-token "alias")
-			   '("alias" nil)) ; old-style alias
+			   '("[A]" nil)) ; old-style alias
 			  ((memq next-char '(?\; ?= ?,))
 			   nil) ; '("variable" nil))
 			  ((member name '("import" "if"))
 			   nil) ; static import/if
 			  ((memq next-char '(?\())
-			   '("function" t)) ; function
+			   '("[F]" t)) ; function
 			  (t ; unknown
 			   (list id-prev-token nil))))
 		    (kind (car res))
