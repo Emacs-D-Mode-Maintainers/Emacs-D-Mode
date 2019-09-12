@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909120344
+;; Version:  201909121403
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -913,23 +913,23 @@ Each list item should be a regexp matching a single identifier."
 			  ((equal name "{")
 			   nil) ; false positive with decl-start keyword and {...} group
 			  ((equal id-prev-token "enum")
-			   '("[E]" t))
+			   '("Enums" t))
 			  ((equal id-prev-token "class")
-			   '("[C]" t))
+			   '("Classes" t))
 			  ((equal id-prev-token "struct")
-			   '("[S]" t))
+			   '("Structs" t))
 			  ((equal id-prev-token "template")
-			   '("[T]" t))
+			   '("Templates" t))
 			  ((equal id-prev-token "alias")
-			   '("[A]" nil))
+			   '("Aliases" nil))
 			  ((equal type-prev-token "alias")
-			   '("[A]" nil)) ; old-style alias
+			   '("Aliases" nil)) ; old-style alias
 			  ((memq next-char '(?\; ?= ?,))
 			   nil) ; '("variable" nil))
 			  ((member name '("import" "if"))
 			   nil) ; static import/if
 			  ((memq next-char '(?\())
-			   '("[F]" t)) ; function
+			   '(nil t)) ; function
 			  (t ; unknown
 			   (list id-prev-token nil))))
 		    (kind (car res))
@@ -937,7 +937,7 @@ Each list item should be a regexp matching a single identifier."
 		    (paren-state (when res (c-parse-state)))
 		    (outer-brace match-pos)
 		    d-context
-		    d-fqpath)
+		    d-fqname)
 
 	       (when res
 		 (when paren-state
@@ -947,25 +947,20 @@ Each list item should be a regexp matching a single identifier."
 		     (setq outer-brace (c-most-enclosing-brace paren-state outer-brace))
 		     (setq d-context (gethash outer-brace d-blocks))))
 
-		 (setq d-fqpath (append d-context (list (concat kind " " name))))
+		 (setq d-fqname (if d-context (concat d-context "." name) name))
 
 		 (when have-block
 		   (goto-char decl-end)
 		   (when (and (c-syntactic-re-search-forward "[{};]" nil t)
 			      (eq (char-before) ?{))
-		     (puthash (1- (point)) d-fqpath d-blocks)))
+		     (puthash (1- (point)) d-fqname d-blocks)))
 
 		 (setq last-spot (car decl-or-cast)
 		       d-spots
 		       (cons
-			(let (res)
-			  (mapc (lambda (e)
-				  (setq res
-					(if res
-					    (list e res)
-					  (cons e id-start))))
-				(reverse d-fqpath))
-			  res)
+			(if kind
+			    (cons kind (list (cons d-fqname id-start)))
+			  (cons d-fqname id-start))
 			d-spots)))))))))
     (nreverse d-spots)))
 
