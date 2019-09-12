@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909121759
+;; Version:  201909121818
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -188,25 +188,6 @@ operators."
 
 (c-lang-defconst c-post-protection-token
   d  ":")
-
-(defconst doxygen-font-lock-doc-comments
-  (let ((symbol "[a-zA-Z0-9_]+")
-	(header "^ \\* "))
-    `((,(concat header "\\("     symbol "\\):[ \t]*$")
-       1 ,c-doc-markup-face-name prepend nil)
-      (,(concat                  symbol     "()")
-       0 ,c-doc-markup-face-name prepend nil)
-      (,(concat header "\\(" "@" symbol "\\):")
-       1 ,c-doc-markup-face-name prepend nil)
-      (,(concat "[#%@]" symbol)
-       0 ,c-doc-markup-face-name prepend nil))
-    ))
-
-(defconst doxygen-font-lock-keywords
-  `((,(lambda (limit)
-	(c-font-lock-doc-comments "/\\+[+!]\\|/\\*[*!]\\|//[/!]" limit
-	  doxygen-font-lock-doc-comments)))))
-
 
 ;;; Patterns to recognize the compiler generated messages
 
