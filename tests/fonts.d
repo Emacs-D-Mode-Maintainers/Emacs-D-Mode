@@ -19,3 +19,5 @@ static if (true) {} else void fun();
 
 scope(exit) fun();
 scope(exit) void fun();
+
+@property empty() { return false; }

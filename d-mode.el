@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909102153
+;; Version:  201909120240
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -1045,6 +1045,13 @@ Each list item should be a regexp matching a single identifier."
     (apply orig-fun args))
 
    (t
+    ;; Work around a cc-mode bug(?) in which the c-forward-annotation
+    ;; calls in c-forward-decl-or-cast-1 do not advance the start
+    ;; position, causing the annotation to be fontified as the
+    ;; function name.
+    (while (c-forward-annotation)
+      (c-forward-syntactic-ws))
+
     (add-function :around (symbol-function 'c-forward-name)
 		  #'d-special-case-c-forward-name)
     (unwind-protect
