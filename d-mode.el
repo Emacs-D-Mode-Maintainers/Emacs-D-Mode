@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909121403
+;; Version:  201909121408
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -1614,10 +1614,10 @@ Key bindings:
 	    ;; identifier
 	    (setq c-last-identifier-range nil)
 	    (forward-char)
-	    (when (c-end-of-current-token)
-	      (when c-record-type-identifiers
-		(c-record-ref-id (cons safe-pos (point))))
-	      t))
+	    (c-end-of-current-token)
+	    (when c-record-type-identifiers
+	      (c-record-ref-id (cons safe-pos (point))))
+	    t)
 	   ;; . or , or = (keep fontifying)
 	   ((memq (char-after) '(?. ?, ?=))
 	    (forward-char)
