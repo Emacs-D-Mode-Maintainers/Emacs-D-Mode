@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909120240
+;; Version:  201909120344
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -466,6 +466,17 @@ The expression is added to `compilation-error-regexp-alist' and
 Each list item should be a regexp matching a single identifier."
   :type '(repeat regexp)
   :group 'd-mode)
+
+(c-lang-defconst c-basic-matchers-after
+  d (append
+     ;; D module and import statements
+     (list (c-make-font-lock-BO-decl-search-function
+            (c-make-keywords-re t (c-lang-const c-ref-list-kwds))
+            '((c-fontify-types-and-refs ()
+        	(d-forward-module-clause)
+        	(if (> (point) limit) (goto-char limit))))))
+     ;; cc-mode defaults
+     (c-lang-const c-basic-matchers-after)))
 
 (defconst d-font-lock-keywords-1 (c-lang-const c-matchers-1 d)
   "Minimal highlighting for D mode.")
@@ -1591,6 +1602,36 @@ Key bindings:
    args))
 
 (advice-add 'c-update-brace-stack :around #'d-around--c-update-brace-stack)
+
+;;----------------------------------------------------------------------------
+;; Support for fontifying module name(s) after a module or import keyword.
+
+(defun d-forward-module-clause ()
+  "Fontify the module name(s) after a module or import keyword."
+  (let (safe-pos pos)
+    (goto-char (match-end 1))
+    (while
+	(progn
+	  (c-forward-syntactic-ws)
+	  (setq safe-pos (point))
+	  (cond
+	   ((looking-at c-identifier-start)
+	    ;; identifier
+	    (setq c-last-identifier-range nil)
+	    (forward-char)
+	    (when (c-end-of-current-token)
+	      (when c-record-type-identifiers
+		(c-record-ref-id (cons safe-pos (point))))
+	      t))
+	   ;; . or , or = (keep fontifying)
+	   ((memq (char-after) '(?. ?, ?=))
+	    (forward-char)
+	    t)
+	   ;; ; or : or anything else weird
+	   (t
+	    nil))))
+    (goto-char safe-pos)
+    t))
 
 ;;----------------------------------------------------------------------------
 ;;

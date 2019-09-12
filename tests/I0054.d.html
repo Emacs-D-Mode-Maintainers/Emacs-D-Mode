@@ -4,13 +4,15 @@
 
 <span class="keyword">import</span> <span class="constant">bbb</span>;
 
-<span class="comment-delimiter">// </span><span class="comment">FIXME:
-</span>
-<span class="keyword">module</span> aaa.bbb.<span class="constant">ccc</span>;
+<span class="keyword">module</span> <span class="constant">aaa</span>.<span class="constant">bbb</span>.<span class="constant">ccc</span>;
 
-<span class="keyword">import</span> aaa.<span class="constant">bbb</span>;
+<span class="keyword">import</span> <span class="constant">aaa</span>.<span class="constant">bbb</span>;
 <span class="keyword">import</span> <span class="constant">aaa</span>.<span class="constant">Bbb</span>;
-<span class="keyword">import</span> aaa.bbb.<span class="constant">ccc</span>;
-<span class="keyword">import</span> <span class="constant">Aaa</span>.Bbb.<span class="constant">ccc</span>;
+<span class="keyword">import</span> <span class="constant">aaa</span>.<span class="constant">bbb</span>.<span class="constant">ccc</span>;
+<span class="keyword">import</span> <span class="constant">Aaa</span>.<span class="constant">Bbb</span>.<span class="constant">ccc</span>;
 <span class="keyword">import</span> <span class="constant">Aaa</span>.<span class="constant">Bbb</span>.<span class="constant">Ccc</span>;
 <span class="keyword">import</span> <span class="constant">aaa</span>.<span class="constant">bbb</span>.<span class="constant">Ccc</span>;
+
+<span class="keyword">import</span> <span class="constant">ddd</span> = <span class="constant">aaa</span>.<span class="constant">bbb</span>.<span class="constant">ccc</span>, <span class="constant">vvv</span> = <span class="constant">xxx</span>.<span class="constant">yyy</span>.<span class="constant">zzz</span>;
+<span class="keyword">import</span> <span class="constant">aaa</span>.<span class="constant">bbb</span>.<span class="constant">ccc</span> : x, y, z;
+<span class="keyword">import</span> <span class="constant">aaa</span>.<span class="constant">bbb</span>.<span class="constant">ccc</span> : i = x, j = y, k = z;
