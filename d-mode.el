@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909121829
+;; Version:  201909121912
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -417,6 +417,10 @@ operators."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ----------------------------------------------------------------------------
 
+(defmacro d-make-keywords-re (adorn list)
+  "Helper to precompute regular expressions for inline keyword lists." ;; checkdoc-params: (adorn list)
+  (eval `(c-make-keywords-re ,adorn ,list 'd)))
+
 ;;----------------------------------------------------------------------------
 ;;; Workaround for special case of 'else static if' not being handled properly
 (defun d-special-case-looking-at (orig-fun &rest args)
@@ -454,7 +458,7 @@ operators."
 (defun d-special-case-c-forward-name (orig-fun &rest args)
   ;; checkdoc-params: (orig-fun args)
   "Advice function for fixing cc-mode handling of D constructors."
-  (if (not (looking-at (c-make-keywords-re t '("this" "~this"))))
+  (if (not (looking-at (d-make-keywords-re t '("this" "~this"))))
       (apply orig-fun args)
     (goto-char (match-end 1))
     t))
@@ -476,7 +480,7 @@ operators."
        (looking-at c-identifier-start)
        (progn
 	 (c-forward-token-2)
-	 (looking-at (c-make-keywords-re t '("in"))))))
+	 (looking-at (d-make-keywords-re t '("in"))))))
     nil)
 
    ;; D: cc-mode gets confused due to "scope" being a keyword that can
@@ -484,7 +488,7 @@ operators."
    ;; statement (e.g. "scope(exit)"). Disambiguate them here.
    ((save-excursion
       (and
-       (looking-at (c-make-keywords-re t '("scope")))
+       (looking-at (d-make-keywords-re t '("scope")))
        (progn
 	 (c-forward-token-2)
 	 (looking-at "("))))
@@ -498,7 +502,7 @@ operators."
    ;; is mis-parsed as a function declaration.
    ;; Fix this by moving point forward, past the "else" keyword, to
    ;; put cc-mode on the right track.
-   ((looking-at (c-make-keywords-re t '("else")))
+   ((looking-at (d-make-keywords-re t '("else")))
     (goto-char (match-end 1))
     (c-forward-syntactic-ws)
     (apply orig-fun args))
@@ -545,7 +549,7 @@ operators."
   "Advice function for fixing cc-mode handling of D constructors."
   (if (and
        (eq regexp c-not-decl-init-keywords)
-       (apply orig-fun (c-make-keywords-re t '("this")) nil)) ; looking-at "this"
+       (apply orig-fun (d-make-keywords-re t '("this")) nil)) ; looking-at "this"
       nil
     (apply orig-fun regexp nil)))
 
@@ -600,7 +604,7 @@ Currently handles `-delimited string literals."
      ;; Check for a normal (non-keyword) identifier.
      (and (looking-at c-symbol-start)
 	  (or
-	   (looking-at (c-make-keywords-re t '("this" "~this")))
+	   (looking-at (d-make-keywords-re t '("this" "~this")))
 	   (not (looking-at c-keywords-regexp)))
 	  (point)))))
 
@@ -752,7 +756,7 @@ Currently handles `-delimited string literals."
     (cond
      ;; D: "this" is not a type, even though it appears at the
      ;; beginning of a "function" (constructor) declaration.
-     ((looking-at (c-make-keywords-re t '("this")))
+     ((looking-at (d-make-keywords-re t '("this")))
       nil)
 
      ;; D: Storage class substituting the type (e.g. auto)
