@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909121408
+;; Version:  201909121759
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -76,6 +76,7 @@
 ;;; Code:
 
 (require 'cc-mode)
+(require 'cc-langs)
 
 ;; Needed to prevent
 ;;   "Symbol's value as variable is void: compilation-error-regexp-alist-alist" errors
@@ -99,9 +100,7 @@
 ;; necessary to get them compiled.)
 ;; Comment out 'when-compile part for debugging
 (eval-when-compile
-  (require 'cc-langs)
-  (require 'cc-fonts)
-)
+  (require 'cc-fonts))
 
 (eval-and-compile
   ;; Make our mode known to the language constant system.  Use Java
