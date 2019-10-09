@@ -210,7 +210,7 @@ The expression is added to `compilation-error-regexp-alist' and
   (add-to-list
    'compilation-error-regexp-alist-alist
    `(,symbol
-     ,(rx-form
+     ,(rx-to-string
       `(and
 	line-start
 	(group-n 1 (one-or-more any))		; File name
