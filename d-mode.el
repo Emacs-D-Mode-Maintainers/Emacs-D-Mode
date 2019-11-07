@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911071821
+;; Version:  201911071844
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -480,7 +480,7 @@ operators."
        (looking-at c-identifier-start)
        (progn
 	 (c-forward-token-2)
-	 (looking-at (d-make-keywords-re t '("in"))))))
+	 (looking-at (d-make-keywords-re t '("is" "!is" "in" "!in"))))))
     nil)
 
    ;; D: cc-mode gets confused due to "scope" being a keyword that can

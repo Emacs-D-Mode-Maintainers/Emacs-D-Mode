@@ -23,3 +23,5 @@ scope(exit) void fun();
 @property empty() { return false; }
 
 auto s = "enum Type {}";
+
+assert(a !in b);
