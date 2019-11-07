@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201909121912
+;; Version:  201911071726
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -987,7 +987,8 @@ Currently handles `-delimited string literals."
 	  (setq s (cons -1 (cdr s))))
 	 ((and (equal match ",")
 	       (eq (car s) -1)))	; at "," in "class foo : bar, ..."
-	 ((member match '(";" "," ")"))
+	 ;; D: Ignore ")", which can be part of parameter lists
+	 ((member match '(";" ","))
 	  (when (and s (cdr s) (<= (car s) 0))
 	    (setq s (cdr s))))
 	 ((c-keyword-member kwd-sym 'c-flat-decl-block-kwds)
