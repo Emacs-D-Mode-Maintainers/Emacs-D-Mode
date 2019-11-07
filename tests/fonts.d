@@ -21,3 +21,5 @@ scope(exit) fun();
 scope(exit) void fun();
 
 @property empty() { return false; }
+
+auto s = "enum Type {}";

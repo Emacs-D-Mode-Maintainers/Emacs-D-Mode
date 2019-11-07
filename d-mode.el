@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911071815
+;; Version:  201911071821
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -701,7 +701,7 @@ Currently handles `-delimited string literals."
 
 (defun d-font-lock-enum-body (limit)
   "Modified version of `c-font-lock-enum-body' for d-mode." ;; checkdoc-params: limit
-  (while (search-forward-regexp c-enum-clause-introduction-re limit t)
+  (while (c-syntactic-re-search-forward c-enum-clause-introduction-re limit t)
     (when (save-excursion
             (backward-char)
 	    (when (c-backward-over-enum-header)
