@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911071726
+;; Version:  201911071815
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -214,7 +214,7 @@ operators."
 (c-lang-defconst c-modifier-kwds
   d '("abstract" "deprecated" "extern"
       "final" "out" "lazy" "mixin" "override" "private"
-      "protected" "public" "ref" "scope" "static" "synchronized"
+      "protected" "package" "public" "ref" "scope" "static" "synchronized"
       "volatile" "__vector"))
 
 (c-lang-defconst c-class-decl-kwds
