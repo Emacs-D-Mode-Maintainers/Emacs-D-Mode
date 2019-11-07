@@ -25,3 +25,5 @@ scope(exit) void fun();
 auto s = "enum Type {}";
 
 assert(a !in b);
+
+invariant {}

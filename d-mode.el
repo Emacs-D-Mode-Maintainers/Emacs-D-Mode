@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911071844
+;; Version:  201911071935
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -349,7 +349,7 @@ operators."
 (c-lang-defconst c-block-stmt-2-kwds
   ;; Statement keywords followed by a paren sexp and then by a substatement.
   d '("for" "if" "switch" "while" "catch" "synchronized" "scope"
-      "foreach" "foreach_reverse" "with" "out" "unittest"))
+      "foreach" "foreach_reverse" "with" "out" "invariant" "unittest"))
 
 (c-lang-defconst c-simple-stmt-kwds
   ;; Statement keywords followed by an expression or nothing.
