@@ -10,7 +10,7 @@ test-compiled: compile
 	cask exec emacs -Q -batch -l d-mode-test.el -l d-mode.elc -f ert-run-tests-batch-and-exit
 
 compile:
-	$(emacs) -Q -batch -f batch-byte-compile d-mode.el
+	$(emacs) -Q -batch --eval '(setq byte-compile-error-on-warn t)' -f batch-byte-compile d-mode.el
 
 clean:
 	rm -f d-mode.elc
