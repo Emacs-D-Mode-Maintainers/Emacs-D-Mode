@@ -140,6 +140,8 @@
 
 (c-add-style "teststyle" d-test-teststyle)
 
+(defvar-local d-test-orig-filename nil)
+
 (defun make-test-buffer (filename)
   (let ((testbuf (get-buffer-create "*d-mode-test*"))
         (enable-local-eval t))
@@ -158,6 +160,7 @@
           c-mode-common-hook)
       (d-mode))
     (hack-local-variables)
+    (setq-local d-test-orig-filename filename)
     testbuf))
 
 (defun kill-test-buffer ()
@@ -258,7 +261,7 @@ If the resulting indentation ends up being different, raise an error."
      (let ((orig (buffer-string)))
        (let (buffer-read-only)
 	 (c-indent-region (point-min) (point-max))
-         (d-test-save-result (buffer-file-name)))
+         (d-test-save-result d-test-orig-filename))
        (error (concat "Test case has been indented differently.\n"
 		      "Expected:\n--------------------\n%s\n--------------------\n"
 		      "Got:     \n--------------------\n%s\n--------------------\n")
