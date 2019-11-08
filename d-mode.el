@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911081535
+;; Version:  201911081541
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -560,6 +560,18 @@ Fixes cc-mode handling of D constructors."
   ;; `c-record-type-identifiers' is non-nil.
   ;;
   ;; This function might do hidden buffer changes.
+
+  ;; D: The "else" following a "version" or "static if" can start a
+  ;; declaration even without a { } block. For this reason, "else" is
+  ;; in `c-decl-start-kwds'.
+  ;; However, cc-mode invokes `c-forward-decl-or-cast-1' with point
+  ;; at the "else" keyword, which, when followed by a function call,
+  ;; is mis-parsed as a function declaration.
+  ;; Fix this by moving point forward, past the "else" keyword, to
+  ;; put cc-mode on the right track.
+  (when (looking-at (d-make-keywords-re t '("else")))
+    (goto-char (match-end 1))
+    (c-forward-syntactic-ws))
 
   ;; D: Work around a cc-mode bug(?) in which the c-forward-annotation
   ;; calls in c-forward-decl-or-cast-1 do not advance the start
@@ -1547,19 +1559,6 @@ Fixes cc-mode handling of D constructors."
        (c-forward-token-2)
        (looking-at "(")))
     nil)
-
-   ;; D: The "else" following a "version" or "static if" can start a
-   ;; declaration even without a { } block. For this reason, "else" is
-   ;; in `c-decl-start-kwds'.
-   ;; However, cc-mode invokes `c-forward-decl-or-cast-1' with point
-   ;; at the "else" keyword, which, when followed by a function call,
-   ;; is mis-parsed as a function declaration.
-   ;; Fix this by moving point forward, past the "else" keyword, to
-   ;; put cc-mode on the right track.
-   ((looking-at (d-make-keywords-re t '("else")))
-    (goto-char (match-end 1))
-    (c-forward-syntactic-ws)
-    (apply #'d-forward-decl-or-cast-1 args))
 
    (t
     (apply #'d-forward-decl-or-cast-1 args))))
