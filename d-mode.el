@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911081922
+;; Version:  201911081530
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -562,6 +562,13 @@ operators."
   ;;
   ;; This function might do hidden buffer changes.
 
+  ;; D: Work around a cc-mode bug(?) in which the c-forward-annotation
+  ;; calls in c-forward-decl-or-cast-1 do not advance the start
+  ;; position, causing the annotation to be fontified as the function
+  ;; name.
+  (while (c-forward-annotation)
+    (c-forward-syntactic-ws))
+
   (let (;; `start-pos' is used below to point to the start of the
 	;; first type, i.e. after any leading specifiers.  It might
 	;; also point at the beginning of the preceding syntactic
@@ -641,9 +648,6 @@ operators."
 		  (c-backward-token-2)
 		  (member (buffer-substring-no-properties (point) tok-end)
 			  c-pre-start-tokens)))))
-
-    (while (c-forward-annotation)
-      (c-forward-syntactic-ws))
 
     ;; Check for a type.  Unknown symbols are treated as possible
     ;; types, but they could also be specifiers disguised through
@@ -1528,23 +1532,21 @@ operators."
    ;; D: The logic in cc-mode's `c-forward-decl-or-cast-1' will
    ;; recognize "someIdentifier in" as a variable declaration,
    ;; fontifying someIdentifier as a type. Prevent this here.
-   ((save-excursion
-      (and
-       (looking-at c-identifier-start)
-       (progn
-	 (c-forward-token-2)
-	 (looking-at (d-make-keywords-re t '("is" "!is" "in" "!in"))))))
+   ((and
+     (looking-at c-identifier-start)
+     (save-excursion
+       (c-forward-token-2)
+       (looking-at (d-make-keywords-re t '("is" "!is" "in" "!in")))))
     nil)
 
    ;; D: cc-mode gets confused due to "scope" being a keyword that can
    ;; both be part of declarations (as a storage class), and a
    ;; statement (e.g. "scope(exit)"). Disambiguate them here.
-   ((save-excursion
-      (and
-       (looking-at (d-make-keywords-re t '("scope")))
-       (progn
-	 (c-forward-token-2)
-	 (looking-at "("))))
+   ((and
+     (looking-at (d-make-keywords-re t '("scope")))
+     (save-excursion
+       (c-forward-token-2)
+       (looking-at "(")))
     nil)
 
    ;; D: The "else" following a "version" or "static if" can start a
@@ -1561,13 +1563,6 @@ operators."
     (apply #'d-forward-decl-or-cast-1 args))
 
    (t
-    ;; Work around a cc-mode bug(?) in which the c-forward-annotation
-    ;; calls in c-forward-decl-or-cast-1 do not advance the start
-    ;; position, causing the annotation to be fontified as the
-    ;; function name.
-    (while (c-forward-annotation)
-      (c-forward-syntactic-ws))
-
     (add-function :around (symbol-function 'c-forward-name)
 		  #'d-special-case-c-forward-name)
     (unwind-protect
