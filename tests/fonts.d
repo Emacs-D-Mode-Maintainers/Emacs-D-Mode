@@ -27,3 +27,6 @@ auto s = "enum Type {}";
 assert(a !in b);
 
 invariant {}
+
+class Foo : Bar {}
+enum Foo : Bar {}
