@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911081541
+;; Version:  201911081553
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -2436,7 +2436,7 @@ The expression is added to `compilation-error-regexp-alist' and
 		(context (car got-context))
 		(decl-or-cast
 		 (when (eq context 'top)
-		   (c-forward-decl-or-cast-1
+		   (d-forward-decl-or-cast-1
 		    match-pos
 		    context
 		    nil ; last-cast-end
