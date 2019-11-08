@@ -188,29 +188,19 @@
     (switch-to-buffer testbuf)
     (syntax-ppss (point-max))
 
-    (condition-case err
-	;; extract the run command and expected output if any.
-	(let* ((contents (buffer-substring-no-properties 1 (point-max)))
-	       (run-str (if (string-match "^// #run: \\(.+\\)$" contents)
-			    (match-string 1 contents)))
-	       (out-str (if (string-match "^// #out: \\(.+\\)$" contents)
-			    (match-string 1 contents))))
-	  (when run-str
-	    (let ((result (eval (car (read-from-string run-str)))))
-	      (when out-str
-		(let ((expect (car (read-from-string out-str))))
-		  (unless (equal result expect)
-		    (error "\nExpected: %s\nGot     : %s" expect result))))))
-	  t)
-      (error
-       (set-buffer testbuf)
-       (buffer-enable-undo testbuf)
-       (set-buffer-modified-p nil)
-       (setq error-found-p t)
-
-       (message
-	"Regression found in file %s:\n%s"
-	filename (error-message-string err))))
+    ;; extract the run command and expected output if any.
+    (let* ((contents (buffer-substring-no-properties 1 (point-max)))
+           (run-str (if (string-match "^// #run: \\(.+\\)$" contents)
+                        (match-string 1 contents)))
+           (out-str (if (string-match "^// #out: \\(.+\\)$" contents)
+                        (match-string 1 contents))))
+      (when run-str
+        (let ((result (eval (car (read-from-string run-str)))))
+          (when out-str
+            (let ((expect (car (read-from-string out-str))))
+              (unless (equal result expect)
+                (error "\nExpected: %s\nGot     : %s" expect result))))))
+      t)
 
     (set-buffer save-buf)
     (goto-char save-point)
