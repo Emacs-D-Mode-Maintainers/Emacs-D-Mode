@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911081530
+;; Version:  201911081535
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -455,15 +455,14 @@ operators."
 ;; Make it so that inside c-forward-decl-or-cast-1,
 ;; "this" looks like a function identifier but not a type identifier.
 
-(defun d-special-case-c-forward-name (orig-fun &rest args)
-  ;; checkdoc-params: (orig-fun args)
-  "Advice function for fixing cc-mode handling of D constructors."
+(defun d-forward-name ()
+  "Wraps `c-forward-name' for d-mode.
+
+Fixes cc-mode handling of D constructors."
   (if (not (looking-at (d-make-keywords-re t '("this" "~this"))))
-      (apply orig-fun args)
+      (c-forward-name)
     (goto-char (match-end 1))
     t))
-
-(defsubst d-forward-name () "Shorthand." (d-special-case-c-forward-name #'c-forward-name))
 
 ;;----------------------------------------------------------------------------
 
@@ -888,7 +887,7 @@ operators."
 			;; we're looking at an identifier that's a
 			;; prefix only if it specifies a member pointer.
 			(when (progn (setq pos (point))
-				     (setq got-identifier (c-forward-name)))
+				     (setq got-identifier (d-forward-name)))
 			  (setq name-start pos)
 			  (if (looking-at "\\(::\\)")
 			      ;; We only check for a trailing "::" and
@@ -917,7 +916,7 @@ operators."
       (or got-identifier
 	  (and (looking-at c-identifier-start)
 	       (setq pos (point))
-	       (setq got-identifier (c-forward-name))
+	       (setq got-identifier (d-forward-name))
 	       (setq name-start pos))
 	  (when (looking-at "[0-9]")
 	    (setq got-number t))) ; We've probably got an arithmetic expression.
@@ -1563,12 +1562,7 @@ operators."
     (apply #'d-forward-decl-or-cast-1 args))
 
    (t
-    (add-function :around (symbol-function 'c-forward-name)
-		  #'d-special-case-c-forward-name)
-    (unwind-protect
-	(apply #'d-forward-decl-or-cast-1 args)
-      (remove-function (symbol-function 'c-forward-name)
-		       #'d-special-case-c-forward-name)))))
+    (apply #'d-forward-decl-or-cast-1 args))))
 
 (advice-add 'c-forward-decl-or-cast-1 :around #'d-around--c-forward-decl-or-cast-1)
 
