@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911082245
+;; Version:  201911101349
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -91,9 +91,6 @@
 (eval-when-compile
   (when (and (= emacs-major-version 24) (>= emacs-minor-version 4))
     (require 'cl)))
-
-;; The set-difference function is used from the Common Lisp extensions.
-(require 'cl-lib)
 
 ;; Used to specify regular expressions in a sane way.
 (require 'rx)
@@ -198,7 +195,7 @@ operators."
 
 (c-lang-defconst c-block-prefix-disallowed-chars
   ;; Allow ':' for inherit list starters.
-  d (cl-set-difference (c-lang-const c-block-prefix-disallowed-chars)
+  d (c--set-difference (c-lang-const c-block-prefix-disallowed-chars)
 		       '(?:)))
 
 (c-lang-defconst c-post-protection-token
