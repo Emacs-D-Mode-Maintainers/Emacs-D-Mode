@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911112251
+;; Version:  201911112253
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -606,15 +606,18 @@ Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
 	 ;; lists.  For functions, they indicate the type of an
 	 ;; anonymous parameter; for lambdas, they indicate the name
 	 ;; of a parameter with an inferred type.
-	 ;; Currently we don't fontify them as either.
 	 ((and (eq context 'decl)
 	       (d-forward-type))
 	  (setq type-start decl-start)
 	  (setq id-start (point))
-	  (and (d-forward-identifier)	; parameter name
-		 (progn
-		   (c-forward-syntactic-ws)
-		   (looking-at "[,=)]")))))
+	  (cond
+	   ;; Type only
+	   ((looking-at "[,=)]")
+	    t)
+	   ;; Parameter name
+	   ((d-forward-identifier)
+	    (c-forward-syntactic-ws)
+	    (looking-at "[,=)]")))))
 
       ;; Valid declaration, process it.
 
