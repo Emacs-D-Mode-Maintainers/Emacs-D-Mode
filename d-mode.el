@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911111704
+;; Version:  201911111723
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -892,47 +892,6 @@ Currently handles `-delimited string literals."
    args))
 
 (advice-add 'c-in-knr-argdecl :around #'d-around--c-in-knr-argdecl)
-
-;;----------------------------------------------------------------------------
-;; We can't include "enum" in `c-typedef-decl-kwds', as that will not
-;; work well with D manifest constants (enum [TYPE] NAME = VALUE).
-;; Instead, omit it from `c-typedef-decl-kwds' (which allows manifest
-;; constants to be fontified properly), and handle actual enumerations
-;; manually by adding fontification of the enum name as a type name to
-;; our version of `c-font-lock-enum-body' below:
-
-(defun d-font-lock-enum-body (limit)
-  "Modified version of `c-font-lock-enum-body' for d-mode." ;; checkdoc-params: limit
-  (while (c-syntactic-re-search-forward c-enum-clause-introduction-re limit t)
-    (when (save-excursion
-            (backward-char)
-	    (when (c-backward-over-enum-header)
-	      ;; Fontify type name here
-	      (c-forward-token-2)       ; Over "enum"
-	      (c-forward-syntactic-ws)
-	      (c-fontify-types-and-refs ((id-start (point)))
-		(when (c-forward-type)
-		  (c-backward-syntactic-ws)
-		  (c-put-font-lock-face id-start
-					(point)
-					'font-lock-type-face)))
-	      t))
-      ;; As in the original `c-font-lock-enum-body', fontify the body
-      ;; (enum members).
-      (c-forward-syntactic-ws)
-      (c-font-lock-declarators limit t nil t)))
-  nil)
-
-(defun d-around--c-font-lock-enum-body (orig-fun &rest args)
-  ;; checkdoc-params: (orig-fun args)
-  "Advice function for fixing fontification for D enums."
-  (apply
-   (if (c-major-mode-is 'd-mode)
-       #'d-font-lock-enum-body
-     orig-fun)
-   args))
-
-(advice-add 'c-font-lock-enum-body :around #'d-around--c-font-lock-enum-body)
 
 ;;----------------------------------------------------------------------------
 
