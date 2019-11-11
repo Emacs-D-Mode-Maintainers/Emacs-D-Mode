@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911112314
+;; Version:  201911112326
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -619,7 +619,7 @@ Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
 	  (setq id-start (point))
 	  (cond
 	   ;; Type or name only
-	   ((looking-at "[,=)]")
+	   ((looking-at "[,=);]")
 	    (when (eq context 'varlist)
 	      (setq id-start type-start)
 	      (setq type-start nil))
@@ -627,7 +627,7 @@ Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
 	   ;; Parameter name
 	   ((d-forward-identifier)
 	    (c-forward-syntactic-ws)
-	    (looking-at "[,=)]")))))
+	    (looking-at "[,=);]")))))
 
       ;; Valid declaration, process it.
 
@@ -760,12 +760,18 @@ CONTEXT is as in `c-forward-decl-or-cast-1'."
 		(eq (char-before) ?\())
 	      (progn
 		(backward-char)
-		(c-forward-sexp)
-		(c-forward-syntactic-ws)
-		(while (d-forward-attribute-or-storage-class 'top))
 		(or
-		 (eq (char-after) ?\{)
-		 (looking-at "=>"))))))
+		 (save-excursion
+		   (and
+		    (c-backward-token-2)
+		    (looking-at (d-make-keywords-re t '("foreach")))))
+		 (progn
+		   (c-forward-sexp)
+		   (c-forward-syntactic-ws)
+		   (while (d-forward-attribute-or-storage-class 'top))
+		   (or
+		    (eq (char-after) ?\{)
+		    (looking-at "=>"))))))))
 
       (setq res (cons 'varlist t))
       ;; (message "   patching -> %S" res)

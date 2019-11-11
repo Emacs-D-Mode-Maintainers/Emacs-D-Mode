@@ -3,3 +3,11 @@
 
 auto dg = (Object a, Object b) {};
 alias dg2 = (a, b) {};
+
+void fun()
+{
+	foreach (a; c) foo();
+	foreach (a, b; c) foo();
+	foreach (a; c) {}
+	foreach (a, b; c) {}
+}

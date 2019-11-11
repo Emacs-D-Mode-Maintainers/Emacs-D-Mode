@@ -3,3 +3,11 @@
 </span>
 <span class="keyword">auto</span> <span class="variable-name">dg</span> = (<span class="type">Object</span> <span class="variable-name">a</span>, <span class="type">Object</span> <span class="variable-name">b</span>) {};
 <span class="keyword">alias</span> <span class="variable-name">dg2</span> = (<span class="variable-name">a</span>, <span class="variable-name">b</span>) {};
+
+<span class="type">void</span> <span class="function-name">fun</span>()
+{
+	<span class="keyword">foreach</span> (<span class="variable-name">a</span>; c) foo();
+	<span class="keyword">foreach</span> (<span class="variable-name">a</span>, <span class="variable-name">b</span>; c) foo();
+	<span class="keyword">foreach</span> (<span class="variable-name">a</span>; c) {}
+	<span class="keyword">foreach</span> (<span class="variable-name">a</span>, <span class="variable-name">b</span>; c) {}
+}
