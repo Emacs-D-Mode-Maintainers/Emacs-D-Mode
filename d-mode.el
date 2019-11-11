@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911111451
+;; Version:  201911111459
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -476,7 +476,7 @@ operators."
   (let (maybe-auto enum decl-start type-start id-start make-top)
 
     (let (kind)
-      (while (setq kind (d-forward-attribute-or-storage-class))
+      (while (setq kind (d-forward-attribute-or-storage-class context))
 	(setq maybe-auto t
 	      enum (eq kind 'enum))
 	;; Skip over "public:" and similar specifiers.
@@ -663,11 +663,13 @@ operators."
     t))
 
 
-(defun d-forward-attribute-or-storage-class ()
+(defun d-forward-attribute-or-storage-class (context)
   "Handle D attributes and storage classes in declarations.
 
 Advance point and return non-nil if looking at something that may prefix a
-declaration (or follow the argument list, in case of functions)."
+declaration (or follow the argument list, in case of functions).
+
+CONTEXT is as in `c-forward-decl-or-cast-1'."
   ;; Note that this includes UDAs.
   (let ((start (point))
 	(kind t)
@@ -680,6 +682,9 @@ declaration (or follow the argument list, in case of functions)."
 	 ((looking-at (d-make-keywords-re t '("scope")))
 	  (setq match-index 1
 		kind 'scope))
+	 ((and (eq context nil)
+	       (looking-at (d-make-keywords-re t '("return"))))
+	  nil)
 	 ((looking-at (d-make-keywords-re t (c-lang-const d-type-modifier-kwds d)))
 	  (setq match-index 1
 		kind 'type-modifier))

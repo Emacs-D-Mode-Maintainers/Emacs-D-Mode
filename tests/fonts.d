@@ -38,3 +38,8 @@ enum Foo : Bar {}
 .TopLevelType var;
 
 debug bool resolveNeeded = false;
+
+void fun()
+{
+	return gun();
+}
