@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911111307
+;; Version:  201911111348
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -659,6 +659,9 @@ declaration (or follow the argument list, in case of functions)."
 	 ((looking-at (d-make-keywords-re t '("enum")))
 	  (setq match-index 1
 		kind 'enum))
+	 ((looking-at (d-make-keywords-re t '("scope")))
+	  (setq match-index 1
+		kind 'scope))
 	 ((looking-at (d-make-keywords-re t (c-lang-const d-type-modifier-kwds d)))
 	  (setq match-index 1
 		kind 'type-modifier))
@@ -675,12 +678,14 @@ declaration (or follow the argument list, in case of functions)."
       ;; - package(std)
       ;; - @SomeUDA(...)
       (if (looking-at "(")
-	  ;; Distinguish between "const x" and "const(x)".  In the
+	  ;; 1. Distinguish between "const x" and "const(x)".  In the
 	  ;; former, "const" is an attribute, but in the latter it is
 	  ;; part of a type.  This distinction is important when parsing
 	  ;; constructs where a type is required; a greedy attribute
 	  ;; match would leave only "(x)" which will not make sense.
-	  (if (eq kind 'type-modifier)
+	  ;; 2. Distinguish between scope variables (e.g. "scope x = new
+	  ;; ...") and scope statements (e.g. "scope(exit) { ... }").
+	  (if (memq kind '(type-modifier scope))
 	      (progn
 		(goto-char start)
 		nil)
@@ -697,16 +702,6 @@ declaration (or follow the argument list, in case of functions)."
   (cond
    ((not (c-major-mode-is 'd-mode))
     (apply orig-fun args))
-
-   ;; D: cc-mode gets confused due to "scope" being a keyword that can
-   ;; both be part of declarations (as a storage class), and a
-   ;; statement (e.g. "scope(exit)"). Disambiguate them here.
-   ((and
-     (looking-at (d-make-keywords-re t '("scope")))
-     (save-excursion
-       (c-forward-token-2)
-       (looking-at "(")))
-    nil)
 
    (t
     (apply #'d-forward-decl-or-cast-1 args))))
