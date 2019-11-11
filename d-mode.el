@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911111348
+;; Version:  201911111350
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -637,6 +637,18 @@ operators."
 	    (or (eq context 'top) make-top)))))
 
 
+(defun d-around--c-forward-decl-or-cast-1 (orig-fun &rest args)
+  ;; checkdoc-params: (orig-fun args)
+  "Advice function for patching D support into cc-mode."
+  (apply
+   (if (c-major-mode-is 'd-mode)
+       #'d-forward-decl-or-cast-1
+     orig-fun)
+   args))
+(advice-add 'c-forward-decl-or-cast-1 :around #'d-around--c-forward-decl-or-cast-1)
+
+;----------------------------------------------------------------------------
+
 (defun d-forward-identifier ()
   "Advance point by one D identifier."
   (when (and (not (looking-at c-keywords-regexp))
@@ -693,20 +705,6 @@ declaration (or follow the argument list, in case of functions)."
 	    (c-forward-syntactic-ws)
 	    kind)
 	kind))))
-
-;;----------------------------------------------------------------------------
-
-(defun d-around--c-forward-decl-or-cast-1 (orig-fun &rest args)
-  ;; checkdoc-params: (orig-fun args)
-  "Advice function for fixing cc-mode handling of D constructors."
-  (cond
-   ((not (c-major-mode-is 'd-mode))
-    (apply orig-fun args))
-
-   (t
-    (apply #'d-forward-decl-or-cast-1 args))))
-
-(advice-add 'c-forward-decl-or-cast-1 :around #'d-around--c-forward-decl-or-cast-1)
 
 ;;----------------------------------------------------------------------------
 
