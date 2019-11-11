@@ -49,10 +49,23 @@
 ;;----------------------------------------------------------------------------
 ;;; Code:
 
-(when (require 'undercover nil t)
-  (undercover "d-mode.el"))
+(if (getenv "D_MODE_COVERAGE")
+    (progn
+      ;; Generate a coverage report viewable in Emacs.
+      (require 'undercover)
+      (setq undercover-force-coverage t)
+      (undercover "d-mode.el"
+                  (:report-file "coverage/.resultset.json")
+		  (:report-format 'simplecov)
+		  (:send-report nil))
+      )
+  (when (require 'undercover nil t)
+    (undercover "d-mode.el")))
 
 (require 'd-mode nil t)
+
+(def-edebug-spec d--static-if (sexp form &optional form))
+(def-edebug-spec d--if-version>= (sexp form &optional form))
 
 (require 'htmlfontify)
 

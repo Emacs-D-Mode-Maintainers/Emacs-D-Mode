@@ -9,6 +9,11 @@ test-source: clean
 test-compiled: compile
 	cask exec emacs -Q -batch -l d-mode-test.el -l d-mode.elc -f ert-run-tests-batch-and-exit
 
+# Generate a coverage report viewable in Emacs.
+coverage: clean
+	rm -f d-mode.elc
+	D_MODE_COVERAGE=1 cask exec emacs -Q -batch -l d-mode-test.el -l d-mode.el  -f ert-run-tests-batch-and-exit
+
 compile:
 	$(emacs) -Q -batch --eval '(setq byte-compile-error-on-warn t)' -f batch-byte-compile d-mode.el
 
