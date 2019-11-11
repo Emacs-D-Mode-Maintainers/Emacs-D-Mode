@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911111730
+;; Version:  201911111737
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -422,15 +422,20 @@ operators."
   "Helper to precompute regular expressions for inline keyword lists." ;; checkdoc-params: (adorn list)
   (eval `(c-make-keywords-re ,adorn ,list 'd)))
 
+(defmacro d--static-if (condition new-form &optional old-form)
+  "If CONDITION is non-nil at compile time, evaluate NEW-FORM, otherwise OLD-FORM."
+  (declare (indent 2))
+  (if (eval condition)
+      new-form
+    old-form))
+
 (defmacro d--if-version>= (min-version new-form &optional old-form)
   "Conditional compilation based on the current Emacs version.
 
 Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
   otherwise NEW-FORM."
   (declare (indent 2))
-  (if (version<= min-version emacs-version)
-      new-form
-    old-form))
+  `(d--static-if (version<= ,min-version emacs-version) ,new-form ,old-form))
 
 ;;----------------------------------------------------------------------------
 ;;; Workaround for special case of 'else static if' not being handled properly
@@ -1033,115 +1038,117 @@ Currently handles `-delimited string literals."
 
 ;;----------------------------------------------------------------------------
 
-(c-lang-defconst d-flat-decl-maybe-block-kwds
-  ;; Keywords which don't introduce a scope, and may or may not be
-  ;; followed by a {...} block.
-  d (append (c-lang-const c-modifier-kwds)
-	    (list "else" ; for version / static if
-		  "if" ; static if
-		  "version")))
-(c-lang-defconst d-flat-decl-maybe-block-re
-  d (c-make-keywords-re t (c-lang-const d-flat-decl-maybe-block-kwds)))
+(d--if-version>= "26.0"
+    (progn
+      (c-lang-defconst d-flat-decl-maybe-block-kwds
+	;; Keywords which don't introduce a scope, and may or may not be
+	;; followed by a {...} block.
+	d (append (c-lang-const c-modifier-kwds)
+		  (list "else" ; for version / static if
+			"if" ; static if
+			"version")))
+      (c-lang-defconst d-flat-decl-maybe-block-re
+	d (c-make-keywords-re t (c-lang-const d-flat-decl-maybe-block-kwds)))
 
-(defun d-update-brace-stack (stack from to)
-  "Modified version of `c-update-brace-stack' for d-mode." ;; checkdoc-params: (stack from to)
-  ;; Given a brace-stack which has the value STACK at position FROM, update it
-  ;; to its value at position TO, where TO is after (or equal to) FROM.
-  ;; Return a cons of either TO (if it is outside a literal) and this new
-  ;; value, or of the next position after TO outside a literal and the new
-  ;; value.
-  (let (match kwd-sym (prev-match-pos 1)
-	      (s (cdr stack))
-	      (bound-<> (car stack)))
-    (save-excursion
-      (cond
-       ((and bound-<> (<= to bound-<>))
-	(goto-char to))			; Nothing to do.
-       (bound-<>
-	(goto-char bound-<>)
-	(setq bound-<> nil))
-       (t (goto-char from)))
-      (while (and (< (point) to)
-		  (c-syntactic-re-search-forward
-		   (if (<= (car s) 0)
-		       c-brace-stack-thing-key
-		     c-brace-stack-no-semi-key)
-		   to 'after-literal)
-		  (> (point) prev-match-pos)) ; prevent infinite loop.
-	(setq prev-match-pos (point))
-	(setq match (match-string-no-properties 1)
-	      kwd-sym (c-keyword-sym match))
-	(cond
-	 ((and (equal match "{")
-	       (progn (backward-char)
-		      (prog1 (looking-at "\\s(")
-			(forward-char))))
-	  (setq s (if s
-		      ;; D: Constructs such as "version", "static if", or
-		      ;; "extern(...)" may or may not enclose their declarations
-		      ;; in a {...} block. For this reason, we can't blindly
-		      ;; update the cc-mode brace stack when we see these keywords
-		      ;; (otherwise, if they are not immediately succeeded by a
-		      ;; {...} block, then the brace stack change will apply to
-		      ;; the next encountered {...} block such as that of a
-		      ;; function's).
-		      (if (save-excursion
-			    (backward-char)
-			    (c-backward-syntactic-ws)
-			    (when (eq (char-before) ?\))
-			      (c-backward-sexp)
-			      (c-backward-syntactic-ws))
-			    (c-backward-token-2)
-			    (looking-at (c-lang-const d-flat-decl-maybe-block-re)))
-			  ;; D: Keep the brace stack state from the parent
-			  ;; context. I.e., the contents of a "static if" at the
-			  ;; top level should remain top-level, but in a function,
-			  ;; it should remain non-top-level.
-			  s
-			(cons (if (<= (car s) 0)
-				  1
-				(1+ (car s)))
-			      (cdr s)))
-		    (list 1))))
-	 ((and (equal match "}")
-	       (progn (backward-char)
-		      (prog1 (looking-at "\\s)")
-			(forward-char))))
-	  (setq s
-		(cond
-		 ((and s (> (car s) 1))
-		  (cons (1- (car s)) (cdr s)))
-		 ((and (cdr s) (eq (car s) 1))
-		  (cdr s))
-		 (t s))))
-	 ((and (equal match ":")
-	       s
-	       (eq (car s) 0))
-	  (setq s (cons -1 (cdr s))))
-	 ((and (equal match ",")
-	       (eq (car s) -1)))	; at "," in "class foo : bar, ..."
-	 ;; D: Ignore ")", which can be part of parameter lists
-	 ((member match '(";" ","))
-	  (when (and s (cdr s) (<= (car s) 0))
-	    (setq s (cdr s))))
-	 ((c-keyword-member kwd-sym 'c-flat-decl-block-kwds)
-	  (push 0 s))))
-      ;; The failing `c-syntactic-re-search-forward' may have left us in the
-      ;; middle of a token, which might be a significant token.  Fix this!
-      (c-beginning-of-current-token)
-      (cons (point)
-	    (cons bound-<> s)))))
+      (defun d-update-brace-stack (stack from to)
+	"Modified version of `c-update-brace-stack' for d-mode." ;; checkdoc-params: (stack from to)
+	;; Given a brace-stack which has the value STACK at position FROM, update it
+	;; to its value at position TO, where TO is after (or equal to) FROM.
+	;; Return a cons of either TO (if it is outside a literal) and this new
+	;; value, or of the next position after TO outside a literal and the new
+	;; value.
+	(let (match kwd-sym (prev-match-pos 1)
+		    (s (cdr stack))
+		    (bound-<> (car stack)))
+	  (save-excursion
+	    (cond
+	     ((and bound-<> (<= to bound-<>))
+	      (goto-char to))			; Nothing to do.
+	     (bound-<>
+	      (goto-char bound-<>)
+	      (setq bound-<> nil))
+	     (t (goto-char from)))
+	    (while (and (< (point) to)
+			(c-syntactic-re-search-forward
+			 (if (<= (car s) 0)
+			     c-brace-stack-thing-key
+			   c-brace-stack-no-semi-key)
+			 to 'after-literal)
+			(> (point) prev-match-pos)) ; prevent infinite loop.
+	      (setq prev-match-pos (point))
+	      (setq match (match-string-no-properties 1)
+		    kwd-sym (c-keyword-sym match))
+	      (cond
+	       ((and (equal match "{")
+		     (progn (backward-char)
+			    (prog1 (looking-at "\\s(")
+			      (forward-char))))
+		(setq s (if s
+			    ;; D: Constructs such as "version", "static if", or
+			    ;; "extern(...)" may or may not enclose their declarations
+			    ;; in a {...} block. For this reason, we can't blindly
+			    ;; update the cc-mode brace stack when we see these keywords
+			    ;; (otherwise, if they are not immediately succeeded by a
+			    ;; {...} block, then the brace stack change will apply to
+			    ;; the next encountered {...} block such as that of a
+			    ;; function's).
+			    (if (save-excursion
+				  (backward-char)
+				  (c-backward-syntactic-ws)
+				  (when (eq (char-before) ?\))
+				    (c-backward-sexp)
+				    (c-backward-syntactic-ws))
+				  (c-backward-token-2)
+				  (looking-at (c-lang-const d-flat-decl-maybe-block-re)))
+				;; D: Keep the brace stack state from the parent
+				;; context. I.e., the contents of a "static if" at the
+				;; top level should remain top-level, but in a function,
+				;; it should remain non-top-level.
+				s
+			      (cons (if (<= (car s) 0)
+					1
+				      (1+ (car s)))
+				    (cdr s)))
+			  (list 1))))
+	       ((and (equal match "}")
+		     (progn (backward-char)
+			    (prog1 (looking-at "\\s)")
+			      (forward-char))))
+		(setq s
+		      (cond
+		       ((and s (> (car s) 1))
+			(cons (1- (car s)) (cdr s)))
+		       ((and (cdr s) (eq (car s) 1))
+			(cdr s))
+		       (t s))))
+	       ((and (equal match ":")
+		     s
+		     (eq (car s) 0))
+		(setq s (cons -1 (cdr s))))
+	       ((and (equal match ",")
+		     (eq (car s) -1)))	; at "," in "class foo : bar, ..."
+	       ;; D: Ignore ")", which can be part of parameter lists
+	       ((member match '(";" ","))
+		(when (and s (cdr s) (<= (car s) 0))
+		  (setq s (cdr s))))
+	       ((c-keyword-member kwd-sym 'c-flat-decl-block-kwds)
+		(push 0 s))))
+	    ;; The failing `c-syntactic-re-search-forward' may have left us in the
+	    ;; middle of a token, which might be a significant token.  Fix this!
+	    (c-beginning-of-current-token)
+	    (cons (point)
+		  (cons bound-<> s)))))
 
-(defun d-around--c-update-brace-stack (orig-fun &rest args)
-  ;; checkdoc-params: (orig-fun args)
-  "Advice function for fixing cc-mode handling of certain D constructs."
-  (apply
-   (if (c-major-mode-is 'd-mode)
-       #'d-update-brace-stack
-     orig-fun)
-   args))
+      (defun d-around--c-update-brace-stack (orig-fun &rest args)
+	;; checkdoc-params: (orig-fun args)
+	"Advice function for fixing cc-mode handling of certain D constructs."
+	(apply
+	 (if (c-major-mode-is 'd-mode)
+	     #'d-update-brace-stack
+	   orig-fun)
+	 args))
 
-(advice-add 'c-update-brace-stack :around #'d-around--c-update-brace-stack)
+      (advice-add 'c-update-brace-stack :around #'d-around--c-update-brace-stack)))
 
 ;;----------------------------------------------------------------------------
 ;; Support for fontifying module name(s) after a module or import keyword.
@@ -1511,125 +1518,126 @@ The expression is added to `compilation-error-regexp-alist' and
 ;;----------------------------------------------------------------------------
 ;; New imenu implementation - use cc-mode machinery:
 
-(defun d-imenu-create-index-function ()
-  "Create imenu entries for D-mode."
-  (goto-char (point-min))
-  (c-save-buffer-state
-      (d-spots last-spot (d-blocks (make-hash-table)))
-    (c-find-decl-spots
-     (point-max)
-     c-decl-start-re
-     (eval c-maybe-decl-faces)
-     (lambda (match-pos inside-macro toplev)
-       (when toplev
-	 (let* ((got-context
-		 (c-get-fontification-context
-		  match-pos nil toplev))
-		(context (car got-context))
-		(decl-or-cast
-		 (when (eq context 'top)
-		   (d-forward-decl-or-cast-1
-		    match-pos
-		    context
-		    nil ; last-cast-end
-		    ))))
-	   (when (and decl-or-cast (not (eq (car decl-or-cast) last-spot)))
-	     (let* ((decl-end (point))
-		    (id-start (progn
-				(goto-char (car decl-or-cast))
-				(when (eq (char-after) ?=)
-				  (c-backward-syntactic-ws)
-				  (c-simple-skip-symbol-backward))
-				(point)))
-		    (id-end (progn
-			      (goto-char id-start)
-			      (cond
-			       ((d-forward-identifier)
-				(point))
-			       ((looking-at (d-make-keywords-re t '("this" "~this")))
-				(match-end 1)))))
-		    (name (when id-end
-			    (buffer-substring-no-properties id-start id-end)))
-		    (id-prev-token (progn
-				     (goto-char id-start)
-				     (c-backward-syntactic-ws)
-				     (let ((end (point)))
-				       (when (c-simple-skip-symbol-backward)
-					 (buffer-substring-no-properties (point) end)))))
-		    (type-start (cadddr decl-or-cast))
-		    (type-token (and type-start
-				     (progn
-				       (goto-char type-start)
-				       (looking-at c-symbol-key))
-				     (match-string-no-properties 0)))
-		    (type-prev-token (when type-start
-				       (goto-char type-start)
-				       (c-backward-syntactic-ws)
-				       (let ((end (point)))
-					 (when (c-simple-skip-symbol-backward)
-					   (buffer-substring-no-properties (point) end)))))
-		    (next-char (when id-end
-				 (goto-char id-end)
-				 (c-forward-syntactic-ws)
-				 (char-after)))
-		    (res (cond
-			  ((null name)
-			   nil)
-			  ((equal id-prev-token "else")
-			   nil) ; false positive after else
-			  ((equal name "{")
-			   nil) ; false positive with decl-start keyword and {...} group
-			  ((equal id-prev-token "enum")
-			   '("Enums" t))
-			  ((equal id-prev-token "class")
-			   '("Classes" t))
-			  ((equal id-prev-token "struct")
-			   '("Structs" t))
-			  ((equal id-prev-token "template")
-			   '("Templates" t))
-			  ((equal id-prev-token "alias")
-			   '("Aliases" nil))
-			  ((equal type-token "alias")
-			   '("Aliases" nil)) ; old-style alias
-			  ((memq next-char '(?\; ?= ?,))
-			   nil) ; '("variable" nil))
-			  ((member name '("import" "if"))
-			   nil) ; static import/if
-			  ((memq next-char '(?\())
-			   '(nil t)) ; function
-			  (t ; unknown
-			   (list id-prev-token nil))))
-		    (kind (car res))
-		    (have-block (cadr res))
-		    (paren-state (when res (c-parse-state)))
-		    (outer-brace match-pos)
-		    d-context
-		    d-fqname)
+(d--if-version>= "26.0"
+    (defun d-imenu-create-index-function ()
+      "Create imenu entries for D-mode."
+      (goto-char (point-min))
+      (c-save-buffer-state
+	  (d-spots last-spot (d-blocks (make-hash-table)))
+	(c-find-decl-spots
+	 (point-max)
+	 c-decl-start-re
+	 (eval c-maybe-decl-faces)
+	 (lambda (match-pos inside-macro toplev)
+	   (when toplev
+	     (let* ((got-context
+		     (c-get-fontification-context
+		      match-pos nil toplev))
+		    (context (car got-context))
+		    (decl-or-cast
+		     (when (eq context 'top)
+		       (d-forward-decl-or-cast-1
+			match-pos
+			context
+			nil ; last-cast-end
+			))))
+	       (when (and decl-or-cast (not (eq (car decl-or-cast) last-spot)))
+		 (let* ((decl-end (point))
+			(id-start (progn
+				    (goto-char (car decl-or-cast))
+				    (when (eq (char-after) ?=)
+				      (c-backward-syntactic-ws)
+				      (c-simple-skip-symbol-backward))
+				    (point)))
+			(id-end (progn
+				  (goto-char id-start)
+				  (cond
+				   ((d-forward-identifier)
+				    (point))
+				   ((looking-at (d-make-keywords-re t '("this" "~this")))
+				    (match-end 1)))))
+			(name (when id-end
+				(buffer-substring-no-properties id-start id-end)))
+			(id-prev-token (progn
+					 (goto-char id-start)
+					 (c-backward-syntactic-ws)
+					 (let ((end (point)))
+					   (when (c-simple-skip-symbol-backward)
+					     (buffer-substring-no-properties (point) end)))))
+			(type-start (cadddr decl-or-cast))
+			(type-token (and type-start
+					 (progn
+					   (goto-char type-start)
+					   (looking-at c-symbol-key))
+					 (match-string-no-properties 0)))
+			(type-prev-token (when type-start
+					   (goto-char type-start)
+					   (c-backward-syntactic-ws)
+					   (let ((end (point)))
+					     (when (c-simple-skip-symbol-backward)
+					       (buffer-substring-no-properties (point) end)))))
+			(next-char (when id-end
+				     (goto-char id-end)
+				     (c-forward-syntactic-ws)
+				     (char-after)))
+			(res (cond
+			      ((null name)
+			       nil)
+			      ((equal id-prev-token "else")
+			       nil) ; false positive after else
+			      ((equal name "{")
+			       nil) ; false positive with decl-start keyword and {...} group
+			      ((equal id-prev-token "enum")
+			       '("Enums" t))
+			      ((equal id-prev-token "class")
+			       '("Classes" t))
+			      ((equal id-prev-token "struct")
+			       '("Structs" t))
+			      ((equal id-prev-token "template")
+			       '("Templates" t))
+			      ((equal id-prev-token "alias")
+			       '("Aliases" nil))
+			      ((equal type-token "alias")
+			       '("Aliases" nil)) ; old-style alias
+			      ((memq next-char '(?\; ?= ?,))
+			       nil) ; '("variable" nil))
+			      ((member name '("import" "if"))
+			       nil) ; static import/if
+			      ((memq next-char '(?\())
+			       '(nil t)) ; function
+			      (t ; unknown
+			       (list id-prev-token nil))))
+			(kind (car res))
+			(have-block (cadr res))
+			(paren-state (when res (c-parse-state)))
+			(outer-brace match-pos)
+			d-context
+			d-fqname)
 
-	       (when res
-		 (when paren-state
-		   ;; Find brace with known context
-		   (while (and outer-brace
-			       (not d-context))
-		     (setq outer-brace (c-most-enclosing-brace paren-state outer-brace))
-		     (setq d-context (gethash outer-brace d-blocks))))
+		   (when res
+		     (when paren-state
+		       ;; Find brace with known context
+		       (while (and outer-brace
+				   (not d-context))
+			 (setq outer-brace (c-most-enclosing-brace paren-state outer-brace))
+			 (setq d-context (gethash outer-brace d-blocks))))
 
-		 (setq d-fqname (if d-context (concat d-context "." name) name))
+		     (setq d-fqname (if d-context (concat d-context "." name) name))
 
-		 (when have-block
-		   (goto-char decl-end)
-		   (when (and (c-syntactic-re-search-forward "[{};]" nil t)
-			      (eq (char-before) ?{))
-		     (puthash (1- (point)) d-fqname d-blocks)))
+		     (when have-block
+		       (goto-char decl-end)
+		       (when (and (c-syntactic-re-search-forward "[{};]" nil t)
+				  (eq (char-before) ?{))
+			 (puthash (1- (point)) d-fqname d-blocks)))
 
-		 (setq last-spot (car decl-or-cast)
-		       d-spots
-		       (cons
-			(if kind
-			    (cons kind (list (cons d-fqname id-start)))
-			  (cons d-fqname id-start))
-			d-spots)))))))))
-    (nreverse d-spots)))
+		     (setq last-spot (car decl-or-cast)
+			   d-spots
+			   (cons
+			    (if kind
+				(cons kind (list (cons d-fqname id-start)))
+			      (cons d-fqname id-start))
+			    d-spots)))))))))
+	(nreverse d-spots))))
 
 ;; ----------------------------------------------------------------------------
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1787,7 +1795,7 @@ Key bindings:
   (easy-menu-add d-menu)
   (c-run-mode-hooks 'c-mode-common-hook 'd-mode-hook)
   (c-update-modeline)
-  (if (fboundp 'c-get-fontification-context)
+  (d--if-version>= "26.0"
       (cc-imenu-init nil #'d-imenu-create-index-function)
     (cc-imenu-init d-imenu-generic-expression)))
 
