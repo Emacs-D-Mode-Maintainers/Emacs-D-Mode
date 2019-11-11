@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911112225
+;; Version:  201911112251
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -738,9 +738,20 @@ CONTEXT is as in `c-forward-decl-or-cast-1'."
 	   (c-major-mode-is 'd-mode)
 	   (eq (car res) nil)
 	   (save-excursion
-	     (goto-char match-pos)
-	     (c-backward-syntactic-ws)
-	     (eq (char-before) ?\()))
+	     (and
+	      (progn
+		(goto-char match-pos)
+		(c-backward-syntactic-ws)
+		(eq (char-before) ?\())
+	      (progn
+		(backward-char)
+		(c-forward-sexp)
+		(c-forward-syntactic-ws)
+		(while (d-forward-attribute-or-storage-class 'top))
+		(or
+		 (eq (char-after) ?\{)
+		 (looking-at "=>"))))))
+
       (setq res (cons 'decl t))
       ;; (message "   patching -> %S" res)
       )
