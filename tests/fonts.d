@@ -30,3 +30,5 @@ invariant {}
 
 class Foo : Bar {}
 enum Foo : Bar {}
+
+.TopLevelType var;

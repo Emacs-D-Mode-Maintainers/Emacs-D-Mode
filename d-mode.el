@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911111350
+;; Version:  201911111355
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -133,7 +133,7 @@
 		   "\\([^=]\\|$\\)"))
 
 (c-lang-defconst c-decl-start-re
-  d "[[:alpha:]_@~]")
+  d "[[:alpha:]_@~.]")
   ;; d "[[:alpha:]_@]")
 
 (c-lang-defconst d-decl-end-re
@@ -954,6 +954,9 @@ Currently handles `-delimited string literals."
      ;; Identifier
      ((progn
 	(setq pos nil)
+	(when (looking-at "[.]")
+	  (forward-char)
+	  (c-forward-syntactic-ws))
 	(if (looking-at c-identifier-start)
 	    (save-excursion
 	      (setq id-start (point)
@@ -1022,8 +1025,6 @@ Currently handles `-delimited string literals."
 
       ;; D: Descend into scope names
       (when (looking-at "[.]")
-	(forward-char)
-	(c-forward-syntactic-ws)
 	(unless (d-forward-type)
 	  (setq res nil)))
 
