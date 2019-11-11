@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911101349
+;; Version:  201911111307
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -321,11 +321,6 @@ operators."
 				  (c-lang-const d-param-storage-class-kwds))
 			  :test 'string-equal))
 
-(c-lang-defconst d-storage-class-key
-  ;; Regex of `d-storage-class-kwds'.
-  d (c-make-keywords-re t
-      (c-lang-const d-storage-class-kwds)))
-
 (c-lang-defconst c-paren-type-kwds
   ;; Keywords that may be followed by a parenthesis expression containing
   ;; type identifiers separated by arbitrary tokens.
@@ -458,6 +453,7 @@ operators."
 
 (defun d-forward-decl-or-cast-1 (preceding-token-end context last-cast-end)
   "D version of `c-forward-decl-or-cast-1'." ;; checkdoc-params: (preceding-token-end context last-cast-end)
+  ;; (message "(d-forward-decl-or-cast-1 %S %S %S) @ %S" preceding-token-end context last-cast-end (point))
 
   ;; D: Handle conditional compilation.
   ;; The "debug" keyword, as well as the "else" keyword following a
@@ -597,7 +593,7 @@ operators."
 	 ;; anonymous parameter; for lambdas, they indicate the name
 	 ;; of a parameter with an inferred type.
 	 ;; Currently we don't fontify them as either.
-	 ((and (eq context 'arglist)
+	 ((and (eq context 'decl)
 	       (d-forward-type))
 	  (setq type-start decl-start)
 	  (setq id-start (point))
@@ -614,12 +610,32 @@ operators."
 	    (goto-char type-start)
 	    (d-forward-type))))
 
+      (when (and (eq context 'decl)
+		 (eq (char-after) ?,))
+	;; As in c-forward-decl-or-cast-1:
+	;; Make sure to propagate the `c-decl-arg-start' property to
+	;; the next argument if it's set in this one, to cope with
+	;; interactive refontification.
+	(c-put-c-type-property (point) 'c-decl-arg-start))
+
+      (when (and (memq context '(top nil))
+		 (eq (char-after) ?\())
+	;; Move point past the parameter list (end of declaration) to
+	;; communicate to cc-mode that the parens represent parameters,
+	;; and not arguments.
+	(c-forward-sexp)
+	(c-forward-syntactic-ws)
+	;; Template arguments?
+	(when (eq (char-after) ?\()
+	  (c-forward-sexp)
+	  (c-forward-syntactic-ws)))
+
       (list id-start
 	    nil
 	    nil
 	    type-start
 	    (or (eq context 'top) make-top)))))
-      
+
 
 (defun d-forward-identifier ()
   "Advance point by one D identifier."
@@ -682,16 +698,6 @@ declaration (or follow the argument list, in case of functions)."
    ((not (c-major-mode-is 'd-mode))
     (apply orig-fun args))
 
-   ;; D: The logic in cc-mode's `c-forward-decl-or-cast-1' will
-   ;; recognize "someIdentifier in" as a variable declaration,
-   ;; fontifying someIdentifier as a type. Prevent this here.
-   ((and
-     (looking-at c-identifier-start)
-     (save-excursion
-       (c-forward-token-2)
-       (looking-at (d-make-keywords-re t '("is" "!is" "in" "!in")))))
-    nil)
-
    ;; D: cc-mode gets confused due to "scope" being a keyword that can
    ;; both be part of declarations (as a storage class), and a
    ;; statement (e.g. "scope(exit)"). Disambiguate them here.
@@ -713,14 +719,17 @@ declaration (or follow the argument list, in case of functions)."
   ;; checkdoc-params: (orig-fun match-pos args)
   "Advice function for fixing cc-mode handling of D lambda parameter lists."
   (let ((res (apply orig-fun match-pos args)))
+    ;; (message "(c-get-fontification-context %S) @ %S -> %S" args (point) res)
     (when (and
 	   (c-major-mode-is 'd-mode)
 	   (eq (car res) nil)
 	   (save-excursion
-	     (goto-char match-pos )
+	     (goto-char match-pos)
 	     (c-backward-syntactic-ws)
 	     (eq (char-before) ?\()))
-      (setq res (cons 'arglist t)))
+      (setq res (cons 'decl t))
+      ;; (message "   patching -> %S" res)
+      )
     res))
 (advice-add 'c-get-fontification-context :around #'d-around--c-get-fontification-context)
 
@@ -919,37 +928,13 @@ Currently handles `-delimited string literals."
 
 (defun d-forward-type (&optional brace-block-too)
   "Modified version of `c-forward-type' for d-mode." ;; checkdoc-params: brace-block-too
-  (let ((start (point)) pos res name-res id-start id-end id-range saw-storage-class)
-
-    ;; D: Parse storage classes and similar keywords.
-    ;; Technically these are not part of the type, but we parse them here
-    ;; because they can substitute the type declaration (for type inference).
-    (while (and
-            (looking-at (c-lang-const d-storage-class-key))
-
-	    (save-excursion
-              (goto-char (match-end 1))
-              (c-forward-syntactic-ws)
-	      (setq pos (point))
-              (looking-at c-identifier-start))) ; Variable name or
-                                        ; continuation, but NOT (
-      (goto-char pos)
-      (setq saw-storage-class t))
+  (let ((start (point)) pos res name-res id-start id-end id-range)
 
     (cond
      ;; D: "this" is not a type, even though it appears at the
      ;; beginning of a "function" (constructor) declaration.
      ((looking-at (d-make-keywords-re t '("this")))
       nil)
-
-     ;; D: Storage class substituting the type (e.g. auto)
-     ((and
-       saw-storage-class
-       (not (looking-at (c-lang-const d-type-modifier-key)))
-       (save-excursion
-	 (c-forward-token-2)            ; maybe variable/function name
-	 (looking-at "[(;=]")))
-      (setq res t))
 
      ;; D: const/immutable/...(...)
      ((looking-at (c-lang-const d-type-modifier-key))
@@ -964,7 +949,7 @@ Currently handles `-delimited string literals."
 	   (progn
 	     (forward-char)
 	     (c-forward-syntactic-ws)
-	     (c-forward-type))
+	     (d-forward-type))
 	   ;; Followed by a closing ) ?
 	   (progn
 	     (c-forward-syntactic-ws)
@@ -1063,10 +1048,6 @@ Currently handles `-delimited string literals."
 	      (cons id-range c-record-found-types))))
 
     ;;(message "c-forward-type %s -> %s: %s" start (point) res)
-
-    (unless res
-      (when saw-storage-class
-	(goto-char start)))
 
     res))
 
