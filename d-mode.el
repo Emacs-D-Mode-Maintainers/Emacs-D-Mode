@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911111459
+;; Version:  201911111516
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -1684,7 +1684,8 @@ Each list item should be a regexp matching a single identifier."
   d (append
      ;; D module and import statements
      (list (c-make-font-lock-BO-decl-search-function
-            (c-make-keywords-re t (c-lang-const c-ref-list-kwds))
+	    (concat "\\_<"
+		    (c-make-keywords-re t (c-lang-const c-ref-list-kwds d) 'd))
             '((c-fontify-types-and-refs ()
         	(d-forward-module-clause)
         	(if (> (point) limit) (goto-char limit))))))

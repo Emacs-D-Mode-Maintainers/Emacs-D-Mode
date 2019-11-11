@@ -41,5 +41,6 @@ debug bool resolveNeeded = false;
 
 void fun()
 {
+	submodule.needHead(commit);
 	return gun();
 }
