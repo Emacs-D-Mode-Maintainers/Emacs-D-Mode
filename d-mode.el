@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911111355
+;; Version:  201911111451
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -451,6 +451,10 @@ operators."
 
 ;;----------------------------------------------------------------------------
 
+(defconst d--long-cfdoc1-ret
+  (version<= "26.0" emacs-version)
+  "Whether `c-forward-decl-or-cast-1' returns a 5-element list in the current cc-mode version.")
+
 (defun d-forward-decl-or-cast-1 (preceding-token-end context last-cast-end)
   "D version of `c-forward-decl-or-cast-1'." ;; checkdoc-params: (preceding-token-end context last-cast-end)
   ;; (message "(d-forward-decl-or-cast-1 %S %S %S) @ %S" preceding-token-end context last-cast-end (point))
@@ -630,11 +634,13 @@ operators."
 	  (c-forward-sexp)
 	  (c-forward-syntactic-ws)))
 
-      (list id-start
-	    nil
-	    nil
-	    type-start
-	    (or (eq context 'top) make-top)))))
+      (if d--long-cfdoc1-ret
+	  (list id-start
+		nil
+		nil
+		type-start
+		(or (eq context 'top) make-top))
+	(list id-start)))))
 
 
 (defun d-around--c-forward-decl-or-cast-1 (orig-fun &rest args)
