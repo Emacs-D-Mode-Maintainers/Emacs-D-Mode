@@ -7,7 +7,7 @@ test-source: clean
 	cask exec emacs -Q -batch -l d-mode-test.el -l d-mode.el  -f ert-run-tests-batch-and-exit
 
 test-compiled: compile
-	cask exec emacs -Q -batch -l d-mode-test.el -l d-mode.elc -f ert-run-tests-batch-and-exit
+	D_MODE_NO_COVERAGE=1 cask exec emacs -Q -batch -l d-mode-test.el -l d-mode.elc -f ert-run-tests-batch-and-exit
 
 # Generate a coverage report viewable in Emacs.
 coverage: clean

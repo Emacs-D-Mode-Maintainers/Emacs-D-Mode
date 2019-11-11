@@ -59,8 +59,9 @@
 		  (:report-format 'simplecov)
 		  (:send-report nil))
       )
-  (when (require 'undercover nil t)
-    (undercover "d-mode.el")))
+  (unless (getenv "D_MODE_NO_COVERAGE")
+    (when (require 'undercover nil t)
+      (undercover "d-mode.el"))))
 
 (require 'd-mode nil t)
 
