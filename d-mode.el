@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911111516
+;; Version:  201911111704
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -422,6 +422,16 @@ operators."
   "Helper to precompute regular expressions for inline keyword lists." ;; checkdoc-params: (adorn list)
   (eval `(c-make-keywords-re ,adorn ,list 'd)))
 
+(defmacro d--if-version>= (min-version new-form &optional old-form)
+  "Conditional compilation based on the current Emacs version.
+
+Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
+  otherwise NEW-FORM."
+  (declare (indent 2))
+  (if (version<= min-version emacs-version)
+      new-form
+    old-form))
+
 ;;----------------------------------------------------------------------------
 ;;; Workaround for special case of 'else static if' not being handled properly
 (defun d-special-case-looking-at (orig-fun &rest args)
@@ -450,10 +460,6 @@ operators."
 (advice-add 'c-add-stmt-syntax :around #'d-around--c-add-stmt-syntax)
 
 ;;----------------------------------------------------------------------------
-
-(defconst d--long-cfdoc1-ret
-  (version<= "26.0" emacs-version)
-  "Whether `c-forward-decl-or-cast-1' returns a 5-element list in the current cc-mode version.")
 
 (defun d-forward-decl-or-cast-1 (preceding-token-end context last-cast-end)
   "D version of `c-forward-decl-or-cast-1'." ;; checkdoc-params: (preceding-token-end context last-cast-end)
@@ -634,7 +640,7 @@ operators."
 	  (c-forward-sexp)
 	  (c-forward-syntactic-ws)))
 
-      (if d--long-cfdoc1-ret
+      (d--if-version>= "26.0"
 	  (list id-start
 		nil
 		nil
