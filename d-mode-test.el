@@ -312,6 +312,8 @@ the reference file, raise an error."
               (cond
                ((string-match-p "\\`\\.\\.?\\'" filename)
                 nil)
+               ((string-match-p "\\.res" filename)
+                nil)
                ((string-match-p "\\.\\(d\\|txt\\)\\'" filename)
                 `((ert-deftest ,(intern (file-name-sans-extension filename)) ()
                     :expected-result (if (d-test-get-expected-result ,path) :passed :failed)
