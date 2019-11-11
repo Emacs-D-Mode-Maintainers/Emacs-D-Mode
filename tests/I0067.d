@@ -1,3 +1,4 @@
+// #min-version: 26.1
 // #run: (d-test-indent)
 
 void foo(T)(T stuff)
