@@ -6,3 +6,5 @@ class C
 public:
 	Type var3, var4;
 }
+
+package:
