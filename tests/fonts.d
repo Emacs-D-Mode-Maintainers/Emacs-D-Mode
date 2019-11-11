@@ -36,3 +36,5 @@ class Foo : Bar {}
 enum Foo : Bar {}
 
 .TopLevelType var;
+
+debug bool resolveNeeded = false;
