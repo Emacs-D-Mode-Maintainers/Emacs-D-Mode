@@ -25,6 +25,10 @@ scope(exit) void fun();
 auto s = "enum Type {}";
 
 assert(a !in b);
+if (a.length * b.length) {}
+assert(a !is double.nan);
+if (a.b in c) {}
+write(s ~ "");
 
 invariant {}
 
