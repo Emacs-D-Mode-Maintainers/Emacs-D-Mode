@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911112253
+;; Version:  201911112314
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -469,6 +469,13 @@ Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
   "D version of `c-forward-decl-or-cast-1'." ;; checkdoc-params: (preceding-token-end context last-cast-end)
   ;; (message "(d-forward-decl-or-cast-1 %S %S %S) @ %S" preceding-token-end context last-cast-end (point))
 
+  ;; D: Restore our context, if any
+  (when (eq context 'decl)
+    (save-excursion
+      (c-backward-syntactic-ws)
+      (when (> (point) (point-min))
+	(setq context (or (c-get-char-property (1- (point)) 'd-context) context)))))
+
   ;; D: Handle conditional compilation.
   ;; The "debug" keyword, as well as the "else" keyword following a
   ;; "version" or "static if", can start a declaration even without a
@@ -606,13 +613,16 @@ Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
 	 ;; lists.  For functions, they indicate the type of an
 	 ;; anonymous parameter; for lambdas, they indicate the name
 	 ;; of a parameter with an inferred type.
-	 ((and (eq context 'decl)
+	 ((and (memq context '(decl varlist))
 	       (d-forward-type))
 	  (setq type-start decl-start)
 	  (setq id-start (point))
 	  (cond
-	   ;; Type only
+	   ;; Type or name only
 	   ((looking-at "[,=)]")
+	    (when (eq context 'varlist)
+	      (setq id-start type-start)
+	      (setq type-start nil))
 	    t)
 	   ;; Parameter name
 	   ((d-forward-identifier)
@@ -627,13 +637,15 @@ Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
 	    (goto-char type-start)
 	    (d-forward-type))))
 
-      (when (and (eq context 'decl)
+      (when (and (memq context '(decl varlist))
 		 (eq (char-after) ?,))
 	;; As in c-forward-decl-or-cast-1:
 	;; Make sure to propagate the `c-decl-arg-start' property to
 	;; the next argument if it's set in this one, to cope with
 	;; interactive refontification.
-	(c-put-c-type-property (point) 'c-decl-arg-start))
+	(c-put-c-type-property (point) 'c-decl-arg-start)
+	;; D: Also save whether we're in a varlist.
+	(c-put-char-property (point) 'd-context context))
 
       (when (and (memq context '(top nil))
 		 (eq (char-after) ?\())
@@ -755,7 +767,7 @@ CONTEXT is as in `c-forward-decl-or-cast-1'."
 		 (eq (char-after) ?\{)
 		 (looking-at "=>"))))))
 
-      (setq res (cons 'decl t))
+      (setq res (cons 'varlist t))
       ;; (message "   patching -> %S" res)
       )
     res))
