@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911111723
+;; Version:  201911111730
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -802,13 +802,12 @@ Currently handles `-delimited string literals."
   (save-excursion
     (skip-syntax-backward "w_")
 
-    (or
-     ;; Check for a normal (non-keyword) identifier.
-     (and (looking-at c-symbol-start)
-	  (or
-	   (looking-at (d-make-keywords-re t '("this" "~this")))
-	   (not (looking-at c-keywords-regexp)))
-	  (point)))))
+    ;; Check for a normal (non-keyword) identifier.
+    (and (looking-at c-symbol-start)
+	 (or
+	  (looking-at (d-make-keywords-re t '("this" "~this")))
+	  (not (looking-at c-keywords-regexp)))
+	 (point))))
 
 (defun d-in-knr-argdecl (&optional lim)
   "Modified version of `c-in-knr-argdecl' for d-mode." ;; checkdoc-params: lim
