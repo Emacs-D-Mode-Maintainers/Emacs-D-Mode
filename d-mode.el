@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911121117
+;; Version:  201911121452
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -477,6 +477,7 @@ Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
       (setq safe-pos (point))
 
       (cond
+       ;; module and import statements
        ((c-keyword-member kwd-sym 'c-ref-list-kwds)
 	(while
 	    (progn
@@ -500,6 +501,7 @@ Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
 		nil))))
 	(goto-char safe-pos)
 	t)
+       ;; Special words after certain keywords
        ((and (c-keyword-member kwd-sym 'c-paren-nontype-kwds)
 	     (eq (char-after) ?\())
 	(forward-char)
@@ -1717,7 +1719,7 @@ Each list item should be a regexp matching a single identifier."
 
 (c-lang-defconst c-basic-matchers-after
   d (append
-     ;; D module and import statements
+     ;; D keywords
      (list (c-make-font-lock-BO-decl-search-function
 	    (concat "\\_<"
 		    (c-make-keywords-re t (append (c-lang-const c-ref-list-kwds d)
