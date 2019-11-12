@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911120029
+;; Version:  201911121009
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -793,7 +793,8 @@ CONTEXT is as in `c-forward-decl-or-cast-1'."
 (defun d-around--c-get-fontification-context (orig-fun match-pos &rest args)
   ;; checkdoc-params: (orig-fun match-pos args)
   "Advice function for fixing cc-mode handling of D lambda parameter lists."
-  (let ((res (apply orig-fun match-pos args)))
+  (let ((res (apply orig-fun match-pos args))
+	(type 'varlist))
     ;; (message "(c-get-fontification-context %S) @ %S -> %S" args (point) res)
     (when (and
 	   (c-major-mode-is 'd-mode)
@@ -810,7 +811,12 @@ CONTEXT is as in `c-forward-decl-or-cast-1'."
 		 (save-excursion
 		   (and
 		    (c-backward-token-2)
-		    (looking-at (d-make-keywords-re t '("foreach")))))
+		    (cond
+		     ((looking-at (d-make-keywords-re t '("foreach" "foreach_reverse")))
+		      t)
+		     ((looking-at (d-make-keywords-re t '("catch")))
+		      (setq type 'decl)
+		      t))))
 		 (progn
 		   (c-forward-sexp)
 		   (c-forward-syntactic-ws)
@@ -819,7 +825,7 @@ CONTEXT is as in `c-forward-decl-or-cast-1'."
 		    (eq (char-after) ?\{)
 		    (looking-at "=>"))))))))
 
-      (setq res (cons 'varlist t))
+      (setq res (cons type t))
       ;; (message "   patching -> %S" res)
       )
     res))

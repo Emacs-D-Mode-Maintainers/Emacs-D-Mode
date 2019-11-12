@@ -10,4 +10,9 @@ void fun()
 	foreach (a, b; c) foo();
 	foreach (a; c) {}
 	foreach (a, b; c) {}
+
+	try {} catch (Exception e) {}
+	try {} catch (Exception) {}
+	try {} catch (Exception e) run();
+	try {} catch (Exception) run();
 }
