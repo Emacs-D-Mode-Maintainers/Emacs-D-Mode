@@ -4,6 +4,10 @@
 auto dg = (Object a, Object b) {};
 alias dg2 = (a, b) {};
 
+alias dg3 = a => a + 1;
+alias dg4 = fun(a => a + 1);
+alias dg5 = fun(a, b => b + 1);
+
 void fun()
 {
 	foreach (a; c) foo();

@@ -4,6 +4,10 @@
 <span class="keyword">auto</span> <span class="variable-name">dg</span> = (<span class="type">Object</span> <span class="variable-name">a</span>, <span class="type">Object</span> <span class="variable-name">b</span>) {};
 <span class="keyword">alias</span> <span class="variable-name">dg2</span> = (<span class="variable-name">a</span>, <span class="variable-name">b</span>) {};
 
+<span class="keyword">alias</span> <span class="variable-name">dg3</span> = <span class="variable-name">a</span> =&gt; a + 1;
+<span class="keyword">alias</span> <span class="variable-name">dg4</span> = fun(<span class="variable-name">a</span> =&gt; a + 1);
+<span class="keyword">alias</span> <span class="variable-name">dg5</span> = fun(a, <span class="variable-name">b</span> =&gt; b + 1);
+
 <span class="type">void</span> <span class="function-name">fun</span>()
 {
 	<span class="keyword">foreach</span> (<span class="variable-name">a</span>; c) foo();

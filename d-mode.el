@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911121452
+;; Version:  201911121459
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -144,7 +144,7 @@
   d "\\(\\[[^]]*\\]\\|\\.\\.\\.\\|\\*\\)")
 
 (c-lang-defconst c-decl-prefix-re
-  d "\\([{}();:,]+\\)")
+  d "\\([{}();:,=]+\\)")
 
 (c-lang-defconst c-identifier-ops
   ;; For recognizing "~this", ".foo", and "foo.bar.baz" as identifiers
@@ -630,6 +630,17 @@ Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
 	   ((looking-at c-symbol-key)
 	    (setq id-start (point))
 	    t)))
+
+	 ;; Lambda literal
+	 ((and (memq context '(top nil arglist))
+	       (save-excursion
+		 (and
+		  (d-forward-identifier)
+		  (progn
+		    (c-forward-syntactic-ws)
+		    (looking-at "=>")))))
+	  (setq id-start decl-start)
+	  t)
 
 	 ;; Function / variable / constant declaration, i.e. an
 	 ;; (optional) type followed by an identifier.
