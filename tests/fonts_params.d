@@ -10,6 +10,8 @@ alias dg5 = fun(a, b => b + 1);
 
 void fun()
 {
+	each!((key) {});
+
 	foreach (a; c) foo();
 	foreach (a, b; c) foo();
 	foreach (a; c) {}

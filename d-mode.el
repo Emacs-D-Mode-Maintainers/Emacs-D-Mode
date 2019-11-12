@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911121951
+;; Version:  201911122034
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -812,7 +812,7 @@ CONTEXT is as in `c-forward-decl-or-cast-1'."
     ;; (message "(c-get-fontification-context %S) @ %S -> %S" args (point) res)
     (when (and
 	   (c-major-mode-is 'd-mode)
-	   (eq (car res) nil)
+	   (memq (car res) '(nil arglist))
 	   (save-excursion
 	     (and
 	      (progn
