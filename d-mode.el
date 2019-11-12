@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911120023
+;; Version:  201911120029
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -476,6 +476,29 @@ Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
       (setq safe-pos (point))
 
       (cond
+       ((c-keyword-member kwd-sym 'c-ref-list-kwds)
+	(while
+	    (progn
+	      (c-forward-syntactic-ws)
+	      (setq safe-pos (point))
+	      (cond
+	       ((looking-at c-identifier-start)
+		;; identifier
+		(setq c-last-identifier-range nil)
+		(forward-char)
+		(c-end-of-current-token)
+		(when c-record-type-identifiers
+		  (c-record-ref-id (cons safe-pos (point))))
+		t)
+	       ;; . or , or = (keep fontifying)
+	       ((memq (char-after) '(?. ?, ?=))
+		(forward-char)
+		t)
+	       ;; ; or : or anything else weird
+	       (t
+		nil))))
+	(goto-char safe-pos)
+	t)
        ((and (c-keyword-member kwd-sym 'c-paren-nontype-kwds)
 	     (eq (char-after) ?\())
 	(forward-char)
@@ -1205,36 +1228,6 @@ Currently handles `-delimited string literals."
 (d--if-version>= "26.0"
     (advice-add 'c-update-brace-stack :around #'d-around--c-update-brace-stack))
 
-;;----------------------------------------------------------------------------
-;; Support for fontifying module name(s) after a module or import keyword.
-
-(defun d-forward-module-clause ()
-  "Fontify the module name(s) after a module or import keyword."
-  (let (safe-pos pos)
-    (goto-char (match-end 1))
-    (while
-	(progn
-	  (c-forward-syntactic-ws)
-	  (setq safe-pos (point))
-	  (cond
-	   ((looking-at c-identifier-start)
-	    ;; identifier
-	    (setq c-last-identifier-range nil)
-	    (forward-char)
-	    (c-end-of-current-token)
-	    (when c-record-type-identifiers
-	      (c-record-ref-id (cons safe-pos (point))))
-	    t)
-	   ;; . or , or = (keep fontifying)
-	   ((memq (char-after) '(?. ?, ?=))
-	    (forward-char)
-	    t)
-	   ;; ; or : or anything else weird
-	   (t
-	    nil))))
-    (goto-char safe-pos)
-    t))
-
 ;; ----------------------------------------------------------------------------
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; compilation-mode support ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1714,14 +1707,9 @@ Each list item should be a regexp matching a single identifier."
      ;; D module and import statements
      (list (c-make-font-lock-BO-decl-search-function
 	    (concat "\\_<"
-		    (c-make-keywords-re t (c-lang-const c-ref-list-kwds d) 'd))
-            '((c-fontify-types-and-refs ()
-        	(d-forward-module-clause)
-        	(if (> (point) limit) (goto-char limit)))))
-
-	   (c-make-font-lock-BO-decl-search-function
-	    (concat "\\_<"
-		    (c-make-keywords-re t (c-lang-const c-paren-nontype-kwds d) 'd))
+		    (c-make-keywords-re t (append (c-lang-const c-ref-list-kwds d)
+						  (c-lang-const c-paren-nontype-kwds d))
+					'd))
             '((c-fontify-types-and-refs ()
         	(d-forward-keyword-clause 1)
         	(if (> (point) limit) (goto-char limit))))))
