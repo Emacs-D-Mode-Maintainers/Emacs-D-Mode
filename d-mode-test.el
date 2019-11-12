@@ -49,6 +49,7 @@
 ;;----------------------------------------------------------------------------
 ;;; Code:
 
+(load (expand-file-name "coverage/undercover.el"))
 (if (getenv "D_MODE_COVERAGE")
     (progn
       ;; Generate a coverage report viewable in Emacs.
