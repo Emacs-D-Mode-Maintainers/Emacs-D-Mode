@@ -47,3 +47,15 @@ void fun()
 	submodule.needHead(commit);
 	return gun();
 }
+
+void fun()
+{
+	if (a) {}
+	while (a) {}
+	for (a; b; c) {}
+	switch (a) {}
+	final switch (a) {}
+	with (a) {}
+	synchronized (a) {}
+	debug (a) {}
+}

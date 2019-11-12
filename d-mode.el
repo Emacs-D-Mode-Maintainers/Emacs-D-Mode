@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911121026
+;; Version:  201911121047
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -812,6 +812,10 @@ CONTEXT is as in `c-forward-decl-or-cast-1'."
 		   (and
 		    (c-backward-token-2)
 		    (cond
+		     ((looking-at (d-make-keywords-re t '("if" "while" "for" "switch"
+							  "with" "synchronized")))
+		      (setq type nil)
+		      t)
 		     ((looking-at (d-make-keywords-re t '("foreach" "foreach_reverse")))
 		      t)
 		     ((looking-at (d-make-keywords-re t '("catch")))
