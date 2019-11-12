@@ -59,3 +59,9 @@ void fun()
 	synchronized (a) {}
 	debug (a) {}
 }
+
+void fun()
+{
+	if (a) {}
+	return gun();
+}

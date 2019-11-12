@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911121047
+;; Version:  201911121107
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -1190,7 +1190,9 @@ Currently handles `-delimited string literals."
 			      ;; context. I.e., the contents of a "static if" at the
 			      ;; top level should remain top-level, but in a function,
 			      ;; it should remain non-top-level.
-			      s
+			      (if (<= (car s) 1)
+				  (cons 1 s)
+				(cons (1+ (car s)) (cdr s)))
 			    (cons (if (<= (car s) 0)
 				      1
 				    (1+ (car s)))
