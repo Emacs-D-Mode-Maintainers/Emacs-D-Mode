@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911121107
+;; Version:  201911121117
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -221,7 +221,8 @@ operators."
       "enum" "export" "extern" "final" "immutable" "in" "inout" "lazy"
       "nothrow" "out" "override" "package" "pragma" "private"
       "protected" "public" "pure" "ref" "return" "scope" "shared"
-      "static" "synchronized"))
+      "static" "synchronized"
+      "@property" "@safe" "@trusted" "@system" "@nogc" "@disable"))
 
 (c-lang-defconst c-class-decl-kwds
   ;; Keywords introducing declarations where the following block (if any)
