@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911112326
+;; Version:  201911120023
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -282,7 +282,7 @@ operators."
 (c-lang-defconst c-paren-nontype-kwds
   ;;Keywords that may be followed by a parenthesis expression that doesn't
   ;; contain type identifiers.
-  d '("version" "debug" "extern" "macro" "mixin" "pragma"))
+  d '("version" "debug" "extern" "pragma" "__traits" "scope"))
 
 (c-lang-defconst d-type-modifier-kwds
   ;; D's type modifiers.
@@ -464,6 +464,29 @@ Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
 (advice-add 'c-add-stmt-syntax :around #'d-around--c-add-stmt-syntax)
 
 ;;----------------------------------------------------------------------------
+
+(defun d-forward-keyword-clause (match)
+  "D version (complement) of `c-forward-keyword-clause'." ;; checkdoc-params: match
+
+  (let ((kwd-sym (c-keyword-sym (match-string match))) safe-pos pos)
+
+    (when kwd-sym
+      (goto-char (match-end match))
+      (c-forward-syntactic-ws)
+      (setq safe-pos (point))
+
+      (cond
+       ((and (c-keyword-member kwd-sym 'c-paren-nontype-kwds)
+	     (eq (char-after) ?\())
+	(forward-char)
+	(c-forward-syntactic-ws)
+	(c-forward-keyword-prefixed-id ref)
+	(goto-char safe-pos)
+	(c-forward-sexp)
+	(c-forward-syntactic-ws)
+	t)))))
+
+;----------------------------------------------------------------------------
 
 (defun d-forward-decl-or-cast-1 (preceding-token-end context last-cast-end)
   "D version of `c-forward-decl-or-cast-1'." ;; checkdoc-params: (preceding-token-end context last-cast-end)
@@ -1694,6 +1717,13 @@ Each list item should be a regexp matching a single identifier."
 		    (c-make-keywords-re t (c-lang-const c-ref-list-kwds d) 'd))
             '((c-fontify-types-and-refs ()
         	(d-forward-module-clause)
+        	(if (> (point) limit) (goto-char limit)))))
+
+	   (c-make-font-lock-BO-decl-search-function
+	    (concat "\\_<"
+		    (c-make-keywords-re t (c-lang-const c-paren-nontype-kwds d) 'd))
+            '((c-fontify-types-and-refs ()
+        	(d-forward-keyword-clause 1)
         	(if (> (point) limit) (goto-char limit))))))
      ;; cc-mode defaults
      (c-lang-const c-basic-matchers-after)))

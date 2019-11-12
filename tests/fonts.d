@@ -19,6 +19,9 @@ static if (true) {} else void fun();
 
 scope(exit) fun();
 scope(exit) void fun();
+version(all) void fun();
+pragma(msg, "Hi!");
+enum x = true && __traits(compiles, true) && true;
 
 @property empty() { return false; }
 
