@@ -30,4 +30,6 @@ install:
 script:
   # cask exec ert-runner
   - emacs --version
-  - make test
+  - COVERALLS_PARALLEL=1 make test
+notifications:
+  webhooks: https://coveralls.io/webhook
