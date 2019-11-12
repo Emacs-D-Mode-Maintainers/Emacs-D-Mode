@@ -63,5 +63,6 @@ void fun()
 void fun()
 {
 	if (a) {}
+	auto x = cast(T)y;
 	return gun();
 }

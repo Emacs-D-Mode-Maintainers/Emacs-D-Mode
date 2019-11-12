@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911121459
+;; Version:  201911121951
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -324,7 +324,7 @@ operators."
 (c-lang-defconst c-paren-type-kwds
   ;; Keywords that may be followed by a parenthesis expression containing
   ;; type identifiers separated by arbitrary tokens.
-  d (append (list "delete" "throw")
+  d (append (list "delete" "throw" "cast")
 	    (c-lang-const d-type-modifier-kwds)))
 
 ;; D: Like `c-regular-keywords-regexp', but contains keywords which
