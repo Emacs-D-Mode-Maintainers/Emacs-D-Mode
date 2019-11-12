@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911121009
+;; Version:  201911121026
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -516,7 +516,7 @@ Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
   ;; (message "(d-forward-decl-or-cast-1 %S %S %S) @ %S" preceding-token-end context last-cast-end (point))
 
   ;; D: Restore our context, if any
-  (when (eq context 'decl)
+  (when (memq context '(arglist decl))
     (save-excursion
       (c-backward-syntactic-ws)
       (when (> (point) (point-min))
