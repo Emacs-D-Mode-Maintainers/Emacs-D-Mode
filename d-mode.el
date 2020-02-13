@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  201911122034
+;; Version:  202002131237
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -848,32 +848,6 @@ CONTEXT is as in `c-forward-decl-or-cast-1'."
       )
     res))
 (advice-add 'c-get-fontification-context :around #'d-around--c-get-fontification-context)
-
-;;----------------------------------------------------------------------------
-;;; Fixes fontification of constructor parameter lists in D code.
-
-(defun d-special-case-looking-at-2 (orig-fun regexp)
-  ;; checkdoc-params: (orig-fun regexp)
-  "Advice function for fixing cc-mode handling of D constructors."
-  (if (and
-       (eq regexp c-not-decl-init-keywords)
-       (apply orig-fun (d-make-keywords-re t '("this")) nil)) ; looking-at "this"
-      nil
-    (apply orig-fun regexp nil)))
-
-(defun d-around--c-font-lock-declarations (orig-fun &rest args)
-  ;; checkdoc-params: (orig-fun args)
-  "Advice function for fixing cc-mode handling of D constructors."
-  (if (not (c-major-mode-is 'd-mode))
-      (apply orig-fun args)
-    (add-function :around (symbol-function 'looking-at)
-		  #'d-special-case-looking-at-2)
-    (unwind-protect
-	(apply orig-fun args)
-      (remove-function (symbol-function 'looking-at)
-		       #'d-special-case-looking-at-2))))
-
-(advice-add 'c-font-lock-declarations :around #'d-around--c-font-lock-declarations)
 
 ;;----------------------------------------------------------------------------
 ;; Borrowed from https://github.com/josteink/csharp-mode/blob/master/csharp-mode.el
