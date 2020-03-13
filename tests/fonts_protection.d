@@ -7,4 +7,4 @@ public:
 	Type var3, var4;
 }
 
-package:
+// package: // TODO!

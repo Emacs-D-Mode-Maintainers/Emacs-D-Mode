@@ -7,7 +7,7 @@
 ;; Maintainer:  Russel Winder <russel@winder.org.uk>
 ;;              Vladimir Panteleev <vladimir@thecybershadow.net>
 ;; Created:  March 2007
-;; Version:  202002131237
+;; Version:  202003130913
 ;; Keywords:  D programming language emacs cc-mode
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -257,8 +257,9 @@ operators."
 
 (c-lang-defconst c-protection-kwds
   ;; Access protection label keywords in classes.
-  ;; Already included in c-modifier-kwds.
-  d nil)
+  d '("deprecated" "static" "extern" "final" "synchronized" "override"
+      "abstract" "scope"
+      "private" "package" "protected" "public" "export"))
 
 (c-lang-defconst c-postfix-spec-kwds
  ;Keywords introducing extra declaration specifiers in the region
