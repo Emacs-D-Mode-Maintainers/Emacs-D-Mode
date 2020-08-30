@@ -1,0 +1,15 @@
+<span class="comment-delimiter">// </span><span class="comment">#run: (d-test-fontification)
+</span>
+<span class="keyword">const</span>(<span class="type">Tpl</span><span class="negation-char">!</span><span class="type">int</span>) <span class="variable-name">var1</span>;
+<span class="keyword">const</span>(<span class="type">Tpl</span><span class="negation-char">!</span>(<span class="type">int</span>, <span class="string">&quot;&quot;</span>, [1, 2, 3])*) <span class="variable-name">var2</span>;
+
+<span class="keyword">assert</span>(to<span class="negation-char">!</span><span class="type">string</span>(d) == to<span class="negation-char">!</span><span class="type">string</span>(<span class="type">double</span>.max));
+
+<span class="keyword">private</span> <span class="type">void</span> <span class="function-name">resetFile</span>(<span class="type">string</span> <span class="variable-name">name</span>, <span class="keyword">scope const</span>(<span class="type">char</span>)[] <span class="variable-name">stdioOpenmode</span>, <span class="type">bool</span> <span class="variable-name">isPopened</span>) <span class="keyword">@trusted</span> {}
+
+<span class="type">Parameter</span><span class="negation-char">!</span>(<span class="string">&quot;foo()&quot;</span>).<span class="type">Foo</span> <span class="variable-name">var</span>;
+
+<span class="type">void</span> <span class="function-name">foo</span>(<span class="keyword">in</span> <span class="type">Type</span> <span class="variable-name">var</span>);
+<span class="type">void</span> <span class="function-name">foo</span>(<span class="keyword">out</span> <span class="type">Type</span> <span class="variable-name">var</span>);
+
+<span class="keyword">static</span> <span class="type">string</span>[<span class="type">string</span>] <span class="function-name">applyEnv</span>(<span class="keyword">in</span> <span class="type">string</span>[<span class="type">string</span>] <span class="variable-name">target</span>, <span class="keyword">in</span> <span class="type">string</span>[<span class="type">string</span>] <span class="variable-name">source</span>);

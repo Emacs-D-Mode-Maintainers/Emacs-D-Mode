@@ -11,7 +11,7 @@
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2 of the License, or
+;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
 ;;
 ;; This program is distributed in the hope that it will be useful,
@@ -49,10 +49,25 @@
 ;;----------------------------------------------------------------------------
 ;;; Code:
 
-(when (require 'undercover nil t)
-  (undercover "d-mode.el"))
+(load (expand-file-name "coverage/undercover.el"))
+(if (getenv "D_MODE_COVERAGE")
+    (progn
+      ;; Generate a coverage report viewable in Emacs.
+      (require 'undercover)
+      (setq undercover-force-coverage t)
+      (undercover "d-mode.el"
+                  (:report-file "coverage/.resultset.json")
+		  (:report-format 'simplecov)
+		  (:send-report nil))
+      )
+  (unless (getenv "D_MODE_NO_COVERAGE")
+    (when (require 'undercover nil t)
+      (undercover "d-mode.el"))))
 
 (require 'd-mode nil t)
+
+(def-edebug-spec d--static-if (sexp form &optional form))
+(def-edebug-spec d--if-version>= (sexp form &optional form))
 
 (require 'htmlfontify)
 
@@ -84,7 +99,7 @@
         (inline-close          . 0)
         (func-decl-cont        . +)
         (topmost-intro         . 0)
-        (topmost-intro-cont    . c-lineup-topmost-intro-cont)
+        (topmost-intro-cont    . 1)
         (member-init-intro     . +)
         (member-init-cont      . c-lineup-multi-inher)
         (inher-intro           . +)
@@ -132,12 +147,15 @@
         (inlambda              . c-lineup-inexpr-block)
         (lambda-intro-cont     . +)
         (inexpr-statement      . +)
-        (inexpr-class          . +)))
+        (inexpr-class          . +)
+        (knr-argdecl-intro     . 0)))
     (c-echo-syntactic-information-p . t)
     (c-indent-comment-alist . nil))
   "Style for testing.")
 
 (c-add-style "teststyle" d-test-teststyle)
+
+(defvar-local d-test-orig-filename nil)
 
 (defun make-test-buffer (filename)
   (let ((testbuf (get-buffer-create "*d-mode-test*"))
@@ -157,6 +175,7 @@
           c-mode-common-hook)
       (d-mode))
     (hack-local-variables)
+    (setq-local d-test-orig-filename filename)
     testbuf))
 
 (defun kill-test-buffer ()
@@ -187,29 +206,19 @@
     (switch-to-buffer testbuf)
     (syntax-ppss (point-max))
 
-    (condition-case err
-	;; extract the run command and expected output if any.
-	(let* ((contents (buffer-substring-no-properties 1 (point-max)))
-	       (run-str (if (string-match "^// #run: \\(.+\\)$" contents)
-			    (match-string 1 contents)))
-	       (out-str (if (string-match "^// #out: \\(.+\\)$" contents)
-			    (match-string 1 contents))))
-	  (when run-str
-	    (let ((result (eval (car (read-from-string run-str)))))
-	      (when out-str
-		(let ((expect (car (read-from-string out-str))))
-		  (unless (equal result expect)
-		    (error "\nExpected: %s\nGot     : %s" expect result))))))
-	  t)
-      (error
-       (set-buffer testbuf)
-       (buffer-enable-undo testbuf)
-       (set-buffer-modified-p nil)
-       (setq error-found-p t)
-
-       (message
-	"Regression found in file %s:\n%s"
-	filename (error-message-string err))))
+    ;; extract the run command and expected output if any.
+    (let* ((contents (buffer-substring-no-properties 1 (point-max)))
+           (run-str (if (string-match "^// #run: \\(.+\\)$" contents)
+                        (match-string 1 contents)))
+           (out-str (if (string-match "^// #out: \\(.+\\)$" contents)
+                        (match-string 1 contents))))
+      (when run-str
+        (let ((result (eval (car (read-from-string run-str)))))
+          (when out-str
+            (let ((expect (car (read-from-string out-str))))
+              (unless (equal result expect)
+                (error "\nExpected: %s\nGot     : %s" expect result))))))
+      t)
 
     (set-buffer save-buf)
     (goto-char save-point)
@@ -233,24 +242,29 @@ Called from the #run snippet of individual test files."
 
 (require 'imenu)
 
+(defun d-test--imenu-to-lines (x)
+  "Extracts line numbers from one possibly-nested imenu--index-alist element X."
+  (if (imenu--subalist-p x)
+      (apply #'append (mapcar #'d-test--imenu-to-lines (cdr x)))
+    (list (line-number-at-pos (cdr x)))))
+
 (defun d-test-get-imenu-lines ()
   "Get list of line numbers of lines recognized as imenu entries.
 
 Called from the #run snippet of individual test files."
   (imenu--make-index-alist t)
-  (sort
-   (apply
-    'append
-    (mapcar
-     (lambda (x)
-       (if (imenu--subalist-p x)
-	   (mapcar
-	    (lambda (x)
-	      (line-number-at-pos (cdr x)))
-	    (cdr x))
-	 (list (line-number-at-pos (cdr x)))))
-     imenu--index-alist))
-   '<))
+  (sort (d-test--imenu-to-lines (cons nil imenu--index-alist)) '<))
+
+(defun d-test-save-result (filename)
+  "In case of an unexpected result, save it to a file.
+
+FILENAME is the original (versioned) file name."
+  (write-region
+   nil nil
+   (concat
+    (file-name-sans-extension filename)
+    ".res"
+    (file-name-extension filename t))))
 
 (defun d-test-indent ()
   "Re-indent the current file.
@@ -261,7 +275,8 @@ If the resulting indentation ends up being different, raise an error."
     (error
      (let ((orig (buffer-string)))
        (let (buffer-read-only)
-	 (c-indent-region (point-min) (point-max)))
+	 (c-indent-region (point-min) (point-max))
+         (d-test-save-result d-test-orig-filename))
        (error (concat "Test case has been indented differently.\n"
 		      "Expected:\n--------------------\n%s\n--------------------\n"
 		      "Got:     \n--------------------\n%s\n--------------------\n")
@@ -281,37 +296,50 @@ the reference file, raise an error."
 	  (default-value 'font-lock-fontify-region-function)))
 
   (let* ((hfy-optimisations '(body-text-only merge-adjacent-tags))
+         (html-filename (concat filename ".html"))
 	 (actual (with-current-buffer (htmlfontify-buffer nil "test.d") (buffer-string)))
 	 (expected (with-temp-buffer
-		     (insert-file-contents (concat filename ".html"))
+		     (insert-file-contents html-filename)
 		     (buffer-string))))
     (unless (equal actual expected)
+      (with-temp-buffer (insert actual) (d-test-save-result html-filename))
       (error (concat "Test case has been fontified differently.\n"
 		     "Expected:\n--------------------\n%s\n--------------------\n"
 		     "Got:     \n--------------------\n%s\n--------------------\n")
 	     expected actual))))
 
-(defmacro d-test-deftest (name filename expected-result)
-  "Define a d-mode test using the given FILENAME.
+(defun d-test-get-expected-result (filename)
+  (with-temp-buffer
+    (insert-file-contents filename)
+    (let* ((min-ver
+            (if (re-search-forward "^// #min-version: \\(.+\\)$" nil t)
+                (match-string 1)
+              "0")))
+      (version<= min-ver emacs-version))))
 
-EXPECTED-RESULT should return t if the test
-is expected to succeed, and nil otherwise."
-  `(ert-deftest ,name ()
-     :expected-result (if ,expected-result :passed :failed)
-     (should (do-one-test ,filename))))
-
-;; Run the tests
-(d-test-deftest imenu "tests/imenu.d" t)
-(d-test-deftest fonts "tests/fonts.d" t)
-(d-test-deftest i0021 "tests/I0021.d" t)
-(d-test-deftest i0026 "tests/I0026.d" t)
-(d-test-deftest i0030 "tests/I0030.d" t)
-(d-test-deftest i0035 "tests/I0035.d" (version< "24.4" emacs-version))
-(d-test-deftest i0039 "tests/I0039.d" (version< "24.4" emacs-version))
-(d-test-deftest i0049 "tests/I0049.d" t)
-(d-test-deftest i0064 "tests/I0064.d" t)
-(d-test-deftest i0069 "tests/I0069.txt" t)
-(d-test-deftest i0072 "tests/I0072.txt" t)
+(defmacro d-test-dir (dir)
+  "Register all test files from DIR with ert."
+  (apply #'nconc
+         '(progn)
+         (mapcar
+          (lambda (filename)
+            (let ((path (expand-file-name filename dir)))
+              (cond
+               ((string-match-p "\\`\\.\\.?\\'" filename)
+                nil)
+               ((string-match-p "\\.res" filename)
+                nil)
+               ((string-match-p "\\.\\(d\\|txt\\)\\'" filename)
+                `((ert-deftest ,(intern (file-name-sans-extension filename)) ()
+                    :expected-result (if (d-test-get-expected-result ,path) :passed :failed)
+                    (should (do-one-test ,path)))))
+               ((string-match-p "\\.d\\.html\\'" filename)
+                nil)
+               (t
+                (message "Ignoring test file with unknown extension: %s" filename)
+                nil))))
+          (directory-files dir))))
+(d-test-dir "tests")
 
 ;;----------------------------------------------------------------------------
 

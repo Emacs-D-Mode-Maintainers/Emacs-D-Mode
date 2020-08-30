@@ -3,4 +3,66 @@
 <span class="type">void</span> <span class="function-name">main</span>()
 {
 	<span class="keyword">assert</span>(<span class="constant">true</span>);
+
+	<span class="type">string</span>[<span class="type">string</span>] <span class="variable-name">aa</span>; <span class="type">string</span> <span class="variable-name">s</span>;
+	<span class="keyword">assert</span>(s <span class="keyword">in</span> aa);
+
+	aa[s].length;
+
+	run(a ~ b);
+}
+
+<span class="keyword">version</span>(<span class="constant">none</span>) <span class="type">string</span> <span class="function-name">readLink</span>();
+
+<span class="keyword">static if</span> (<span class="constant">true</span>) {} <span class="keyword">else</span> fun();
+<span class="keyword">static if</span> (<span class="constant">true</span>) {} <span class="keyword">else</span> <span class="type">void</span> <span class="function-name">fun</span>();
+
+<span class="keyword">scope</span>(<span class="constant">exit</span>) fun();
+<span class="keyword">scope</span>(<span class="constant">exit</span>) <span class="type">void</span> <span class="function-name">fun</span>();
+<span class="keyword">version</span>(<span class="constant">all</span>) <span class="type">void</span> <span class="function-name">fun</span>();
+<span class="keyword">pragma</span>(<span class="constant">msg</span>, <span class="string">&quot;Hi!&quot;</span>);
+<span class="keyword">enum</span> <span class="variable-name">x</span> = <span class="constant">true</span> &amp;&amp; <span class="keyword">__traits</span>(<span class="constant">compiles</span>, <span class="constant">true</span>) &amp;&amp; <span class="constant">true</span>;
+
+<span class="keyword">@property</span> <span class="function-name">empty</span>() { <span class="keyword">return</span> <span class="constant">false</span>; }
+
+<span class="keyword">auto</span> <span class="variable-name">s</span> = <span class="string">&quot;enum Type {}&quot;</span>;
+
+<span class="keyword">assert</span>(a <span class="negation-char">!</span><span class="keyword">in</span> b);
+<span class="keyword">if</span> (a.length * b.length) {}
+<span class="keyword">assert</span>(a <span class="negation-char">!</span><span class="keyword">is</span> <span class="type">double</span>.nan);
+<span class="keyword">if</span> (a.b <span class="keyword">in</span> c) {}
+write(s ~ <span class="string">&quot;&quot;</span>);
+
+<span class="keyword">invariant</span> {}
+
+<span class="keyword">class</span> <span class="type">Foo</span> : <span class="type">Bar</span> {}
+<span class="keyword">enum</span> <span class="type">Foo</span> : <span class="type">Bar</span> {}
+
+.<span class="type">TopLevelType</span> <span class="variable-name">var</span>;
+
+<span class="keyword">debug</span> <span class="type">bool</span> <span class="variable-name">resolveNeeded</span> = <span class="constant">false</span>;
+
+<span class="type">void</span> <span class="function-name">fun</span>()
+{
+	submodule.needHead(commit);
+	<span class="keyword">return</span> gun();
+}
+
+<span class="type">void</span> <span class="function-name">fun</span>()
+{
+	<span class="keyword">if</span> (a) {}
+	<span class="keyword">while</span> (a) {}
+	<span class="keyword">for</span> (a; b; c) {}
+	<span class="keyword">switch</span> (a) {}
+	<span class="keyword">final switch</span> (a) {}
+	<span class="keyword">with</span> (a) {}
+	<span class="keyword">synchronized</span> (a) {}
+	<span class="keyword">debug</span> (<span class="constant">a</span>) {}
+}
+
+<span class="type">void</span> <span class="function-name">fun</span>()
+{
+	<span class="keyword">if</span> (a) {}
+	<span class="keyword">auto</span> <span class="variable-name">x</span> = <span class="keyword">cast</span>(<span class="type">T</span>)y;
+	<span class="keyword">return</span> gun();
 }

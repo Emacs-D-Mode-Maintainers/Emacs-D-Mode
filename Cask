@@ -2,4 +2,5 @@
 (source melpa)
 
 (development
- (depends-on "undercover"))
+ (depends-on "dash")
+ (depends-on "shut-up"))
