@@ -310,11 +310,9 @@ the reference file, raise an error."
 (defun d-test-get-expected-result (filename)
   (with-temp-buffer
     (insert-file-contents filename)
-    (let* ((min-ver
-            (if (re-search-forward "^// #min-version: \\(.+\\)$" nil t)
-                (match-string 1)
-              "0")))
-      (version<= min-ver emacs-version))))
+    (if (re-search-forward "^// #condition: \\(.+\\)$" nil t)
+        (eval (car (read-from-string (format "(progn %s)" (match-string 1)))))
+      t)))
 
 (defmacro d-test-dir (dir)
   "Register all test files from DIR with ert."
