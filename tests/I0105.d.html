@@ -1,0 +1,14 @@
+<span class="comment-delimiter">// </span><span class="comment">#run: (d-test-fontification)
+</span>
+<span class="keyword">unittest</span>
+{
+	<span class="keyword">assert</span>(absolute(<span class="string">&quot;/&quot;</span>[]) == <span class="constant">true</span>);
+	<span class="keyword">assert</span>(absolute(<span class="string">&quot;&quot;</span>[]) == <span class="constant">false</span>);
+
+	<span class="keyword">version</span> (<span class="constant">Windows</span>)
+	{
+		<span class="keyword">assert</span>(absolute(r<span class="string">&quot;\&quot;</span>[]) == <span class="constant">true</span>);
+		<span class="keyword">assert</span>(absolute(r<span class="string">&quot;\\&quot;</span>[]) == <span class="constant">true</span>);
+		<span class="keyword">assert</span>(absolute(r<span class="string">&quot;c:&quot;</span>[]) == <span class="constant">true</span>);
+	}
+}
