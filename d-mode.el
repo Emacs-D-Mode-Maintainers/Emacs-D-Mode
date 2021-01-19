@@ -836,13 +836,15 @@ CONTEXT is as in `c-forward-decl-or-cast-1'."
 		     ((looking-at (d-make-keywords-re t '("catch")))
 		      (setq type 'decl)
 		      t))))
-		 (progn
-		   (c-forward-sexp)
-		   (c-forward-syntactic-ws)
-		   (while (d-forward-attribute-or-storage-class 'top))
-		   (or
-		    (eq (char-after) ?\{)
-		    (looking-at "=>"))))))))
+		 (condition-case nil
+		     (progn
+		       (c-forward-sexp)
+		       (c-forward-syntactic-ws)
+		       (while (d-forward-attribute-or-storage-class 'top))
+		       (or
+			(eq (char-after) ?\{)
+			(looking-at "=>")))
+		   (error nil)))))))
 
       (setq res (cons type t))
       ;; (message "   patching -> %S" res)
@@ -852,28 +854,39 @@ CONTEXT is as in `c-forward-decl-or-cast-1'."
 
 ;;----------------------------------------------------------------------------
 ;; Borrowed from https://github.com/josteink/csharp-mode/blob/master/csharp-mode.el
+
+(defmacro d--syntax-propertize-string (open close)
+  (unless (eq (length close) 1)
+    (error "`close' should be a single character"))
+  (let ((syntax-punctuation (string-to-syntax "."))
+	(skip-chars-pattern (concat "^" close "\\\\"))
+	(close-char (elt close 0)))
+    `(progn
+       (goto-char beg)
+       (while (search-forward ,open end t)
+	 (let ((in-comment-or-string-p (save-excursion
+					 (goto-char (match-beginning 0))
+					 (or (nth 3 (syntax-ppss))
+                                             (nth 4 (syntax-ppss))))))
+           (when (not in-comment-or-string-p)
+             (let (done)
+               (while (and (not done) (< (point) end))
+		 (skip-chars-forward ',skip-chars-pattern end)
+		 (cond
+		  ((eq (following-char) ?\\)
+                   (put-text-property (point) (1+ (point))
+                                      'syntax-table ',syntax-punctuation)
+                   (forward-char 1))
+		  ((eq (following-char) ',close-char)
+                   (forward-char 1)
+		   (setq done t)))))))))))
+
 (defun d--syntax-propertize-function (beg end)
   "Apply syntax table properties to special constructs in region BEG to END.
-Currently handles `-delimited string literals."
+Handles `...` and r\"...\" WYSIWYG string literals."
   (save-excursion
-    (goto-char beg)
-    (while (search-forward "`" end t)
-      (let ((in-comment-or-string-p (save-excursion
-                                      (goto-char (match-beginning 0))
-                                      (or (nth 3 (syntax-ppss))
-                                          (nth 4 (syntax-ppss))))))
-        (when (not in-comment-or-string-p)
-          (let (done)
-            (while (and (not done) (< (point) end))
-              (skip-chars-forward "^`\\\\" end)
-              (cond
-               ((= (following-char) ?\\)
-                (put-text-property (point) (1+ (point))
-                                   'syntax-table (string-to-syntax "."))
-                (forward-char 1))
-               ((= (following-char) ?\`)
-                (forward-char 1)
-		(setq done t))))))))))
+    (d--syntax-propertize-string "`" "`")
+    (d--syntax-propertize-string "r\"" "\"")))
 
 ;;----------------------------------------------------------------------------
 
