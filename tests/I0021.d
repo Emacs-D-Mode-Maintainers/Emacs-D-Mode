@@ -2,3 +2,7 @@
 // #out: ((167 . 172) (227 . 232))
 auto x = `ab\`; // back-quoted string ends with a backslash
 auto y = "c\""; // double-quoted string ends with an escaped "
+
+// cc-mode bug:
+// https://debbugs.gnu.org/cgi/bugreport.cgi?bug=45988
+// #condition: (version<= emacs-version "27")

@@ -1,4 +1,4 @@
-// #min-version: 25.1
+// #condition: (version<= "25.1" emacs-version)
 // #run: (d-test-indent)
 
 enum OtherValues2 : uint {

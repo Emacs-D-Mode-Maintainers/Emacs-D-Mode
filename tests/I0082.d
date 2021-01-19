@@ -1,4 +1,4 @@
-// #min-version: 26.1
+// #condition: (version<= "26.1" emacs-version)
 // #run: (d-test-fontification)
 
 struct S
