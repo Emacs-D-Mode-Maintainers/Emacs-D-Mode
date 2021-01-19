@@ -836,13 +836,15 @@ CONTEXT is as in `c-forward-decl-or-cast-1'."
 		     ((looking-at (d-make-keywords-re t '("catch")))
 		      (setq type 'decl)
 		      t))))
-		 (progn
-		   (c-forward-sexp)
-		   (c-forward-syntactic-ws)
-		   (while (d-forward-attribute-or-storage-class 'top))
-		   (or
-		    (eq (char-after) ?\{)
-		    (looking-at "=>"))))))))
+		 (condition-case nil
+		     (progn
+		       (c-forward-sexp)
+		       (c-forward-syntactic-ws)
+		       (while (d-forward-attribute-or-storage-class 'top))
+		       (or
+			(eq (char-after) ?\{)
+			(looking-at "=>")))
+		   (error nil)))))))
 
       (setq res (cons type t))
       ;; (message "   patching -> %S" res)
