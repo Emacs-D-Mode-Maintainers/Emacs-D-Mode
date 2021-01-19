@@ -1,5 +1,8 @@
 name: Test
 on: [ push, pull_request ]
+env:
+  COVERALLS_PARALLEL: 1
+  COVERALLS_REPO_TOKEN: f3VyR3js03R8zyeA32NWscNBNTR7OYR5k
 jobs:
   test:
     runs-on: ubuntu-20.04
@@ -22,6 +25,11 @@ jobs:
     - uses: actions/checkout@v2
     - name: Test
       run: |
-        env | base64
         cask install
-        COVERALLS_PARALLEL=1 COVERALLS_REPO_TOKEN=f3VyR3js03R8zyeA32NWscNBNTR7OYR5k make test
+        make test
+  finalize:
+    runs-on: ubuntu-20.04
+    if: always()
+    needs: test
+    steps:
+    - run: curl "https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN" -d "payload[build_num]=$GITHUB_RUN_ID&payload[status]=done"
