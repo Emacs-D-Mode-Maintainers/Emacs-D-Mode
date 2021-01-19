@@ -1,4 +1,3 @@
-// #min-version: 26.1
 // #run: (d-test-indent)
 
 version (x86) {
