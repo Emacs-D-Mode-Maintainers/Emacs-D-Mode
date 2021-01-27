@@ -5,4 +5,4 @@ auto y = "c\""; // double-quoted string ends with an escaped "
 
 // cc-mode bug:
 // https://debbugs.gnu.org/cgi/bugreport.cgi?bug=45988
-// #condition: (version<= emacs-version "27")
+// #condition: (or (version<= emacs-version "27") (version<= "28.0.50" emacs-version))
