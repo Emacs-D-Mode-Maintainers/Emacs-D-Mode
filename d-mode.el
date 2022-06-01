@@ -162,6 +162,22 @@
   ;; Set to true to indicate that D doesn't mind raw embedded newlines in strings
   d t)
 
+;; Configure cc-mode multiline support (this overrides
+;; c-multiline-string-start-char)
+(c-lang-defconst c-ml-string-opener-re
+  ;; " opens multiline strings in D
+  d "\\(\\(\"\\)\\)")
+
+(c-lang-defconst c-ml-string-max-opener-len
+  d 1)
+
+(c-lang-defconst c-ml-string-any-closer-re
+  ;; Unescaped " closes the string
+  d "\\(?:\\=\\|[^\\]\\)\\(\\(\"\\)\\)")
+
+(c-lang-defconst c-ml-string-max-closer-len
+  d 1)
+
 (c-lang-defconst c-opt-cpp-prefix
   ;; Preprocessor directive recognizer.  D doesn't have cpp, but it has #line
   d "\\s *#\\s *")
