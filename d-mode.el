@@ -178,6 +178,17 @@
 (c-lang-defconst c-ml-string-max-closer-len
   d 1)
 
+(c-lang-defconst c-string-innards-re-alist
+  ;; Note: the " rule doesn't cover r" literals.
+  d (list (cons ?\" (rx (zero-or-more
+                         (group
+                          (or (seq "\\"
+	                           (group anything))
+                              (not (any "\\\"")))))))
+          (cons ?` (rx (zero-or-more
+                         (group
+                          (not "`")))))))
+
 (c-lang-defconst c-opt-cpp-prefix
   ;; Preprocessor directive recognizer.  D doesn't have cpp, but it has #line
   d "\\s *#\\s *")
