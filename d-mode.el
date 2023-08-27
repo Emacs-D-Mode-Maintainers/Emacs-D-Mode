@@ -531,7 +531,7 @@ Evaluate OLD-FORM if the Emacs version is older than MIN-VERSION,
 
 ;----------------------------------------------------------------------------
 
-(defun d-forward-decl-or-cast-1 (preceding-token-end context last-cast-end)
+(defun d-forward-decl-or-cast-1 (preceding-token-end context last-cast-end &optional inside-macro)
   "D version of `c-forward-decl-or-cast-1'." ;; checkdoc-params: (preceding-token-end context last-cast-end)
   ;; (message "(d-forward-decl-or-cast-1 %S %S %S) @ %S" preceding-token-end context last-cast-end (point))
 
