@@ -1879,9 +1879,6 @@ Key bindings:
    #'d--syntax-propertize-function)
 
   (c-common-init 'd-mode)
-  (d--if-version>= "28"
-      nil
-    (easy-menu-add d-menu))
   (c-run-mode-hooks 'c-mode-common-hook 'd-mode-hook)
   (c-update-modeline)
   (d--if-version>= "26.0"
