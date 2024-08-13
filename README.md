@@ -1,6 +1,6 @@
 # Emacs D Mode
 
-[![Licence](https://img.shields.io/badge/license-GPL_2-green.svg)](https://www.gnu.org/licenses/gpl-2.0.txt)
+[![Licence](https://img.shields.io/badge/license-GPL_3-green.svg)](https://www.gnu.org/licenses/gpl-3.0.txt)
 [![Build Status](https://github.com/Emacs-D-Mode-Maintainers/Emacs-D-Mode/workflows/Test/badge.svg)](https://github.com/Emacs-D-Mode-Maintainers/Emacs-D-Mode/actions)
 [![Coverage Status](https://coveralls.io/repos/github/Emacs-D-Mode-Maintainers/Emacs-D-Mode/badge.svg?branch=master)](https://coveralls.io/github/Emacs-D-Mode-Maintainers/Emacs-D-Mode?branch=master)
 [![MELPA](https://melpa.org/packages/d-mode-badge.svg)](https://melpa.org/#/d-mode)
@@ -38,4 +38,4 @@ setting up see [MELPA Getting Started](https://melpa.org/#/getting-started).
 The master of all the material is the Git repository at
 https://github.com/Emacs-D-Mode-Maintainers/Emacs-D-Mode .
 
-This software is licenced under GNU General Public Licence version 2.
+This software is licenced under GNU General Public Licence version 3.
