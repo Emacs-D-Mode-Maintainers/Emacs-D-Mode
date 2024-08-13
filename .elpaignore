@@ -1,0 +1,9 @@
+.github
+.gitignore
+COPYING
+Cask
+Makefile
+coverage
+d-mode-test.el
+tests
+tests-todo
