@@ -229,7 +229,8 @@ operators."
   d '("bool" "byte" "ubyte" "char" "delegate" "double" "float"
       "function" "int" "long" "short" "uint" "ulong" "ushort"
       "cent" "ucent" "real" "ireal" "idouble" "ifloat" "creal" "cfloat" "cdouble"
-      "wchar" "dchar" "void" "string" "wstring" "dstring" "__vector"))
+      "wchar" "dchar" "void" "string" "wstring" "dstring" "__vector"
+      "size_t" "ptrdiff_t" "noreturn"))
 
 ;; Keywords that can prefix normal declarations of identifiers.
 ;; Union of StorageClass, Attribute, and ParameterAttributes in D grammar.
