@@ -1616,8 +1616,9 @@ The expression is added to `compilation-error-regexp-alist' and
 	   (lambda (match-pos inside-macro toplev)
 	     (when toplev
 	       (let* ((got-context
-		       (c-get-fontification-context
-			match-pos nil toplev))
+		       (save-excursion
+			 (c-get-fontification-context
+			  match-pos nil toplev)))
 		      (context (car got-context))
 		      (decl-or-cast
 		       (when (eq context 'top)
