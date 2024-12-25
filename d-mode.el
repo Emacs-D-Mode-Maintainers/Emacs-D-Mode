@@ -244,7 +244,8 @@ operators."
       "nothrow" "out" "override" "package" "pragma" "private"
       "protected" "public" "pure" "ref" "return" "scope" "shared"
       "static" "synchronized"
-      "@property" "@safe" "@trusted" "@system" "@nogc" "@disable"))
+      "@property" "@safe" "@trusted" "@system" "@nogc" "@disable"
+      "typeof"))
 
 (c-lang-defconst c-class-decl-kwds
   ;; Keywords introducing declarations where the following block (if any)
@@ -306,7 +307,7 @@ operators."
 (c-lang-defconst c-paren-nontype-kwds
   ;;Keywords that may be followed by a parenthesis expression that doesn't
   ;; contain type identifiers.
-  d '("version" "debug" "extern" "pragma" "__traits" "scope"))
+  d '("version" "debug" "extern" "pragma" "__traits" "scope" "typeof"))
 
 (c-lang-defconst d-type-modifier-kwds
   ;; D's type modifiers.
