@@ -307,7 +307,8 @@ operators."
 (c-lang-defconst c-paren-nontype-kwds
   ;;Keywords that may be followed by a parenthesis expression that doesn't
   ;; contain type identifiers.
-  d '("version" "debug" "extern" "pragma" "__traits" "scope" "typeof"))
+  d '("version" "debug" "extern" "pragma" "__traits" "scope" "typeof"
+      "align" "package"))
 
 (c-lang-defconst d-type-modifier-kwds
   ;; D's type modifiers.
